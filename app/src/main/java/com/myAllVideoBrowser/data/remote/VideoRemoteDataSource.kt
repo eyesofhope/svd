@@ -31,6 +31,12 @@ class VideoRemoteDataSource @Inject constructor(
         return videoService.getVideoInfo(url, isM3u8OrMpd, isM3u8OrMpd, isAudioCheck)?.videoInfo
     }
 
+    override fun resolveAudioFormats(
+        url: Request,
+        isM3u8: Boolean,
+        isMpd: Boolean
+    ) = videoServiceSuperX.resolveAudioFormats(url, isM3u8, isMpd)
+
     override fun saveVideoInfo(videoInfo: VideoInfo) {
     }
 }

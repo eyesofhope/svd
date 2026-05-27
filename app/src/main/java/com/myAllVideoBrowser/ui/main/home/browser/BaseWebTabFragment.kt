@@ -33,19 +33,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
     private var popupMenu: PopupMenu? = null
 
-    /**
-     * Optional listener implemented by subclasses to receive nav-style menu actions
-     * (back, forward, new tab, close tab) that now live in the 3-dot popup.
-     */
-    open val popupNavListener: PopupNavListener? = null
-
-    interface PopupNavListener {
-        fun onMenuBack() {}
-        fun onMenuForward() {}
-        fun onMenuNewTab() {}
-        fun onMenuCloseTab() {}
-    }
-
     private val darkModeCallback = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
             if (!isAdded) {
@@ -134,10 +121,7 @@ abstract class BaseWebTabFragment : BaseFragment() {
             mainActivity.settingsViewModel.isDesktopMode.addOnPropertyChangedCallback(desktopModeCallback)
             mainActivity.proxiesViewModel.isProxyOn.addOnPropertyChangedCallback(proxyOnCallback)
 
-            // Hide nav-style + tab-only items when on the home tab popup
-            menu.findItem(R.id.menu_back)?.isVisible = !isHomeTab
-            menu.findItem(R.id.menu_forward)?.isVisible = !isHomeTab
-            menu.findItem(R.id.menu_close_tab)?.isVisible = !isHomeTab
+            // Hide tab-only items when on the home tab popup
             menu.findItem(R.id.share_link)?.isVisible = !isHomeTab
             menu.findItem(R.id.bookmark)?.isVisible = !isHomeTab
         }
@@ -167,26 +151,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.menu_back -> {
-                    popupNavListener?.onMenuBack()
-                    true
-                }
-
-                R.id.menu_forward -> {
-                    popupNavListener?.onMenuForward()
-                    true
-                }
-
-                R.id.menu_new_tab -> {
-                    popupNavListener?.onMenuNewTab()
-                    true
-                }
-
-                R.id.menu_close_tab -> {
-                    popupNavListener?.onMenuCloseTab()
-                    true
-                }
-
                 R.id.share_link -> {
                     shareWebLink()
                     true
@@ -215,11 +179,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
                 R.id.settings -> {
                     navigateToSettings()
-                    true
-                }
-
-                R.id.help -> {
-                    navigateToHelp()
                     true
                 }
 

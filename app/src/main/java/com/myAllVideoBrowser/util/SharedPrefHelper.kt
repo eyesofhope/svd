@@ -54,6 +54,10 @@ class SharedPrefHelper @Inject constructor(
 
         private const val SEARCH_ENGINE_TEMPLATE = "SEARCH_ENGINE_TEMPLATE"
         private const val SEARCH_ENGINE_NAME = "SEARCH_ENGINE_NAME"
+
+        // Default search engine: DuckDuckGo (Privacy)
+        const val DEFAULT_SEARCH_ENGINE_TEMPLATE = "https://duckduckgo.com/?q=%s"
+        const val DEFAULT_SEARCH_ENGINE_NAME = "DuckDuckGo (Privacy)"
         private const val APP_LANGUAGE_TAG = "APP_LANGUAGE_TAG"
         private const val DOWNLOAD_WIFI_ONLY = "DOWNLOAD_WIFI_ONLY"
         private const val BLOCK_ADS = "BLOCK_ADS"
@@ -395,7 +399,7 @@ class SharedPrefHelper @Inject constructor(
     // ----- Search engine -----
     fun getSearchEngineTemplate(): String {
         return sharedPreferences.getString(SEARCH_ENGINE_TEMPLATE, null)
-            ?: "https://www.google.com/search?q=%s"
+            ?: DEFAULT_SEARCH_ENGINE_TEMPLATE
     }
 
     fun setSearchEngineTemplate(template: String) {
@@ -403,7 +407,7 @@ class SharedPrefHelper @Inject constructor(
     }
 
     fun getSearchEngineName(): String {
-        return sharedPreferences.getString(SEARCH_ENGINE_NAME, null) ?: "Google"
+        return sharedPreferences.getString(SEARCH_ENGINE_NAME, null) ?: DEFAULT_SEARCH_ENGINE_NAME
     }
 
     fun setSearchEngineName(name: String) {

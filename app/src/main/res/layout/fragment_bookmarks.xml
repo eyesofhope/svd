@@ -11,36 +11,57 @@
             type="com.myAllVideoBrowser.ui.main.home.MainViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/bookmarks_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="?attr/colorSurface">
 
-        <LinearLayout
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="65dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:textSize="24sp"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/bookmarks_list" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:background="?attr/colorSurface"
+            app:elevation="0dp">
 
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/bookmarks_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="@drawable/arrow_back24px"
+                app:title="@string/bookmarks_list"
+                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/bookmarks_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            app:items="@{mainVModel.bookmarksList}" />
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/padding_small"
+            android:paddingTop="@dimen/padding_small"
+            android:paddingBottom="96dp"
+            app:items="@{mainVModel.bookmarksList}"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="85dp"
-            tools:ignore="UselessLeaf" />
-    </LinearLayout>
+        <TextView
+            android:id="@+id/bookmarks_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/bookmarks_empty_message"
+            android:textColor="@color/hint_text"
+            android:textSize="@dimen/text_medium"
+            android:visibility="gone" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_add_bookmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/padding_normal"
+            android:contentDescription="@string/add_bookmark"
+            app:srcCompat="@drawable/bookmark_add_24px"
+            app:tint="@android:color/white" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

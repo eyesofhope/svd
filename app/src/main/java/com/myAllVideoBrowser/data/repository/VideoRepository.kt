@@ -17,6 +17,12 @@ interface VideoRepository {
 
     fun getVideoInfo(url: Request, isM3u8OrMpd: Boolean = false, isAudioCheck: Boolean): VideoInfo?
 
+    fun resolveAudioFormats(
+        url: Request,
+        isM3u8: Boolean,
+        isMpd: Boolean
+    ): List<com.myAllVideoBrowser.data.local.room.entity.VideoFormatEntity> = emptyList()
+
     fun saveVideoInfo(videoInfo: VideoInfo)
 }
 
@@ -53,6 +59,12 @@ class VideoRepositoryImpl @Inject constructor(
     override fun saveVideoInfo(videoInfo: VideoInfo) {
         cachedVideos[videoInfo.originalUrl] = videoInfo
     }
+
+    override fun resolveAudioFormats(
+        url: Request,
+        isM3u8: Boolean,
+        isMpd: Boolean
+    ) = remoteDataSource.resolveAudioFormats(url, isM3u8, isMpd)
 
     private fun getAndCacheRemoteVideoFfmpeg(
         url: Request,

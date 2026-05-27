@@ -109,7 +109,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/padding_small"
                 android:textColor="@color/brand_accent"
-                android:textSize="@dimen/text_small" />
+                android:textSize="@dimen/text_small"
+                android:visibility="gone" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/sizeTextView"
@@ -129,38 +130,6 @@
                 android:textColor="@color/hint_text"
                 android:textSize="@dimen/text_small"
                 android:visibility="gone" />
-
-            <!-- Video / Audio toggle -->
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/media_type_toggle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/padding_normal"
-                app:singleSelection="true"
-                app:selectionRequired="true">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_filter_video"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="112dp"
-                    android:text="@string/filter_video"
-                    app:icon="@drawable/ic_video_24dp"
-                    app:iconGravity="textStart" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_filter_audio"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="112dp"
-                    android:text="@string/filter_audio"
-                    app:icon="@drawable/ic_audio_24dp"
-                    app:iconGravity="textStart" />
-
-            </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <!-- Quality grid -->
             <androidx.recyclerview.widget.RecyclerView

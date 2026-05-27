@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.myAllVideoBrowser.data.local.model.Suggestion
 import com.myAllVideoBrowser.ui.main.base.BaseViewModel
 import com.myAllVideoBrowser.util.SuggestionsUtils
+import com.myAllVideoBrowser.util.SearchEngineRegistry
+import com.myAllVideoBrowser.util.SharedPrefHelper
 import com.myAllVideoBrowser.util.proxy_utils.OkHttpProxyClient
 import com.myAllVideoBrowser.util.scheduler.BaseSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class BrowserHomeViewModel @Inject constructor(
     private val okHttpClient: OkHttpProxyClient,
     private val baseSchedulers: BaseSchedulers,
+    private val sharedPrefHelper: SharedPrefHelper,
 ) :
     BaseViewModel() {
     val isSearchInputFocused = ObservableBoolean(false)
@@ -64,10 +67,11 @@ class BrowserHomeViewModel @Inject constructor(
     }
 
     private fun getListSuggestions(): Flowable<List<Suggestion>> {
+        val engine = SearchEngineRegistry.findByTemplate(sharedPrefHelper.getSearchEngineTemplate())
         return Flowable.combineLatest(
             homePublishSubject.debounce(300, TimeUnit.MILLISECONDS)
                 .toFlowable(BackpressureStrategy.LATEST), SuggestionsUtils.getSuggestions(
-                okHttpClient.getProxyOkHttpClient(), searchTextInput.get() ?: ""
+                okHttpClient.getProxyOkHttpClient(), searchTextInput.get() ?: "", engine
             )
         ) { _, suggestions ->
             val listSuggestions = mutableListOf<Suggestion>()

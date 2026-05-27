@@ -261,19 +261,35 @@ class BrowserHomeFragment : BaseWebTabFragment() {
         override fun onItemClicked(pageInfo: PageInfo) {
             openNewTab(pageInfo.link)
         }
+
+        override fun onItemLongClicked(pageInfo: PageInfo): Boolean {
+            confirmRemoveFavorite(pageInfo)
+            return true
+        }
+    }
+
+    private fun confirmRemoveFavorite(pageInfo: PageInfo) {
+        val ctx = context ?: return
+        val title = pageInfo.getTitleFiltered().ifBlank { pageInfo.name }
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(ctx)
+            .setTitle(getString(R.string.remove_favorite_title))
+            .setMessage(getString(R.string.remove_favorite_message, title))
+            .setPositiveButton(R.string.remove) { dialog, _ ->
+                mainViewModel.removeBookmark(pageInfo)
+                android.widget.Toast.makeText(
+                    ctx,
+                    getString(R.string.removed_from_bookmarks),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.dialog_download_cancel, null)
+            .show()
     }
 
     private val menuListener = object : BrowserHomeListener {
         override fun onBrowserMenuClicked() {
             showPopupMenu()
-        }
-    }
-
-    override val popupNavListener = object : PopupNavListener {
-        override fun onMenuNewTab() {
-            // On the home screen, "New Tab" focuses the URL field for input
-            binding.homeEtSearch.requestFocus()
-            binding.homeEtSearch.text?.clear()
         }
     }
 

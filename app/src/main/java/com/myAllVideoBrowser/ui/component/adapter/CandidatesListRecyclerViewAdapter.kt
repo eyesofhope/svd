@@ -125,6 +125,20 @@ class CandidatesListRecyclerViewAdapter(
     }
 
     /**
+     * Refreshes the displayed formats. The optional [video] parameter is unused
+     * but kept for future per-video metadata refresh from callers.
+     */
+    fun setData(formats: List<VideoFormatEntity>, video: VideoInfo) {
+        @Suppress("UNUSED_PARAMETER") video
+        this.allFormats = formats
+        // When the caller supplies a pre-filtered list (e.g., the on-demand
+        // audio resolution result) we want to show it as-is rather than running
+        // the heuristic filter again.
+        this.formats = formats
+        notifyDataSetChanged()
+    }
+
+    /**
      * Switch the list between video formats and audio-only formats.
      * Returns the list of currently visible formats so the caller can update
      * the selected format if needed.
@@ -186,14 +200,15 @@ class CandidatesListRecyclerViewAdapter(
             isDetectedBySuperX && (lowercasedInput.startsWith("mpd-") || lowercasedInput.startsWith(
                 "hls-"
             )) -> {
+                // Drop the manifest prefix (HLS/MPD) — users only care about the
+                // resolution, not whether it came from an HLS or MPEG-DASH stream.
                 val parts = lowercasedInput.split('-')
                 if (parts.size >= 2) {
-                    val type = parts[0].uppercase() // "MPD" or "HLS"
                     val resolution = parts[1] // "1080p" or "audio"
                     if (resolution.contains("p")) {
-                        "$type ${resolution.uppercase()}" // "MPD 1080P"
+                        resolution.uppercase()
                     } else {
-                        "$type Audio" // "HLS Audio"
+                        ""
                     }
                 } else {
                     input

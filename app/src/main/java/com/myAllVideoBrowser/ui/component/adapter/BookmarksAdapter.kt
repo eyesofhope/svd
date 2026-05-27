@@ -19,6 +19,9 @@ interface BookmarksListener {
     fun onBookmarkMove(bookmarks: MutableList<PageInfo>)
 
     fun onBookmarkDelete(bookmarks: MutableList<PageInfo>, position: Int)
+
+    /** Triggered by the explicit per-row delete button (not by a swipe). */
+    fun onBookmarkDeleteClicked(bookmarkItem: PageInfo) {}
 }
 
 interface ItemTouchHelperAdapter {
@@ -45,6 +48,10 @@ class BookmarksAdapter(
                     )
 
                     this.favicon.setImageDrawable(bm)
+                }
+
+                btnDeleteBookmark.setOnClickListener {
+                    bookmarksListener.onBookmarkDeleteClicked(bookmarkItem)
                 }
 
                 executePendingBindings()

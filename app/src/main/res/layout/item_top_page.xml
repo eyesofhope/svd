@@ -17,6 +17,7 @@
     </data>
 
     <LinearLayout
+        android:id="@+id/top_page_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackgroundBorderless"
@@ -24,6 +25,7 @@
         android:focusable="true"
         android:gravity="center"
         android:onClick="@{() -> listener.onItemClicked(pageInfo)}"
+        android:onLongClick="@{() -> listener.onItemLongClicked(pageInfo)}"
         android:orientation="vertical"
         android:paddingVertical="@dimen/padding_small">
 

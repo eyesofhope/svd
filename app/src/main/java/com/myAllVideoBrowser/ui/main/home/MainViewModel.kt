@@ -78,6 +78,30 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Returns true on the main thread once the repository persists the new bookmark, so callers
+     * can show a confirmation toast immediately if they prefer the optimistic behaviour.
+     */
+    fun addBookmark(url: String, name: String, favicon: Bitmap? = null) {
+        bookmark(url, name, favicon)
+    }
+
+    /**
+     * Removes a bookmark by link match and persists the new ordered list.
+     */
+    fun removeBookmark(pageInfo: PageInfo) {
+        viewModelScope.launch(executorMoverSingle) {
+            val bookmarks = topPagesRepository.getTopPages()
+                .filter { it.link != pageInfo.link }
+                .mapIndexed { index, page ->
+                    page.order = index
+                    page
+                }
+            bookmarksList.set(bookmarks.toMutableList())
+            topPagesRepository.replaceBookmarksWith(bookmarks)
+        }
+    }
+
     private fun updateTopPages() {
         viewModelScope.launch(executorSingle) {
             val pages = try {

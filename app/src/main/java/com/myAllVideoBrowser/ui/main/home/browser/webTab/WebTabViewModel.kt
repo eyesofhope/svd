@@ -10,6 +10,7 @@ import com.myAllVideoBrowser.R
 import com.myAllVideoBrowser.data.local.room.entity.HistoryItem
 import com.myAllVideoBrowser.data.repository.HistoryRepository
 import com.myAllVideoBrowser.ui.main.base.BaseViewModel
+import com.myAllVideoBrowser.util.SharedPrefHelper
 import com.myAllVideoBrowser.util.SingleLiveEvent
 import com.myAllVideoBrowser.util.scheduler.BaseSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class WebTabViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
     private val baseSchedulers: BaseSchedulers,
+    private val sharedPrefHelper: SharedPrefHelper,
 ) : BaseViewModel() {
     val isTabInputFocused = ObservableBoolean(false)
     val changeTabFocusEvent = SingleLiveEvent<Boolean>()
@@ -39,6 +41,7 @@ class WebTabViewModel @Inject constructor(
     val progressIcon = ObservableInt(R.drawable.ic_refresh_24dp)
 
     val currentTitle = ObservableField("")
+    val pageThumbnailUrl = ObservableField("")
     var userAgent = ObservableField("")
 
     // This events from BrowserFragment
@@ -79,6 +82,7 @@ class WebTabViewModel @Inject constructor(
         setTabTextInput(url)
         isShowProgress.set(true)
         currentTitle.set(title)
+        pageThumbnailUrl.set("")
         tabUrl.set(url)
     }
 
@@ -136,14 +140,14 @@ class WebTabViewModel @Inject constructor(
     fun openPage(input: String) {
         if (input.isNotEmpty()) {
             changeTabFocus(false)
-            openPageEvent.value = WebTabFactory.createWebTabFromInput(input)
+            openPageEvent.value = WebTabFactory.createWebTabFromInput(input, sharedPrefHelper)
         }
     }
 
     fun loadPage(input: String) {
         if (input.isNotEmpty()) {
             changeTabFocus(false)
-            val tab = WebTabFactory.createWebTabFromInput(input)
+            val tab = WebTabFactory.createWebTabFromInput(input, sharedPrefHelper)
             setTabTextInput(tab.getUrl())
 
             loadPageEvent.value = tab

@@ -97,5 +97,8 @@ class TopPageAdapter(
 
     interface TopPagesListener {
         fun onItemClicked(pageInfo: PageInfo)
+
+        /** Returns true if the long-press was consumed; default to a no-op. */
+        fun onItemLongClicked(pageInfo: PageInfo): Boolean = false
     }
 }

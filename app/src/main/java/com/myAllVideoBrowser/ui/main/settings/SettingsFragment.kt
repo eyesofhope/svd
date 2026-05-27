@@ -1,20 +1,16 @@
 package com.myAllVideoBrowser.ui.main.settings
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.LocaleListCompat
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.databinding.Observable
 import androidx.lifecycle.ViewModelProvider
 import com.myAllVideoBrowser.BuildConfig
 import com.myAllVideoBrowser.R
@@ -39,19 +35,24 @@ class SettingsFragment : BaseFragment() {
     private data class SearchEngine(val displayName: String, val template: String)
 
     private val searchEngines: List<SearchEngine> by lazy {
-        listOf(
-            SearchEngine("Custom URL", "custom"),
-            SearchEngine(getString(R.string.search_engine_google), "https://www.google.com/search?q=%s"),
-            SearchEngine(getString(R.string.search_engine_ask), "https://www.ask.com/web?q=%s"),
-            SearchEngine(getString(R.string.search_engine_bing), "https://www.bing.com/search?q=%s"),
-            SearchEngine(getString(R.string.search_engine_yahoo), "https://search.yahoo.com/search?p=%s"),
-            SearchEngine(getString(R.string.search_engine_startpage), "https://www.startpage.com/do/search?q=%s"),
-            SearchEngine(getString(R.string.search_engine_startpage_mobile), "https://www.startpage.com/sp/search?q=%s&t=mobile"),
-            SearchEngine(getString(R.string.search_engine_duckduckgo), "https://duckduckgo.com/?q=%s"),
-            SearchEngine(getString(R.string.search_engine_duckduckgo_lite), "https://lite.duckduckgo.com/lite/?q=%s"),
-            SearchEngine(getString(R.string.search_engine_baidu), "https://www.baidu.com/s?wd=%s"),
-            SearchEngine(getString(R.string.search_engine_yandex), "https://yandex.com/search/?text=%s")
-        )
+        // Map registry engines to localized display names where translatable strings exist.
+        val registryEngines = com.myAllVideoBrowser.util.SearchEngineRegistry.engines.map { e ->
+            val display = when (e.name) {
+                "DuckDuckGo (Privacy)" -> getString(R.string.search_engine_duckduckgo)
+                "DuckDuckGo Lite (Privacy)" -> getString(R.string.search_engine_duckduckgo_lite)
+                "Google" -> getString(R.string.search_engine_google)
+                "Bing" -> getString(R.string.search_engine_bing)
+                "Yahoo" -> getString(R.string.search_engine_yahoo)
+                "Ask" -> getString(R.string.search_engine_ask)
+                "StartPage" -> getString(R.string.search_engine_startpage)
+                "StartPage (Mobile)" -> getString(R.string.search_engine_startpage_mobile)
+                "Baidu (Chinese)" -> getString(R.string.search_engine_baidu)
+                "Yandex (Russian)" -> getString(R.string.search_engine_yandex)
+                else -> e.name
+            }
+            SearchEngine(display, e.searchUrlTemplate)
+        }
+        listOf(SearchEngine(getString(R.string.search_engine_custom), "custom")) + registryEngines
     }
 
     private val languages: List<Pair<String, String>> by lazy {
@@ -100,34 +101,6 @@ class SettingsFragment : BaseFragment() {
     private lateinit var dataBinding: FragmentSettingsBinding
     private lateinit var settingsViewModel: SettingsViewModel
 
-    private var lastSavedRegularThreadsCount = -1
-
-    private val tresholdCallback = object : Observable.OnPropertyChangedCallback() {
-        @SuppressLint("SetTextI18n")
-        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-            if (!isAdded) return
-            val readable =
-                FileUtil.getFileSizeReadable(settingsViewModel.videoDetectionTreshold.get().toDouble())
-            dataBinding.adsTresholdText.text =
-                getString(R.string.ads_detection_treshold) + " $readable"
-        }
-    }
-
-    private val storageTypeCallback = object : Observable.OnPropertyChangedCallback() {
-        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-            if (!isAdded) return
-            val newCheckId = when (settingsViewModel.storageType.get()) {
-                StorageType.SD -> R.id.option_sd_card
-                StorageType.HIDDEN -> R.id.option_hidden_folder
-                StorageType.HIDDEN_SD -> R.id.option_sd_app_folder
-                else -> -1
-            }
-            if (newCheckId != -1 && dataBinding.storageOptions.checkedRadioButtonId != newCheckId) {
-                dataBinding.storageOptions.check(newCheckId)
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -145,9 +118,6 @@ class SettingsFragment : BaseFragment() {
 
         setupToolbar()
         setupTopRows()
-        setupSeekBarListeners()
-        setupRadioGroupListener()
-        setupTextUpdateCallbacks()
         handleUIEvents()
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
@@ -160,8 +130,6 @@ class SettingsFragment : BaseFragment() {
 
     override fun onDestroyView() {
         settingsViewModel.stop()
-        settingsViewModel.videoDetectionTreshold.removeOnPropertyChangedCallback(tresholdCallback)
-        settingsViewModel.storageType.removeOnPropertyChangedCallback(storageTypeCallback)
         super.onDestroyView()
     }
 
@@ -243,7 +211,11 @@ class SettingsFragment : BaseFragment() {
 
     private fun renderTopRowValues() {
         dataBinding.tvDownloadLocationValue.text = fileUtil.folderDir.absolutePath
-        dataBinding.tvSearchEngineValue.text = sharedPrefHelper.getSearchEngineName()
+        // Resolve display name from current template so locale changes update the label too.
+        val currentTemplate = sharedPrefHelper.getSearchEngineTemplate()
+        dataBinding.tvSearchEngineValue.text =
+            searchEngines.firstOrNull { it.template == currentTemplate }?.displayName
+                ?: sharedPrefHelper.getSearchEngineName()
         val tag = sharedPrefHelper.getAppLanguageTag()
         dataBinding.tvLanguageValue.text = languages.firstOrNull { it.second == tag }?.first
             ?: getString(R.string.settings_language_default)
@@ -251,8 +223,11 @@ class SettingsFragment : BaseFragment() {
 
     private fun showSearchEngineDialog() {
         val current = sharedPrefHelper.getSearchEngineTemplate()
+        val defaultIndex = searchEngines.indexOfFirst {
+            it.template == SharedPrefHelper.DEFAULT_SEARCH_ENGINE_TEMPLATE
+        }.let { if (it == -1) 1 else it }
         val checked = searchEngines.indexOfFirst { it.template == current }
-            .let { if (it == -1) 1 else it }
+            .let { if (it == -1) defaultIndex else it }
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.settings_search_engine)
             .setSingleChoiceItems(
@@ -354,52 +329,6 @@ class SettingsFragment : BaseFragment() {
         } catch (_: Throwable) {}
     }
 
-    private fun setupSeekBarListeners() {
-        dataBinding.seekBarRegular.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    settingsViewModel.setRegularThreadsCount(progress)
-                    if (lastSavedRegularThreadsCount == 1 && progress > 1) {
-                        showDownloadWarningDialog(requireContext())
-                    }
-                    lastSavedRegularThreadsCount = progress
-                }
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                seekBar?.let { settingsViewModel.setRegularThreadsCount(it.progress) }
-            }
-        })
-
-        dataBinding.seekBarM3u8.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) settingsViewModel.setM3u8ThreadsCount(progress)
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                seekBar?.let { settingsViewModel.setM3u8ThreadsCount(it.progress) }
-            }
-        })
-
-        dataBinding.seekBarAdsTreshold.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) settingsViewModel.setVideoDetectionTreshold(progress)
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                seekBar?.let { settingsViewModel.setVideoDetectionTreshold(it.progress) }
-            }
-        })
-    }
-
-    private fun setupRadioGroupListener() {
-        settingsViewModel.storageType.addOnPropertyChangedCallback(storageTypeCallback)
-        storageTypeCallback.onPropertyChanged(null, 0)
-    }
-
     private fun handleUIEvents() {
         settingsViewModel.clearCookiesEvent.observe(viewLifecycleOwner) {
             systemUtil.clearCookies(context)
@@ -408,18 +337,5 @@ class SettingsFragment : BaseFragment() {
         settingsViewModel.openVideoFolderEvent.observe(viewLifecycleOwner) {
             intentUtil.openVideoFolder(context, fileUtil.folderDir.path)
         }
-    }
-
-    private fun setupTextUpdateCallbacks() {
-        settingsViewModel.videoDetectionTreshold.addOnPropertyChangedCallback(tresholdCallback)
-        tresholdCallback.onPropertyChanged(null, 0)
-    }
-
-    private fun showDownloadWarningDialog(context: Context) {
-        AlertDialog.Builder(context)
-            .setTitle("Download Warning")
-            .setMessage("Some downloads may be corrupted in multi-thread downloading, if you experience some issues, switch back to single thread download!")
-            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            .show()
     }
 }

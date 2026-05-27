@@ -115,30 +115,6 @@ class WebTabFragment : BaseWebTabFragment() {
         }
     }
 
-    /**
-     * Routes nav-style menu items (back, forward, new tab, close tab) from the
-     * 3-dot popup into the existing [tabListener] handlers so behaviour matches
-     * the previous toolbar buttons exactly.
-     */
-    override val popupNavListener = object : PopupNavListener {
-        override fun onMenuBack() {
-            tabListener.onBrowserBackClicked()
-        }
-
-        override fun onMenuForward() {
-            tabListener.onBrowserForwardClicked()
-        }
-
-        override fun onMenuNewTab() {
-            val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
-            tabManagerProvider.getOpenTabEvent().value = newTab
-        }
-
-        override fun onMenuCloseTab() {
-            tabListener.onTabCloseClicked()
-        }
-    }
-
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -264,11 +240,25 @@ class WebTabFragment : BaseWebTabFragment() {
             return
         }
 
-        mainActivity.mainViewModel.bookmark(
-            url,
-            name ?: Uri.parse(url).host.toString(),
-            favicon
-        )
+        val displayName = name ?: Uri.parse(url).host.toString()
+        val existing = mainActivity.mainViewModel.bookmarksList.get().orEmpty()
+        val alreadyBookmarked = existing.any { it.link == url }
+
+        if (alreadyBookmarked) {
+            Toast.makeText(
+                requireContext(),
+                R.string.already_bookmarked,
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        mainActivity.mainViewModel.bookmark(url, displayName, favicon)
+        Toast.makeText(
+            requireContext(),
+            R.string.added_to_bookmarks,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun setIsDesktop(isDesktop: Boolean) {
@@ -399,14 +389,36 @@ class WebTabFragment : BaseWebTabFragment() {
     private fun onVideoDownloadPropagate(
         videoInfo: VideoInfo, videoTitle: String, format: String
     ) {
+        // If the user picked an audio format that was lazily resolved (and
+        // therefore lives in the VM cache rather than videoInfo.formats), swap
+        // it in here so the downloader sees the audio rendition.
+        val audioPool =
+            videoDetectionTabViewModel.audioFormatsByVideoId.get().orEmpty()[videoInfo.id].orEmpty()
+        val matchedAudio = audioPool.firstOrNull { it.format == format || it.format?.contains(format) == true }
+
+        val resolvedFormats = if (matchedAudio != null) {
+            listOf(matchedAudio)
+        } else {
+            videoInfo.formats.formats.filter {
+                it.format?.contains(format) ?: false
+            }
+        }
+
+        // The downloader uses VideoInfo.originalUrl to fetch the manifest for
+        // HLS/MPD downloads. After our merge step, originalUrl is whatever the
+        // first sibling reported, which can be wrong for the chosen quality.
+        // Pick the URL that belongs to the format the user just selected.
+        val pickedUrl = resolvedFormats.firstOrNull()?.url
+            ?: resolvedFormats.firstOrNull()?.manifestUrl
+            ?: videoInfo.originalUrl
+
+        val isAudioOnly = matchedAudio != null
         val info = videoInfo.copy(
             id = UUID.randomUUID().toString(),
             title = FileNameCleaner.cleanFileName(videoTitle),
-            formats = VideFormatEntityList(videoInfo.formats.formats.filter {
-                it.format?.contains(
-                    format
-                ) ?: false
-            })
+            ext = if (isAudioOnly) (matchedAudio?.ext ?: "m4a") else videoInfo.ext,
+            originalUrl = pickedUrl,
+            formats = VideFormatEntityList(resolvedFormats)
         )
 
         mainActivity.mainViewModel.downloadVideoEvent.value = info

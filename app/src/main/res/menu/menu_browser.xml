@@ -3,31 +3,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Navigation actions (visible on web tabs only) -->
-    <item
-        android:id="@+id/menu_back"
-        android:icon="@drawable/arrow_back24px"
-        android:title="@string/back"
-        app:showAsAction="ifRoom|collapseActionView" />
-
-    <item
-        android:id="@+id/menu_forward"
-        android:icon="@drawable/arrow_forward24px"
-        android:title="@string/forward"
-        app:showAsAction="ifRoom|collapseActionView" />
-
-    <item
-        android:id="@+id/menu_new_tab"
-        android:icon="@drawable/add_new_tab_icon24"
-        android:title="@string/new_tab"
-        app:showAsAction="ifRoom|collapseActionView" />
-
-    <item
-        android:id="@+id/menu_close_tab"
-        android:icon="@drawable/tab_close_24px"
-        android:title="@string/close_current_tab"
-        app:showAsAction="ifRoom|collapseActionView" />
-
     <item
         android:id="@+id/history_screen_menu_item"
         android:icon="@drawable/history_menu_icon_24dp"
@@ -64,12 +39,6 @@
         android:id="@+id/settings"
         android:icon="@drawable/settings_24px"
         android:title="@string/settings"
-        app:showAsAction="ifRoom|collapseActionView" />
-
-    <item
-        android:id="@+id/help"
-        android:icon="@drawable/help_24px"
-        android:title="@string/help"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item

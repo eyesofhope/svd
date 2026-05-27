@@ -39,6 +39,105 @@ class VideoServiceSuperX(
     }
 
     /**
+     * Resolve audio-only formats from an HLS or MPD manifest. This is invoked
+     * lazily, only when the user explicitly switches to the Audio tab in the
+     * download popup, so we don't pay the cost during regular video detection.
+     */
+    fun resolveAudioFormats(
+        url: Request, isM3u8: Boolean, isMpd: Boolean
+    ): List<VideoFormatEntity> {
+        return try {
+            val urlString = url.url.toString()
+            val response = client.getProxyOkHttpClient().newCall(url).execute()
+            val content = response.body.string()
+            if (!response.isSuccessful || content.isEmpty()) return emptyList()
+
+            when {
+                isM3u8 -> {
+                    val manifest = HlsPlaylistParser.parse(content, urlString)
+                    if (manifest is HlsPlaylistParser.MasterPlaylist) {
+                        parseHlsAudioRenditions(manifest, url.headers.toMap())
+                    } else emptyList()
+                }
+                isMpd -> {
+                    val manifest = MpdPlaylistParser.parse(content, urlString)
+                    parseMpdAudioRepresentations(manifest, url.headers.toMap())
+                }
+                else -> emptyList()
+            }
+        } catch (e: Throwable) {
+            AppLogger.d("resolveAudioFormats error: ${e.message}")
+            emptyList()
+        }
+    }
+
+    private fun parseHlsAudioRenditions(
+        manifest: HlsPlaylistParser.MasterPlaylist,
+        headers: Map<String, String>
+    ): List<VideoFormatEntity> {
+        return manifest.alternateRenditions
+            .filter { it.type == HlsPlaylistParser.RenditionType.AUDIO && !it.url.isNullOrBlank() }
+            // Keep one entry per group/name pair (matches the worker's lookup key)
+            .distinctBy { "${it.groupId}|${it.name}" }
+            .mapIndexed { idx, audio ->
+                val labelParts = listOfNotNull(
+                    audio.name.ifBlank { null },
+                    audio.language?.ifBlank { null }
+                )
+                val label = labelParts.joinToString(" ").ifBlank { "Audio ${idx + 1}" }
+                val bitrateK = if (audio.bandwidth > 0) "${audio.bandwidth / 1000} kbps" else null
+                // IMPORTANT: format/formatId must match the worker's expected
+                // pattern `hls-audio-<groupId>-<name>` so the downloader can
+                // resolve the correct rendition. See SuperXDownloaderWorker.
+                val matcherId = "hls-audio-${audio.groupId}-${audio.name}"
+                VideoFormatEntity(
+                    formatId = matcherId,
+                    format = matcherId,
+                    formatNote = listOfNotNull(label, bitrateK).joinToString(" · "),
+                    ext = "m4a",
+                    vcodec = "none",
+                    acodec = audio.codecs ?: "unknown",
+                    url = audio.url,
+                    manifestUrl = manifest.baseUri,
+                    audioOnlyUrl = audio.url,
+                    httpHeaders = headers,
+                    height = 0,
+                    width = 0,
+                    bitrate = audio.bandwidth
+                )
+            }
+    }
+
+    private fun parseMpdAudioRepresentations(
+        manifest: MpdPlaylistParser.MpdManifest,
+        headers: Map<String, String>
+    ): List<VideoFormatEntity> {
+        val audioReps = manifest.periods.flatMap { it.adaptationSets }
+            .filter { it.mimeType?.startsWith("audio/") == true }
+            .flatMap { it.representations }
+
+        return audioReps.distinctBy { it.bandwidth }.map { rep ->
+            val bitrateK = if (rep.bandwidth > 0) "${rep.bandwidth / 1000} kbps" else null
+            // Match worker's expected pattern `mpd-audio-<bandwidth>`.
+            val matcherId = "mpd-audio-${rep.bandwidth}"
+            VideoFormatEntity(
+                formatId = matcherId,
+                format = matcherId,
+                formatNote = listOfNotNull("Audio", bitrateK).joinToString(" · "),
+                ext = "m4a",
+                vcodec = "none",
+                acodec = rep.codecs ?: "unknown",
+                url = manifest.baseUri,
+                manifestUrl = manifest.baseUri,
+                httpHeaders = headers,
+                height = 0,
+                width = 0,
+                bitrate = rep.bandwidth
+            )
+        }
+    }
+
+    /**
      * Fetches the manifest content and delegates parsing to the appropriate
      * HLS or MPD parsing function based on the URL.
      */
@@ -120,6 +219,10 @@ class VideoServiceSuperX(
                             audioRenditionsByGroup[audioGroupId]?.firstOrNull()
                         val audioUrl = associatedAudioRendition?.url
 
+                        val combinedBitrate =
+                            variant.bandwidth + (associatedAudioRendition?.bandwidth ?: 0)
+                        val approxBytes = approxFileSize(combinedBitrate, duration)
+
                         // The final manifest URL for downloading is the MASTER playlist URL.
                         // The URLs for video/audio tracks will be selected by the downloader later.
                         VideoFormatEntity(
@@ -139,6 +242,9 @@ class VideoServiceSuperX(
                             videoOnlyUrl = videoUrl,
                             audioOnlyUrl = audioUrl,
                             httpHeaders = headers,
+                            // Surface the approximated size so the popup can
+                            // display it next to the resolution.
+                            fileSizeApproximate = approxBytes,
                             height = height,
                             width = width,
                             bitrate = variant.bandwidth + (associatedAudioRendition?.bandwidth
@@ -154,29 +260,41 @@ class VideoServiceSuperX(
             }
 
             is HlsPlaylistParser.MediaPlaylist -> {
-                // This logic for single media playlists remains the same and is correct.
+                // This logic handles single media playlists (a child of a master
+                // played without the master, or a single-quality stream).
                 title = "HLS Stream"
                 duration = (manifest.totalDuration * 1000).toLong()
                 isLive = !manifest.hasEndList
 
-                // Heuristic to guess height from URL if not available
-                val inferredHeight =
-                    manifest.baseUri.substringAfterLast('-').substringBefore('.').toIntOrNull()
-                        ?: 480
+                // Try to infer the resolution from the URL. We support patterns
+                // like ".../1080p.mp4.m3u8", ".../720p.av1.mp4.m3u8",
+                // ".../1920x1080/index.m3u8", ".../hls-480p-12345.m3u8" etc.
+                val inferredHeight = inferHeightFromUrl(manifest.baseUri)
+                // Without a master we don't know the bandwidth, so use a
+                // reasonable per-resolution average to estimate file size.
+                val approxBytes = approxFileSize(
+                    bitrate = typicalBitrateForHeight(inferredHeight),
+                    durationMs = duration
+                )
 
                 formats.add(
                     VideoFormatEntity(
-                        formatId = "hls-media",
-                        format = "hls-${inferredHeight}p",
-                        formatNote = "${inferredHeight}p",
+                        // Encode the inferred height into the format id so
+                        // sibling media playlists for different qualities
+                        // (240p / 480p / 720p) don't collapse into the same
+                        // entry when they're merged into a single card.
+                        formatId = "hls-media-${inferredHeight ?: "unknown"}",
+                        format = if (inferredHeight != null) "hls-${inferredHeight}p" else "hls-media",
+                        formatNote = if (inferredHeight != null) "${inferredHeight}p" else "Auto",
                         ext = "mp4",
                         vcodec = "unknown",
                         acodec = "unknown",
                         url = manifest.baseUri,
                         manifestUrl = manifest.baseUri,
                         httpHeaders = headers,
-                        height = inferredHeight,
+                        height = inferredHeight ?: 0,
                         width = 0,
+                        fileSizeApproximate = approxBytes,
                         duration = duration
                     )
                 )
@@ -233,6 +351,7 @@ class VideoServiceSuperX(
         val formats = allVideoRepresentations.mapNotNull { rep ->
             if (rep.height == 0 || rep.width == 0) return@mapNotNull null
 
+            val approxBytes = approxFileSize(rep.bandwidth, durationInMillis)
             VideoFormatEntity(
                 formatId = "mpd-${rep.height}p-${rep.bandwidth}",
                 format = "mpd-${rep.height}p-${rep.bandwidth}",
@@ -249,6 +368,7 @@ class VideoServiceSuperX(
                 height = rep.height,
                 width = rep.width,
                 bitrate = rep.bandwidth,
+                fileSizeApproximate = approxBytes,
                 duration = durationInMillis,
             )
         }
@@ -310,6 +430,58 @@ class VideoServiceSuperX(
         }
     }
 
+
+    /**
+     * Approximate downloaded byte count for a stream of [bitrate] bits/sec
+     * playing for [durationMs] milliseconds. Returns 0 if the inputs aren't
+     * usable so the UI keeps showing "Unknown" in that case.
+     */
+    private fun approxFileSize(bitrate: Long, durationMs: Long): Long {
+        if (bitrate <= 0 || durationMs <= 0) return 0L
+        // bytes = bitrate (bits/s) * seconds / 8
+        return bitrate * (durationMs / 1000.0).toLong() / 8
+    }
+
+    /**
+     * Best-effort typical bitrate (bits/sec) for the given target height when
+     * the manifest doesn't expose one. Tuned to match common streaming profiles
+     * so the user sees a believable size estimate per quality.
+     */
+    private fun typicalBitrateForHeight(height: Int?): Long = when {
+        height == null -> 0L
+        height >= 2160 -> 18_000_000L
+        height >= 1440 -> 9_000_000L
+        height >= 1080 -> 4_500_000L
+        height >= 720 -> 2_500_000L
+        height >= 480 -> 1_200_000L
+        height >= 360 -> 800_000L
+        height >= 240 -> 500_000L
+        height >= 144 -> 250_000L
+        else -> 600_000L
+    }
+
+    /**
+     * Best-effort height extraction from a media playlist URL. Recognised forms:
+     *   - .../1080p.mp4.m3u8, .../1080p.av1.mp4.m3u8, .../720p/playlist.m3u8
+     *   - .../1920x1080/index.m3u8, .../1280x720.mp4.m3u8
+     *   - .../hls-480p-12345.m3u8
+     */
+    private fun inferHeightFromUrl(url: String): Int? {
+        val cleaned = url.substringBefore('?').substringBefore('#').lowercase()
+
+        // Match the LAST occurrence of <number>p in the path; take the one
+        // closest to the filename to avoid latching on to a directory like
+        // "multi=...:1080p:" earlier in the URL.
+        val pRegex = Regex("(\\d{2,4})p[^/]*$")
+        pRegex.find(cleaned)?.groupValues?.getOrNull(1)?.toIntOrNull()?.let { return it }
+
+        // Fall back to width x height patterns.
+        val xRegex = Regex("\\d{2,4}x(\\d{2,4})")
+        xRegex.findAll(cleaned).lastOrNull()?.groupValues?.getOrNull(1)?.toIntOrNull()
+            ?.let { return it }
+
+        return null
+    }
 
     /**
      * Helper function to fetch the first available media playlist from a master playlist.

@@ -257,13 +257,15 @@ open class VideoDetectionTabViewModel @Inject constructor(
             io.reactivex.rxjava3.core.Observable.create { emitter ->
                 val info = try {
                     val isUseLegacyDetection = settingsModel.isUseLegacyM3u8Detection.get()
+                    // Default flow is video-only. Audio detection happens lazily
+                    // when the user switches the Audio tab in the download popup.
                     if (!isUseLegacyDetection && (isM3u8 || isMpd)) {
                         videoRepository.getVideoInfoBySuperXDetector(
-                            resourceRequest, isM3u8, isMpd, settingsModel.isCheckOnAudio.get()
+                            resourceRequest, isM3u8, isMpd, false
                         )
                     } else {
                         videoRepository.getVideoInfo(
-                            resourceRequest, false, settingsModel.isCheckOnAudio.get()
+                            resourceRequest, false, false
                         )
                     }
                 } catch (e: Throwable) {
@@ -294,6 +296,84 @@ open class VideoDetectionTabViewModel @Inject constructor(
                 }
     }
 
+    /** Audio resolution state per detected video id (true = currently fetching). */
+    val audioResolveLoading = ObservableField<Set<String>>(emptySet())
+
+    /**
+     * Cache of audio-only formats per video id. Populated lazily when the user
+     * switches to the Audio tab in the download popup so we don't pay this cost
+     * during regular browsing.
+     */
+    val audioFormatsByVideoId = ObservableField<Map<String, List<VideoFormatEntity>>>(emptyMap())
+
+    /**
+     * Lazily resolve audio formats for a detected video. Idempotent and safe to
+     * call multiple times: returns immediately if already cached or in flight.
+     */
+    fun resolveAudioFormatsAsync(videoInfo: VideoInfo) {
+        val current = audioFormatsByVideoId.get().orEmpty()
+        if (current[videoInfo.id]?.isNotEmpty() == true) return
+
+        val loading = audioResolveLoading.get().orEmpty()
+        if (videoInfo.id in loading) return
+
+        // Only manifest-based videos have separate audio renditions worth resolving.
+        if (!(videoInfo.isM3u8 || videoInfo.isMpd) && !videoInfo.isDetectedBySuperX) {
+            // For regular MP4s, surface the muxed source as a single "extract" entry.
+            val first = videoInfo.formats.formats.firstOrNull()
+            if (first != null) {
+                val virtual = listOf(
+                    VideoFormatEntity(
+                        formatId = "extract-${first.formatId.orEmpty()}",
+                        format = "extract-audio",
+                        formatNote = "Extract from video (M4A)",
+                        ext = "m4a",
+                        vcodec = "none",
+                        acodec = first.acodec ?: "unknown",
+                        url = first.url,
+                        manifestUrl = first.manifestUrl,
+                        audioOnlyUrl = first.url,
+                        httpHeaders = first.httpHeaders,
+                        fileSize = 0L
+                    )
+                )
+                audioFormatsByVideoId.set(current + (videoInfo.id to virtual))
+            } else {
+                audioFormatsByVideoId.set(current + (videoInfo.id to emptyList()))
+            }
+            return
+        }
+
+        val manifestUrl = videoInfo.formats.formats.firstOrNull()?.manifestUrl
+            ?: videoInfo.firstUrlToString
+        if (manifestUrl.isBlank()) return
+
+        audioResolveLoading.set(loading + videoInfo.id)
+
+        val req = Request.Builder().url(manifestUrl).also { b ->
+            videoInfo.formats.formats.firstOrNull()?.httpHeaders?.let { headers ->
+                if (headers.isNotEmpty()) b.headers(headers.toHeaders())
+            }
+        }.build()
+
+        io.reactivex.rxjava3.core.Observable.fromCallable {
+            videoRepository.resolveAudioFormats(req, videoInfo.isM3u8, videoInfo.isMpd)
+        }
+            .subscribeOn(baseSchedulers.io)
+            .observeOn(baseSchedulers.mainThread)
+            .subscribe({ result ->
+                val updated = audioFormatsByVideoId.get().orEmpty() + (videoInfo.id to result)
+                audioFormatsByVideoId.set(updated)
+                audioResolveLoading.set(audioResolveLoading.get().orEmpty() - videoInfo.id)
+            }, { err ->
+                AppLogger.e("Audio resolution failed: ${err.message}")
+                val updated =
+                    audioFormatsByVideoId.get().orEmpty() + (videoInfo.id to emptyList())
+                audioFormatsByVideoId.set(updated)
+                audioResolveLoading.set(audioResolveLoading.get().orEmpty() - videoInfo.id)
+            })
+    }
+
     @Synchronized
     open fun pushNewVideoInfoToAll(newInfo: VideoInfo) {
         if (newInfo.formats.formats.isEmpty()) {
@@ -306,13 +386,45 @@ open class VideoDetectionTabViewModel @Inject constructor(
 
         val detectedVideos = detectedVideosList.get() ?: emptySet()
 
-        if (detectedVideos.any { isVideoInfoDuplicate(it, newInfo) }) {
-            AppLogger.d("SKIP DUPLICATED VIDEO INFO: $newInfo")
+        // 1) Apply page thumbnail if we don't have one yet
+        applyPageThumbnail(newInfo)
+
+        // 2) Smart consolidation: try to merge this entry into an existing card
+        //    instead of producing a new one. We collapse:
+        //    - HLS media-playlist children into their master
+        //    - duplicate masters / regular MP4s that point at the same media
+        //    - small teaser MP4s alongside an existing rich (HLS/MPD) entry
+        val merged = detectedVideos.firstNotNullOfOrNull { existing ->
+            tryMerge(existing, newInfo)?.let { existing to it }
+        }
+        if (merged != null) {
+            val (oldVideo, mergedVideo) = merged
+            val updated = (detectedVideos - oldVideo) + mergedVideo
+            detectedVideosList.set(updated)
+            setButtonState(DownloadButtonStateCanDownload(mergedVideo))
+
+            viewModelScope.launch(Dispatchers.Main) {
+                videoPushedEvent.call()
+            }
+            return
+        }
+
+        // 3) Drop obvious teasers when we already have a richer source
+        if (shouldSkipAsTeaser(newInfo, detectedVideos)) {
+            AppLogger.d("Skipping teaser candidate: ${newInfo.firstUrlToString}")
             return
         }
 
         AppLogger.d("PUSHING $newInfo to list: \n  $detectedVideos")
-        detectedVideosList.set(detectedVideos + newInfo)
+        // 4) When a fresh entry lands, sweep out any pre-existing siblings we
+        //    now recognise as ads or stragglers based on duration / format
+        //    count. This catches the case where the ad arrives BEFORE the real
+        //    video and would otherwise sit alongside it.
+        val combined = detectedVideos + newInfo
+        val nextList = combined.filterNot { existing ->
+            existing !== newInfo && shouldSkipAsTeaser(existing, combined - existing)
+        }.toSet()
+        detectedVideosList.set(nextList)
         setButtonState(DownloadButtonStateCanDownload(newInfo))
 
         viewModelScope.launch(Dispatchers.Main) {
@@ -320,16 +432,153 @@ open class VideoDetectionTabViewModel @Inject constructor(
         }
     }
 
-    private fun isVideoInfoDuplicate(existing: VideoInfo, newInfo: VideoInfo): Boolean {
-        return if (newInfo.isRegularDownload) {
-            existing.firstUrlToString == newInfo.firstUrlToString
-        } else {
-            existing.formats.formats.any { existingFormat ->
-                newInfo.formats.formats.any { newFormat ->
-                    existingFormat.url == newFormat.url
-                }
+    private fun applyPageThumbnail(info: VideoInfo) {
+        if (info.thumbnail.isNotBlank()) return
+        val thumb = webTabModel?.pageThumbnailUrl?.get().orEmpty()
+        if (thumb.startsWith("http")) {
+            info.thumbnail = thumb
+        }
+    }
+
+    /**
+     * Attempt to merge [incoming] into [existing] returning the merged entity or
+     * null if they should remain separate. The merge prefers the richer source
+     * (more formats, manifest-based detection, has thumbnail) and unions any
+     * formats not already present.
+     */
+    private fun tryMerge(existing: VideoInfo, incoming: VideoInfo): VideoInfo? {
+        if (!isSameMedia(existing, incoming)) return null
+
+        // Build the merged formats list, preferring the richer entry's set
+        val left = if (existing.formats.formats.size >= incoming.formats.formats.size) existing else incoming
+        val right = if (left === existing) incoming else existing
+
+        val seen = left.formats.formats.map { it.url ?: it.format }.toMutableSet()
+        val merged = left.formats.formats.toMutableList()
+        for (f in right.formats.formats) {
+            val key = f.url ?: f.format
+            if (key != null && seen.add(key)) {
+                merged.add(f)
             }
         }
+
+        val base = if (left.isDetectedBySuperX || !right.isDetectedBySuperX) left else right
+        return base.copy(
+            formats = VideFormatEntityList(merged),
+            thumbnail = base.thumbnail.ifBlank { right.thumbnail.ifBlank { left.thumbnail } },
+            title = base.title.ifBlank { right.title.ifBlank { left.title } }
+        )
+    }
+
+    /**
+     * Two VideoInfos refer to the same underlying media when:
+     *  - One is an HLS/MPD parent and the other is a child media playlist of it
+     *  - They share at least one identical format URL
+     *  - They are both regular MP4s with the same URL stem (host + path before query)
+     *  - They are sibling HLS media playlists of the SAME video (same parent
+     *    folder + roughly same duration). This catches sites that ship a
+     *    separate media playlist per quality without ever exposing the master.
+     */
+    private fun isSameMedia(a: VideoInfo, b: VideoInfo): Boolean {
+        val aEff = effectiveUrl(a)
+        val bEff = effectiveUrl(b)
+
+        // Same exact URL
+        if (aEff.isNotEmpty() && aEff == bEff) return true
+
+        // Any shared format URL (same variant referenced by both)
+        val aUrls = a.formats.formats.mapNotNull { it.url }.toSet()
+        val bUrls = b.formats.formats.mapNotNull { it.url }.toSet()
+        if (aUrls.any { it in bUrls }) return true
+
+        // HLS/MPD child arrived after the master: master.variants[i].url ==
+        // child.originalUrl. The master entry exposes those variant URLs in
+        // its videoOnlyUrl/url fields, so check both directions.
+        val aVariantUrls = a.formats.formats.flatMap { listOfNotNull(it.url, it.videoOnlyUrl) }.toSet()
+        val bVariantUrls = b.formats.formats.flatMap { listOfNotNull(it.url, it.videoOnlyUrl) }.toSet()
+        if (a.originalUrl.isNotEmpty() && a.originalUrl in bVariantUrls) return true
+        if (b.originalUrl.isNotEmpty() && b.originalUrl in aVariantUrls) return true
+
+        // HLS/MPD child of the same master via manifestUrl
+        val aManifest = a.formats.formats.firstOrNull()?.manifestUrl
+        val bManifest = b.formats.formats.firstOrNull()?.manifestUrl
+        if (!aManifest.isNullOrBlank() && aManifest == bManifest) return true
+
+        // Sibling HLS / MPD media playlists. Two manifest entries belong to
+        // the same video if they live in the same parent directory AND report
+        // approximately the same duration. This is the common case on sites
+        // that don't expose a master playlist (otherwise we see one card per
+        // quality). For HLS children, downloadUrls is empty so we MUST read
+        // the URL from originalUrl rather than firstUrlToString.
+        if (!a.isRegularDownload && !b.isRegularDownload) {
+            val aParent = parentPath(aEff)
+            val bParent = parentPath(bEff)
+            val durationDelta = kotlin.math.abs(a.duration - b.duration)
+            if (aParent.isNotEmpty() && aParent == bParent &&
+                a.duration > 0 && b.duration > 0 && durationDelta < 2_000
+            ) {
+                return true
+            }
+        }
+
+        // Same path stem (covers ad-server and CDN ?token= variants)
+        val aStem = stripQuery(aEff)
+        val bStem = stripQuery(bEff)
+        if (aStem.isNotEmpty() && aStem == bStem) return true
+
+        return false
+    }
+
+    /**
+     * Resolve the most useful URL identifier for an entry. For HLS / MPD
+     * child playlists detected by SuperX the `downloadUrls` list is empty
+     * (the manifest content was passed by reference, not by URL), so
+     * `firstUrlToString` is "". The actual playlist URL lives in
+     * `originalUrl`. Falling back to it lets the parent-path / stem checks
+     * actually fire for sibling-merge cases.
+     */
+    private fun effectiveUrl(info: VideoInfo): String {
+        val first = info.firstUrlToString
+        if (first.isNotEmpty()) return first
+        if (info.originalUrl.isNotEmpty()) return info.originalUrl
+        // As a last resort, look at the first format's URL directly.
+        return info.formats.formats.firstOrNull()?.url.orEmpty()
+    }
+
+    private fun stripQuery(url: String): String =
+        url.substringBefore('?').substringBefore('#')
+
+    private fun parentPath(url: String): String {
+        val noQuery = stripQuery(url)
+        return noQuery.substringBeforeLast('/', "")
+    }
+
+    /**
+     * If we already have an HLS/MPD-detected video for this page, ignore tiny
+     * regular MP4 candidates and short ad streams.
+     *
+     * The strongest signal that something is an ad is duration: legitimate
+     * videos on the open web are virtually always longer than 60 seconds.
+     */
+    private fun shouldSkipAsTeaser(
+        newInfo: VideoInfo, existing: Set<VideoInfo>
+    ): Boolean {
+        // 1) Anything (HLS, MPD, MP4) whose total duration is very short and
+        //    where another candidate on the page is meaningfully longer is
+        //    almost certainly an ad / preroll / interstitial.
+        val newDuration = newInfo.duration
+        if (newDuration in 1..30_000) {
+            val longestExisting = existing.maxOfOrNull { it.duration } ?: 0L
+            if (longestExisting > newDuration * 3) return true
+        }
+
+        // 2) Tiny MP4 candidates beside any other source are almost always ads.
+        if (newInfo.isRegularDownload && existing.isNotEmpty()) {
+            val size = newInfo.formats.formats.firstOrNull()?.fileSize ?: 0L
+            if (size in 1..(1024L * 1024L)) return true
+        }
+
+        return false
     }
 
     override fun getDownloadBtnIcon(): ObservableInt {

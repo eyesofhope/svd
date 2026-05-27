@@ -13,6 +13,7 @@ import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myAllVideoBrowser.R
+import com.myAllVideoBrowser.data.local.room.entity.VideoFormatEntity
 import com.myAllVideoBrowser.data.local.room.entity.VideoInfo
 import com.myAllVideoBrowser.databinding.ItemVideoInfoBinding
 import com.myAllVideoBrowser.ui.main.home.browser.detectedVideos.VideoDetectionTabViewModel
@@ -34,6 +35,7 @@ class VideoInfoAdapter(
         private val appUtil: AppUtil
     ) :
         RecyclerView.ViewHolder(binding.root) {
+
         private val selectedFormatsCallback = object : OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 val currentVideoInfo = binding.videoInfo ?: return
@@ -86,18 +88,9 @@ class VideoInfoAdapter(
                 }
 
                 videoInfo = info
-                val typeText = if (info.isM3u8 || info.isMpd) {
-                    val isMpd = info.formats.formats.firstOrNull()?.isMpd == true
-                    if (isMpd) "MPD List" else "M3U8 List"
-                } else if (info.isMaster) {
-                    val isMpd = info.formats.formats.firstOrNull()?.isMpd == true
-                    if (isMpd) "MPD Master List" else "M3U8 Master List"
-                } else if (info.isRegularDownload) {
-                    "Regular MP4 Download"
-                } else {
-                    ""
-                }
-
+                // We intentionally hide manifest-type labels (M3U8 / MPD).
+                // Users only see the size hint for regular MP4s; for streams,
+                // size is per-quality and shown on each quality card.
                 if (info.isRegularDownload) {
                     val fileSize = info.formats.formats.firstOrNull()?.fileSize
                     if (fileSize != null && fileSize > 0) {
@@ -110,9 +103,7 @@ class VideoInfoAdapter(
                 } else {
                     sizeTextView.visibility = View.GONE
                 }
-                typeTextView.text = typeText
-                typeTextView.visibility =
-                    if (typeText.isNotEmpty()) View.VISIBLE else View.GONE
+                typeTextView.visibility = View.GONE
 
                 actionRename.setOnClickListener {
                     videoTitleEdit.requestFocus()
@@ -141,32 +132,6 @@ class VideoInfoAdapter(
                 val gridLayoutManager = GridLayoutManager(binding.root.context, 3)
                 candidatesList.layoutManager = gridLayoutManager
                 candidatesList.adapter = candidatesAdapter
-
-                // Configure the Video / Audio toggle
-                val hasAudio = candidatesAdapter.hasAudioFormats()
-                val hasVideo = candidatesAdapter.hasVideoFormats()
-
-                // Hide the toggle entirely if only one media type is available
-                mediaTypeToggle.visibility =
-                    if (hasAudio && hasVideo) View.VISIBLE else View.GONE
-
-                // Avoid stale listeners on view recycle
-                mediaTypeToggle.clearOnButtonCheckedListeners()
-                mediaTypeToggle.check(R.id.btn_filter_video)
-
-                mediaTypeToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
-                    if (!isChecked) return@addOnButtonCheckedListener
-                    val audioOnly = checkedId == R.id.btn_filter_audio
-                    val visible = candidatesAdapter.setAudioOnly(audioOnly)
-                    val firstFormat = visible.firstOrNull()?.format
-                    if (firstFormat != null) {
-                        candidateFormatListener.onSelectFormat(info, firstFormat)
-                    }
-                    tvNoFormats.visibility =
-                        if (visible.isEmpty()) View.VISIBLE else View.GONE
-                    candidatesList.visibility =
-                        if (visible.isEmpty()) View.GONE else View.VISIBLE
-                }
 
                 tvNoFormats.visibility =
                     if (candidatesAdapter.visibleFormats().isEmpty()) View.VISIBLE else View.GONE

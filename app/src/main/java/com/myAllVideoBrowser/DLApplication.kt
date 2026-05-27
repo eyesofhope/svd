@@ -3,6 +3,8 @@ package com.myAllVideoBrowser
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.myAllVideoBrowser.di.component.DaggerAppComponent
@@ -55,6 +57,8 @@ open class DLApplication : DaggerApplication() {
 
         ContextUtils.initApplicationContext(applicationContext)
 
+        applySavedAppLocaleIfNeeded()
+
         initializeFileUtils()
 
         val file: File = fileUtil.folderDir
@@ -85,6 +89,28 @@ open class DLApplication : DaggerApplication() {
         FileUtil.IS_EXTERNAL_STORAGE_USE = isExternal
         FileUtil.IS_APP_DATA_DIR_USE = isAppDir
         FileUtil.INITIIALIZED = true
+    }
+
+    /**
+     * Re-applies any previously saved per-app locale at every cold start.
+     *
+     * On Android 13+ the system already restores the chosen locale automatically (the manifest
+     * service is disabled in that case). On Android 12 and below the AppCompat backport handles
+     * persistence through `autoStoreLocales`, but we still apply our SharedPrefs value as a
+     * safety net so previously saved values survive this upgrade.
+     */
+    private fun applySavedAppLocaleIfNeeded() {
+        try {
+            val current = AppCompatDelegate.getApplicationLocales()
+            if (!current.isEmpty) return
+
+            val tag = sharedPrefHelper.getAppLanguageTag()
+            if (tag.isBlank()) return
+
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+        } catch (e: Throwable) {
+            AppLogger.e("Unable to apply saved app locale: ${e.message}")
+        }
     }
 
     private fun initializeYoutubeDl() {

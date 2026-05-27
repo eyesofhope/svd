@@ -220,6 +220,21 @@ class CustomWebViewClient(
     override fun onPageFinished(view: WebView, url: String) {
         super.onPageFinished(view, url)
         tabViewModel.finishPage(url)
+
+        // Best-effort grab of a poster image for the page so detected videos
+        // can show a real thumbnail instead of the default placeholder.
+        try {
+            val js =
+                "(function(){var v=document.querySelector('video[poster]');if(v&&v.poster)return v.poster;var m=document.querySelector('meta[property=\"og:image\"]')||document.querySelector('meta[name=\"twitter:image\"]');return m?m.content:'';})();"
+            view.evaluateJavascript(js) { raw ->
+                val cleaned = raw?.trim('"')?.replace("\\/", "/")?.replace("\\\\", "\\")
+                if (!cleaned.isNullOrBlank() && cleaned != "null" && cleaned.startsWith("http")) {
+                    tabViewModel.pageThumbnailUrl.set(cleaned)
+                }
+            }
+        } catch (_: Throwable) {
+            // ignore – thumbnail is optional
+        }
     }
 
     override fun onRenderProcessGone(

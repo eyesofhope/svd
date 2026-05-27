@@ -57,8 +57,7 @@
                     android:layout_height="wrap_content"
                     android:background="?attr/colorSurface"
                     app:contentInsetEnd="0dp"
-                    app:contentInsetStart="0dp"
-                    app:layout_scrollFlags="scroll|enterAlways|snap">
+                    app:contentInsetStart="0dp">
 
                     <!-- Chrome-style single-row top bar:
                          Home | URL pill (with leading icon + refresh) | + | Tab counter | 3-dot menu -->

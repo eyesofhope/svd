@@ -120,6 +120,7 @@
     <string name="dialog_close">Close</string>
     <string name="dialog_download">Download</string>
     <string name="no_formats_available">No formats available</string>
+    <string name="resolving_audio">Resolving audio\u2026</string>
 
     <string name="video_empty_message">You have not downloaded any video yet.</string>
     <string name="video_menu_rename">Rename</string>
@@ -216,6 +217,14 @@
     <string name="check_if_in_list">Only check web-sites urls if in supported list</string>
     <string name="bookmark">Bookmark</string>
     <string name="bookmarks_list">Bookmarks</string>
+    <string name="bookmarks_empty_message">You have not added any bookmarks yet.</string>
+    <string name="bookmark_dialog_name_hint">Name</string>
+    <string name="bookmark_dialog_url_hint">URL</string>
+    <string name="added_to_bookmarks">Added to bookmarks</string>
+    <string name="removed_from_bookmarks">Removed from bookmarks</string>
+    <string name="already_bookmarked">Already in bookmarks</string>
+    <string name="remove_favorite_title">Remove favorite?</string>
+    <string name="remove_favorite_message">Remove %1$s from your favorites?</string>
     <string name="is_auto_dark">Auto Theme Mode</string>
     <string name="check_every_request_on_audio">Check every request on audio</string>
     <string name="go">GO</string>
@@ -250,8 +259,6 @@
     <string name="block">Block</string>
 
     <!-- Top bar redesign -->
-    <string name="back">Back</string>
-    <string name="forward">Forward</string>
     <string name="reload">Reload</string>
     <string name="url_info">Site info</string>
 

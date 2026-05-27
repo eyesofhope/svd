@@ -115,6 +115,30 @@ class WebTabFragment : BaseWebTabFragment() {
         }
     }
 
+    /**
+     * Routes nav-style menu items (back, forward, new tab, close tab) from the
+     * 3-dot popup into the existing [tabListener] handlers so behaviour matches
+     * the previous toolbar buttons exactly.
+     */
+    override val popupNavListener = object : PopupNavListener {
+        override fun onMenuBack() {
+            tabListener.onBrowserBackClicked()
+        }
+
+        override fun onMenuForward() {
+            tabListener.onBrowserForwardClicked()
+        }
+
+        override fun onMenuNewTab() {
+            val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+            tabManagerProvider.getOpenTabEvent().value = newTab
+        }
+
+        override fun onMenuCloseTab() {
+            tabListener.onTabCloseClicked()
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -168,10 +192,31 @@ class WebTabFragment : BaseWebTabFragment() {
                 } else false
             }
 
-            ivCloseTab.clipToOutline = true
-            ivGoForward.clipToOutline = true
-            ivGoBack.clipToOutline = true
             ivCloseRefresh.clipToOutline = true
+
+            // Top bar shortcuts (Chrome-style redesign)
+            ivHomeButton.setOnClickListener {
+                // Jump to the home tab without closing other tabs
+                mainActivity.mainViewModel.browserServicesProvider
+                    ?.getCurrentTabIndex()?.set(HOME_TAB_INDEX)
+            }
+
+            ivNewTab.setOnClickListener {
+                val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                tabManagerProvider.getOpenTabEvent().value = newTab
+            }
+
+            tabCounterContainer.setOnClickListener {
+                mainActivity.mainViewModel.openNavDrawerEvent.call()
+            }
+
+            updateTabCounter()
+            // Idempotent: remove before add in case the view is recreated without
+            // the fragment being destroyed (e.g., backstack pop).
+            tabManagerProvider.getTabsListChangeEvent()
+                .removeOnPropertyChangedCallback(topBarTabsCountListener)
+            tabManagerProvider.getTabsListChangeEvent()
+                .addOnPropertyChangedCallback(topBarTabsCountListener)
 
             Glide.with(this@WebTabFragment).asGif().load(R.drawable.loading_floating)
                 .into(loadingWavy)
@@ -284,6 +329,8 @@ class WebTabFragment : BaseWebTabFragment() {
         videoDetectionTabViewModel.stop()
         tabManagerProvider.getTabsListChangeEvent()
             .removeOnPropertyChangedCallback(tabsListChangeListener)
+        tabManagerProvider.getTabsListChangeEvent()
+            .removeOnPropertyChangedCallback(topBarTabsCountListener)
     }
 
     private fun handleOpenDetectedVideos() {
@@ -561,6 +608,21 @@ class WebTabFragment : BaseWebTabFragment() {
         }
     }
 
+    private val topBarTabsCountListener = object : Observable.OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+            updateTabCounter()
+        }
+    }
+
+    private fun updateTabCounter() {
+        val count = tabManagerProvider.getTabsListChangeEvent().get()?.size ?: 1
+        if (::dataBinding.isInitialized) {
+            dataBinding.tabCounter.text = count.toString()
+            dataBinding.tabCounter.contentDescription =
+                getString(R.string.tab_counter_content_description, count)
+        }
+    }
+
     private fun onWebViewPause() {
         webTab.getWebView()?.onPause()
     }
@@ -751,20 +813,15 @@ class WebTabFragment : BaseWebTabFragment() {
 
     private fun navigateToDownloads() {
         try {
-            val currentFragment = this
-            val activityFragmentContainer =
-                currentFragment.activity?.findViewById<FragmentContainerView>(R.id.fragment_container_view)
-            activityFragmentContainer?.let {
-                val transaction =
-                    currentFragment.requireActivity().supportFragmentManager.beginTransaction()
-                val fragment = DetectedVideosTabFragment.newInstance()
-                fragment.detectedVideosTabViewModel = videoDetectionTabViewModel
-                fragment.candidateFormatListener = downloadListener
-                transaction.add(it.id, fragment, "DOWNLOADS_TAB")
-                transaction.addToBackStack("DOWNLOADS_TAB")
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                transaction.commit()
+            val fragmentManager = requireActivity().supportFragmentManager
+            val existing = fragmentManager.findFragmentByTag(DetectedVideosTabFragment.TAG)
+            if (existing is DetectedVideosTabFragment && existing.isAdded) {
+                return
             }
+            val fragment = DetectedVideosTabFragment.newInstance()
+            fragment.detectedVideosTabViewModel = videoDetectionTabViewModel
+            fragment.candidateFormatListener = downloadListener
+            fragment.show(fragmentManager, DetectedVideosTabFragment.TAG)
         } catch (e: ClassCastException) {
             AppLogger.e("Can't get the fragment manager with this")
         }
@@ -773,13 +830,17 @@ class WebTabFragment : BaseWebTabFragment() {
     private fun isDetectedVideosTabFragmentVisible(): Boolean {
         val fragmentManager = requireActivity().supportFragmentManager
         val fragment =
-            fragmentManager.findFragmentByTag("DOWNLOADS_TAB") as? DetectedVideosTabFragment
+            fragmentManager.findFragmentByTag(DetectedVideosTabFragment.TAG) as? DetectedVideosTabFragment
         return fragment != null && fragment.isAdded && fragment.isVisible && fragment.isResumed
     }
 
     private val downloadListener = object : DownloadTabListener {
         override fun onCancel() {
-            mainActivity.supportFragmentManager.popBackStack()
+            val fragmentManager = mainActivity.supportFragmentManager
+            val fragment =
+                fragmentManager.findFragmentByTag(DetectedVideosTabFragment.TAG)
+                        as? DetectedVideosTabFragment
+            fragment?.dismissAllowingStateLoss()
         }
 
         override fun onPreviewVideo(

@@ -1,14 +1,11 @@
 package com.myAllVideoBrowser.ui.component.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ObservableField
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.color.MaterialColors
-import com.myAllVideoBrowser.R
 import com.myAllVideoBrowser.data.local.room.entity.VideoFormatEntity
 import com.myAllVideoBrowser.data.local.room.entity.VideoInfo
 import com.myAllVideoBrowser.databinding.DownloadCandidateItemBinding
@@ -55,11 +52,13 @@ class CandidatesListRecyclerViewAdapter(
     private val downloadDialogListener: CandidateFormatListener
 ) : RecyclerView.Adapter<CandidatesListRecyclerViewAdapter.CandidatesViewHolder>() {
 
+    private var allFormats: List<VideoFormatEntity> = arrayListOf()
     private var formats: List<VideoFormatEntity> = arrayListOf()
+    private var audioOnlyMode: Boolean = false
 
     init {
-        val allFormats = downloadCandidates.formats.formats
-        formats = getShortenFormats(allFormats)
+        allFormats = getShortenFormats(downloadCandidates.formats.formats)
+        formats = filterByMode(allFormats, audioOnlyMode)
     }
 
     class CandidatesViewHolder(val binding: DownloadCandidateItemBinding) :
@@ -78,11 +77,6 @@ class CandidatesListRecyclerViewAdapter(
 
         with(holder.binding) {
             val selected = selectedFormat.get()?.get(downloadCandidates.id)
-
-            val color = MaterialColors.getColor(
-                this.root.context, R.attr.colorSurfaceVariant, Color.YELLOW
-            )
-            this.cardItem.setCardBackgroundColor(color)
 
             this.videoInfo = downloadCandidates
             this.downloadCandidate = candidate
@@ -115,18 +109,8 @@ class CandidatesListRecyclerViewAdapter(
             } else {
                 "Unknown"
             }
-            val fileSizeLine = "File size: $formatSize"
 
-            val durationLine = formatDuration(formatEntity.duration ?: 0)
-            val details = listOf(
-                "vcodec: ${formatEntity.vcodec ?: "unknown"}",
-                "acodec: ${formatEntity.acodec ?: "unknown"}",
-                fileSizeLine,
-                formatEntity.formatNote,
-                if (durationLine.isNotEmpty()) "Duration: $durationLine" else ""
-            ).filter { it != null && it.isNotBlank() }.joinToString("\n")
-
-            this.tvData.text = details
+            this.tvData.text = formatSize
 
             this.executePendingBindings()
         }
@@ -135,8 +119,65 @@ class CandidatesListRecyclerViewAdapter(
     override fun getItemCount(): Int = formats.size
 
     fun setData(formats: List<VideoFormatEntity>) {
-        this.formats = formats
+        this.allFormats = formats
+        this.formats = filterByMode(allFormats, audioOnlyMode)
         notifyDataSetChanged()
+    }
+
+    /**
+     * Switch the list between video formats and audio-only formats.
+     * Returns the list of currently visible formats so the caller can update
+     * the selected format if needed.
+     */
+    fun setAudioOnly(isAudioOnly: Boolean): List<VideoFormatEntity> {
+        if (audioOnlyMode == isAudioOnly) return formats
+        audioOnlyMode = isAudioOnly
+        formats = filterByMode(allFormats, audioOnlyMode)
+        notifyDataSetChanged()
+        return formats
+    }
+
+    fun isAudioOnly(): Boolean = audioOnlyMode
+
+    fun hasAudioFormats(): Boolean = filterByMode(allFormats, true).isNotEmpty()
+    fun hasVideoFormats(): Boolean = filterByMode(allFormats, false).isNotEmpty()
+
+    fun visibleFormats(): List<VideoFormatEntity> = formats
+
+    private fun filterByMode(
+        source: List<VideoFormatEntity>, audioOnly: Boolean
+    ): List<VideoFormatEntity> {
+        if (source.isEmpty()) return source
+        val audio = source.filter { isAudioOnlyFormat(it) }
+        // If there are no clearly classified audio formats, fall back to showing
+        // everything so the toggle never produces an empty list when only one
+        // type is available.
+        return if (audioOnly) {
+            if (audio.isNotEmpty()) audio else source
+        } else {
+            val video = source.filterNot { isAudioOnlyFormat(it) }
+            if (video.isNotEmpty()) video else source
+        }
+    }
+
+    private fun isAudioOnlyFormat(format: VideoFormatEntity): Boolean {
+        val vcodec = format.vcodec?.lowercase().orEmpty()
+        val acodec = format.acodec?.lowercase().orEmpty()
+        val fmt = format.format?.lowercase().orEmpty()
+        val fmtId = format.formatId?.lowercase().orEmpty()
+        val ext = format.ext?.lowercase().orEmpty()
+
+        val noVideo = vcodec.isEmpty() || vcodec == "none" || vcodec == "unknown"
+        val hasAudio = acodec.isNotEmpty() && acodec != "none" && acodec != "unknown"
+
+        if (fmt.contains("audio only") || fmt.contains("audio")) return true
+        if (fmtId.contains("audio")) return true
+        if (ext in listOf("mp3", "m4a", "aac", "ogg", "opus", "wav", "flac")) return true
+
+        // Sometimes vcodec is unknown; lean on width/height being 0 plus an audio codec.
+        if (format.width == 0 && format.height == 0 && hasAudio && noVideo) return true
+
+        return noVideo && hasAudio
     }
 
     private fun makeVideoFormatHumanReadable(input: String, isDetectedBySuperX: Boolean): String {
@@ -192,7 +233,7 @@ class CandidatesListRecyclerViewAdapter(
                 val rightSide = formattedFormat.split("-").last()
                 rightSide.replace("p", "P").trim()
             } else if (formattedFormat.contains("audio only")) {
-                ""
+                "Audio"
             } else {
                 formattedFormat
             }
@@ -209,23 +250,6 @@ class CandidatesListRecyclerViewAdapter(
             matchResult.groupValues[1].toIntOrNull()
         } else {
             null
-        }
-    }
-
-    private fun formatDuration(milliseconds: Long): String {
-        if (milliseconds <= 0) {
-            return ""
-        }
-
-        val totalSeconds = milliseconds / 1000
-        val hours = totalSeconds / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        val seconds = totalSeconds % 60
-
-        return if (hours > 0) {
-            String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            String.format(java.util.Locale.US, "%02d:%02d", minutes, seconds)
         }
     }
 }

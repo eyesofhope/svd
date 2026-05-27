@@ -8,392 +8,634 @@
         <import type="android.view.View" />
         <import type="com.myAllVideoBrowser.R" />
 
-
         <variable
             name="viewModel"
             type="com.myAllVideoBrowser.ui.main.settings.SettingsViewModel" />
     </data>
 
-    <ScrollView
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/settings_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground"
+        android:background="?attr/colorSurface"
         android:clickable="true"
         android:focusable="true">
 
-        <LinearLayout
-            android:id="@+id/settings_container"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/settings_app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/padding_normal">
+            android:background="?attr/colorSurface"
+            app:elevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="-16dp"
-                android:layout_marginTop="-16dp"
-                app:title="@string/title_settings" />
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="@drawable/arrow_back24px"
+                app:title="@string/title_settings"
+                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <!-- General Section -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_general"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/padding_small"
-                android:paddingBottom="@dimen/padding_small"
-                android:text="@string/settings_general" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layout_clear_cookie"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> viewModel.clearCookies()}"
-                android:paddingVertical="@dimen/padding_small">
-
-                <ImageView
-                    android:id="@+id/iv_browser"
-                    android:layout_width="@dimen/settings_icon_size"
-                    android:layout_height="@dimen/settings_icon_size"
-                    android:contentDescription="@string/browser_s_icon"
-                    android:padding="@dimen/padding_small"
-                    android:src="@drawable/public_24px"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/padding_small"
-                    android:text="@string/settings_clear_browser_cookies"
-                    android:textSize="@dimen/text_medium"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/iv_browser"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:id="@+id/divider_after_clear_cookie"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/dividerHorizontal" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_auto_theme_check_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isAutoDarkMode}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsAutoTheme(isChecked)}"
-                android:text="@string/is_auto_dark"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/lock_orientation_check_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isLockPortrait}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsLockPortrait(isChecked)}"
-                android:text="@string/lock_screen_orientation_portrait"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <!-- NEW: DRM Enabled Switch -->
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/drm_enabled_check_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isDrmEnabled}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsDrmEnabled(isChecked)}"
-                android:text="@string/drm_permission_title"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <!-- Detection Section -->
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/padding_large"
-                android:paddingBottom="@dimen/padding_small"
-                android:text="@string/settings_detection" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/show_video_alert_check_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.getVideoAlertState()}"
-                android:onCheckedChanged="@{(_, isChecked) -> isChecked ? viewModel.setShowVideoAlertOn() : viewModel.setShowVideoAlertOff()}"
-                android:text="@string/show_video_found_alert"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/show_video_action_button_check_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.getVideoButtonState()}"
-                android:onCheckedChanged="@{(_, isChecked) -> isChecked ? viewModel.setShowVideoActionButtonOn() : viewModel.setShowVideoActionButtonOff()}"
-                android:text="@string/show_action_button"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/find_videos_by_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isFindVideoByUrl}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsFindVideoByUrl(isChecked)}"
-                android:text="@string/find_videos_by_url"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_check_every_request_on_mp4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isCheckEveryRequestOnMp4Video}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsCheckEveryRequestOnVideo(isChecked)}"
-                android:text="@string/check_every_request_on_video_mp4"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_check_every_request_on_m3u8"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isCheckIfEveryRequestOnM3u8}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsCheckIfEveryUrlOnM3u8(isChecked)}"
-                android:text="@string/check_every_request_on_video_m3u8"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_check_every_request_on_audio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isCheckOnAudio}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsCheckOnAudio(isChecked)}"
-                android:text="@string/check_every_request_on_audio"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_force_stream_detection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isForceStreamDetection}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setForceStreamDetection(isChecked)}"
-                android:text="@string/force_stream_detection"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_use_legacy_m3u8_detection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isUseLegacyM3u8Detection}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setUseLegacyM3u8Detection(isChecked)}"
-                android:text="@string/use_legacy_m3u8_detection"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <!-- Downloading Section -->
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/padding_large"
-                android:paddingBottom="@dimen/padding_small"
-                android:text="@string/settings_downloading" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_force_stream_downloading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isForceStreamDownloading}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setForceStreamDownloading(isChecked)}"
-                android:text="@string/force_stream_downloading"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_always_remux_regular_downloads"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isAlwaysRemuxRegularDownloads}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsRemuxOnlyRegularDownloads(isChecked)}"
-                android:text="@string/is_always_remux_regular_downloads"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_remux_only_live_regular_downloads"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isRemuxOnlyLiveRegularDownloads}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsRemuxOnlyLiveRegularDownloads(isChecked)}"
-                android:text="@string/is_remux_only_live_regular_downloads"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/is_interrupt_intrecepted_resources"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="@{viewModel.isInterruptIntreceptedResources}"
-                android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsInterruptInterceptedResources(isChecked)}"
-                android:text="@string/is_interrupt_intrecepted_resources"
-                app:thumbTint="@color/switch_thumb_selector"
-                app:trackDecorationTint="@color/colorAccentDark"
-                app:trackTint="@color/color_gray" />
-
-            <!-- Thread Count Section -->
-            <LinearLayout
-                android:id="@+id/regular_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding_normal"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/regular_threads_count_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{(context.getString(R.string.regular_threads_count) + viewModel.regularThreadsCount)}"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                    tools:text="Regular Download Threads: 4" />
-
-                <SeekBar
-                    android:id="@+id/seekBarRegular"
-                    style="@style/Widget.AppCompat.SeekBar.Discrete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scaleX="1.2"
-                    android:scaleY="1.2"
-                    android:max="15"
-                    android:progress="@{viewModel.regularThreadsCount}" />
-            </LinearLayout>
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
-                android:id="@+id/m3u8_container"
+                android:id="@+id/settings_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/padding_normal"
+                android:paddingBottom="@dimen/padding_large">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/m3u8_threads_count_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{context.getString(R.string.m3u8_threads_count) + viewModel.m3u8ThreadsCount}"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                    tools:text="M3U8 Download Threads: 8" />
-
-                <SeekBar
-                    android:id="@+id/seekBarM3u8"
-                    style="@style/Widget.AppCompat.SeekBar.Discrete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:max="15"
-                    android:scaleX="1.2"
-                    android:scaleY="1.2"
-                    android:progress="@{viewModel.m3u8ThreadsCount}" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ads_treshold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/ads_treshold_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ads_detection_treshold"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                    tools:text="Ads detection treshold is 4Mb" />
-
-                <SeekBar
-                    android:id="@+id/seekBarAdsTreshold"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scaleX="1.2"
-                    android:scaleY="1.2"
-                    android:max="@{50 * 1024 * 1024}"
-                    android:progress="@{viewModel.videoDetectionTreshold}" />
-            </LinearLayout>
-
-            <!-- Storage Location Section -->
-            <LinearLayout
-                android:id="@+id/downloads_location_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding_normal"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/downloads_location"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2" />
-
-                <RadioGroup
-                    android:id="@+id/storage_options"
+                <!-- ====== DOWNLOAD ====== -->
+                <TextView
+                    style="@style/SettingsSectionHeader"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_download_section" />
+
+                <LinearLayout
+                    android:id="@+id/row_download_location"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <RadioButton
-                        android:id="@+id/option_sd_card"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.storageType == viewModel.storageType.SD}"
-                        android:onClick="@{() -> viewModel.setDownloadsFolderSdCard()}"
-                        android:text="@string/downloads_folder" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <RadioButton
-                        android:id="@+id/option_hidden_folder"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="@{viewModel.storageType == viewModel.storageType.HIDDEN}"
-                        android:onClick="@{() -> viewModel.setDownloadsFolderHidden()}"
-                        android:text="@string/hidden_folder" />
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_download_location" />
 
-                    <RadioButton
-                        android:id="@+id/option_sd_app_folder"
+                        <TextView
+                            android:id="@+id/tv_download_location_value"
+                            style="@style/SettingsRowSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="/storage/emulated/0/Download/SuperX" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_download_wifi_only" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_wifi_only"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- ====== BROWSER ====== -->
+                <TextView
+                    style="@style/SettingsSectionHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_browser_section" />
+
+                <LinearLayout
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_block_ads" />
+
+                        <TextView
+                            android:id="@+id/tv_block_ads_state"
+                            style="@style/SettingsRowSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_state_on" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_block_ads"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_recently_used_websites" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_recently_used"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/row_search_engine"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_search_engine" />
+
+                        <TextView
+                            android:id="@+id/tv_search_engine_value"
+                            style="@style/SettingsRowSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/search_engine_google" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/row_clear_cache"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_clear_cache" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/row_clear_history"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_clear_browser_history" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/row_clear_cookies"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_clear_cookies" />
+                </LinearLayout>
+
+                <!-- ====== GENERAL ====== -->
+                <TextView
+                    style="@style/SettingsSectionHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_general_section" />
+
+                <LinearLayout
+                    android:id="@+id/row_language"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_language_options" />
+
+                    <TextView
+                        android:id="@+id/tv_language_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.storageType == viewModel.storageType.HIDDEN_SD}"
-                        android:onClick="@{() -> viewModel.setDownloadsFolderHiddenSdCard()}"
-                        android:text="@string/sd_app_folder" />
-                </RadioGroup>
+                        android:drawableEnd="@drawable/arrow_forward24px"
+                        android:drawablePadding="4dp"
+                        android:drawableTint="@color/brand_accent"
+                        android:gravity="center_vertical"
+                        android:text="@string/settings_language_default"
+                        android:textColor="@color/brand_accent"
+                        android:textSize="@dimen/text_small" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_sync_to_gallery" />
+
+                        <TextView
+                            android:id="@+id/tv_sync_state"
+                            style="@style/SettingsRowSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_state_on" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_sync_gallery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- ====== HELP ====== -->
+                <TextView
+                    style="@style/SettingsSectionHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_help_section" />
+
+                <LinearLayout
+                    android:id="@+id/row_how_to_download"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_how_to_download" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/row_feedback"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_feedback" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/row_privacy"
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_privacy_policy" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+                <LinearLayout
+                    style="@style/SettingsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_app_version" />
+
+                    <TextView
+                        android:id="@+id/tv_app_version"
+                        style="@style/SettingsRowSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="0.8.16.1" />
+                </LinearLayout>
+
+                <!-- ====== ADVANCED (kept available for power users) ====== -->
+                <TextView
+                    style="@style/SettingsSectionHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_advanced_section" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_auto_theme_check_box"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isAutoDarkMode}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsAutoTheme(isChecked)}"
+                    android:text="@string/is_auto_dark" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/lock_orientation_check_box"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isLockPortrait}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsLockPortrait(isChecked)}"
+                    android:text="@string/lock_screen_orientation_portrait" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/drm_enabled_check_box"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isDrmEnabled}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsDrmEnabled(isChecked)}"
+                    android:text="@string/drm_permission_title" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/show_video_alert_check_box"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.getVideoAlertState()}"
+                    android:onCheckedChanged="@{(_, isChecked) -> isChecked ? viewModel.setShowVideoAlertOn() : viewModel.setShowVideoAlertOff()}"
+                    android:text="@string/show_video_found_alert" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/show_video_action_button_check_box"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.getVideoButtonState()}"
+                    android:onCheckedChanged="@{(_, isChecked) -> isChecked ? viewModel.setShowVideoActionButtonOn() : viewModel.setShowVideoActionButtonOff()}"
+                    android:text="@string/show_action_button" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/find_videos_by_url"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isFindVideoByUrl}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsFindVideoByUrl(isChecked)}"
+                    android:text="@string/find_videos_by_url" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_check_every_request_on_mp4"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isCheckEveryRequestOnMp4Video}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsCheckEveryRequestOnVideo(isChecked)}"
+                    android:text="@string/check_every_request_on_video_mp4" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_check_every_request_on_m3u8"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isCheckIfEveryRequestOnM3u8}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsCheckIfEveryUrlOnM3u8(isChecked)}"
+                    android:text="@string/check_every_request_on_video_m3u8" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_check_every_request_on_audio"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isCheckOnAudio}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsCheckOnAudio(isChecked)}"
+                    android:text="@string/check_every_request_on_audio" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_force_stream_detection"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isForceStreamDetection}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setForceStreamDetection(isChecked)}"
+                    android:text="@string/force_stream_detection" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_use_legacy_m3u8_detection"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isUseLegacyM3u8Detection}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setUseLegacyM3u8Detection(isChecked)}"
+                    android:text="@string/use_legacy_m3u8_detection" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_force_stream_downloading"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isForceStreamDownloading}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setForceStreamDownloading(isChecked)}"
+                    android:text="@string/force_stream_downloading" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_always_remux_regular_downloads"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isAlwaysRemuxRegularDownloads}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsRemuxOnlyRegularDownloads(isChecked)}"
+                    android:text="@string/is_always_remux_regular_downloads" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_remux_only_live_regular_downloads"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isRemuxOnlyLiveRegularDownloads}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsRemuxOnlyLiveRegularDownloads(isChecked)}"
+                    android:text="@string/is_remux_only_live_regular_downloads" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/is_interrupt_intrecepted_resources"
+                    style="@style/SettingsRowSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isInterruptIntreceptedResources}"
+                    android:onCheckedChanged="@{(_, isChecked) -> viewModel.setIsInterruptInterceptedResources(isChecked)}"
+                    android:text="@string/is_interrupt_intrecepted_resources" />
+
+                <LinearLayout
+                    android:id="@+id/regular_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_normal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/regular_threads_count_text"
+                        style="@style/SettingsRowSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{(context.getString(R.string.regular_threads_count) + viewModel.regularThreadsCount)}"
+                        tools:text="Regular Download Threads: 4" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarRegular"
+                        style="@style/Widget.AppCompat.SeekBar.Discrete"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="15"
+                        android:progress="@{viewModel.regularThreadsCount}"
+                        android:scaleX="1.2"
+                        android:scaleY="1.2" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/m3u8_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/m3u8_threads_count_text"
+                        style="@style/SettingsRowSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{context.getString(R.string.m3u8_threads_count) + viewModel.m3u8ThreadsCount}"
+                        tools:text="M3U8 Download Threads: 8" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarM3u8"
+                        style="@style/Widget.AppCompat.SeekBar.Discrete"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="15"
+                        android:progress="@{viewModel.m3u8ThreadsCount}"
+                        android:scaleX="1.2"
+                        android:scaleY="1.2" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ads_treshold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/ads_treshold_text"
+                        style="@style/SettingsRowSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ads_detection_treshold"
+                        tools:text="Ads detection treshold is 4Mb" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarAdsTreshold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="@{50 * 1024 * 1024}"
+                        android:progress="@{viewModel.videoDetectionTreshold}"
+                        android:scaleX="1.2"
+                        android:scaleY="1.2" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/downloads_location_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_normal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SettingsRowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/downloads_location" />
+
+                    <RadioGroup
+                        android:id="@+id/storage_options"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <RadioButton
+                            android:id="@+id/option_sd_card"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="@{viewModel.storageType == viewModel.storageType.SD}"
+                            android:onClick="@{() -> viewModel.setDownloadsFolderSdCard()}"
+                            android:text="@string/downloads_folder" />
+
+                        <RadioButton
+                            android:id="@+id/option_hidden_folder"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="@{viewModel.storageType == viewModel.storageType.HIDDEN}"
+                            android:onClick="@{() -> viewModel.setDownloadsFolderHidden()}"
+                            android:text="@string/hidden_folder" />
+
+                        <RadioButton
+                            android:id="@+id/option_sd_app_folder"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="@{viewModel.storageType == viewModel.storageType.HIDDEN_SD}"
+                            android:onClick="@{() -> viewModel.setDownloadsFolderHiddenSdCard()}"
+                            android:text="@string/sd_app_folder" />
+                    </RadioGroup>
+                </LinearLayout>
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                tools:ignore="UselessLeaf" />
-        </LinearLayout>
-    </ScrollView>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

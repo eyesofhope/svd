@@ -343,13 +343,22 @@ val goExecutable = run {
     val propOverride = project.findProperty("GO_EXECUTABLE")?.toString()
     if (propOverride != null && file(propOverride).exists()) return@run propOverride
 
-    val candidates = listOf(
-        "/opt/homebrew/bin/go",
-        "/usr/local/go/bin/go",
-        "/usr/local/bin/go",
-        "/usr/bin/go"
-    )
-    candidates.find { file(it).exists() } ?: "go"
+    val isWindows = System.getProperty("os.name").lowercase().contains("win")
+    val candidates = if (isWindows) {
+        listOf(
+            "C:\\Program Files\\Go\\bin\\go.exe",
+            "C:\\Go\\bin\\go.exe",
+            "${System.getProperty("user.home")}\\go\\bin\\go.exe"
+        )
+    } else {
+        listOf(
+            "/opt/homebrew/bin/go",
+            "/usr/local/go/bin/go",
+            "/usr/local/bin/go",
+            "/usr/bin/go"
+        )
+    }
+    candidates.find { file(it).exists() } ?: (if (isWindows) "go.exe" else "go")
 }
 
 // Git Executable Detection
@@ -367,8 +376,8 @@ fun findNdkPath(): String {
     }
 
     val localPropertiesFile = rootProject.file("local.properties")
+    val properties = Properties()
     if (localPropertiesFile.exists()) {
-        val properties = Properties()
         localPropertiesFile.inputStream().use { properties.load(it) }
         val propVar = properties.getProperty("ndk.dir")
         if (propVar != null) {
@@ -377,10 +386,25 @@ fun findNdkPath(): String {
         }
     }
 
+    // Attempt to locate NDK based on SDK path
+    val sdkPath = properties.getProperty("sdk.dir")
+        ?: System.getenv("ANDROID_HOME")
+        ?: System.getenv("ANDROID_SDK_ROOT")
+        ?: "${System.getProperty("user.home")}/AppData/Local/Android/Sdk"
+
+    val ndkVersion = libs.versions.ndk.get()
+    val ndkDir = file("$sdkPath/ndk/$ndkVersion")
+
+    if (ndkDir.exists()) {
+        println("✓ Found NDK path in SDK folder: ${ndkDir.absolutePath}")
+        return ndkDir.absolutePath
+    }
+
     throw GradleException(
         "✗ NDK path not found. Please define one of:\n" +
         "  1. Environment: ANDROID_NDK_HOME or ANDROID_NDK_ROOT\n" +
-        "  2. Property: ndk.dir in local.properties"
+        "  2. Property: ndk.dir in local.properties\n" +
+        "  3. Environment: ANDROID_HOME or ANDROID_SDK_ROOT"
     )
 }
 
@@ -447,10 +471,11 @@ fun verifyGoExecutable(builderDir: File, executablePath: String) {
 
 fun createGoModule(builderDir: File) {
     val goModFile = file("${builderDir}/go.mod")
+    val goVer = libs.versions.goVersion.get()
     goModFile.writeText(
         """
         module builder
-        go 1.25.7
+        go $goVer
 
         require (
 	        github.com/xtls/xray-core v1.260123.1-0.20260206094241-12ee51e4bb1d
@@ -618,8 +643,8 @@ archConfigs.forEach { arch ->
         environment("GOOS", "android")
         environment("GOARCH", arch.goArch)
         environment("CC", compiler)
-        environment("CGO_CFLAGS", "--sysroot=${sysroot}")
-        environment("CGO_LDFLAGS", "--sysroot=${sysroot} -llog -Wl,-z,max-page-size=16384")
+        environment("CGO_CFLAGS", "")
+        environment("CGO_LDFLAGS", "-llog -Wl,-z,max-page-size=16384")
 
         doFirst {
             println("\n>>> Building Go library for ${arch.abi}...")

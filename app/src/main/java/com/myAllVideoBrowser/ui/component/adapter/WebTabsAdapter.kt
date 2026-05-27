@@ -50,10 +50,11 @@ class WebTabsAdapter(
                     val bm =
                         AppCompatResources.getDrawable(
                             context,
-                            R.drawable.home_48px
+                            R.drawable.public_24px
                         )
 
                     this.faviconTab.setImageDrawable(bm)
+                    this.tabTitle.text = context.getString(R.string.homepage)
                 }
 
                 if (!webTab.isHome()) {

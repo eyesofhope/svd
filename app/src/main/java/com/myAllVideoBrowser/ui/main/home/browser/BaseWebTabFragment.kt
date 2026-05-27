@@ -22,7 +22,6 @@ import com.myAllVideoBrowser.util.SharedPrefHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import androidx.core.view.get
 
 
 abstract class BaseWebTabFragment : BaseFragment() {
@@ -33,6 +32,19 @@ abstract class BaseWebTabFragment : BaseFragment() {
     lateinit var sharedPrefHelper: SharedPrefHelper
 
     private var popupMenu: PopupMenu? = null
+
+    /**
+     * Optional listener implemented by subclasses to receive nav-style menu actions
+     * (back, forward, new tab, close tab) that now live in the 3-dot popup.
+     */
+    open val popupNavListener: PopupNavListener? = null
+
+    interface PopupNavListener {
+        fun onMenuBack() {}
+        fun onMenuForward() {}
+        fun onMenuNewTab() {}
+        fun onMenuCloseTab() {}
+    }
 
     private val darkModeCallback = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -101,33 +113,33 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
     fun buildWebTabMenu(browserMenu: View, isHomeTab: Boolean) {
         if (popupMenu == null) {
-            popupMenu =
-                buildPopupMenu(browserMenu)
-            val bookmarkMenuItem = popupMenu!!.menu[2]
-            val shareMenuItem = popupMenu!!.menu[3]
-            val desktopMenuItem = popupMenu!!.menu[4]
-            val proxyItem = popupMenu!!.menu[7]
-            val isProxyOn = mainActivity.proxiesViewModel.isProxyOn
-            val isDarkModeItem = popupMenu!!.menu[8]
-            val isDark = mainActivity.settingsViewModel.isDarkMode.get()
-            isDarkModeItem.isChecked = isDark
-            isDarkModeItem.isEnabled = !mainActivity.settingsViewModel.isAutoDarkMode.get()
+            popupMenu = buildPopupMenu(browserMenu)
 
-            desktopMenuItem.isChecked = mainActivity.settingsViewModel.isDesktopMode.get() == true
-            proxyItem.isChecked = isProxyOn.get() == true
+            val menu = popupMenu!!.menu
+
+            // Sync initial checkable states
+            menu.findItem(R.id.is_dark)?.let {
+                it.isChecked = mainActivity.settingsViewModel.isDarkMode.get()
+                it.isEnabled = !mainActivity.settingsViewModel.isAutoDarkMode.get()
+            }
+            menu.findItem(R.id.desktop_mode)?.isChecked =
+                mainActivity.settingsViewModel.isDesktopMode.get() == true
+            menu.findItem(R.id.proxies)?.isChecked =
+                mainActivity.proxiesViewModel.isProxyOn.get() == true
 
             popupMenu!!.setForceShowIcon(true)
 
             mainActivity.settingsViewModel.isDarkMode.addOnPropertyChangedCallback(darkModeCallback)
-
             mainActivity.settingsViewModel.isAutoDarkMode.addOnPropertyChangedCallback(autoDarkModeCallback)
-
             mainActivity.settingsViewModel.isDesktopMode.addOnPropertyChangedCallback(desktopModeCallback)
+            mainActivity.proxiesViewModel.isProxyOn.addOnPropertyChangedCallback(proxyOnCallback)
 
-            isProxyOn.addOnPropertyChangedCallback(proxyOnCallback)
-
-            shareMenuItem.isVisible = !isHomeTab
-            bookmarkMenuItem.isVisible = !isHomeTab
+            // Hide nav-style + tab-only items when on the home tab popup
+            menu.findItem(R.id.menu_back)?.isVisible = !isHomeTab
+            menu.findItem(R.id.menu_forward)?.isVisible = !isHomeTab
+            menu.findItem(R.id.menu_close_tab)?.isVisible = !isHomeTab
+            menu.findItem(R.id.share_link)?.isVisible = !isHomeTab
+            menu.findItem(R.id.bookmark)?.isVisible = !isHomeTab
         }
     }
 
@@ -148,8 +160,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
     }
 
     private fun buildPopupMenu(view: View): PopupMenu {
-        val location = IntArray(2)
-        view.getLocationOnScreen(location)
         val popupMenu = PopupMenu(requireContext(), view)
 
         popupMenu.gravity = Gravity.END
@@ -157,6 +167,26 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.menu_back -> {
+                    popupNavListener?.onMenuBack()
+                    true
+                }
+
+                R.id.menu_forward -> {
+                    popupNavListener?.onMenuForward()
+                    true
+                }
+
+                R.id.menu_new_tab -> {
+                    popupNavListener?.onMenuNewTab()
+                    true
+                }
+
+                R.id.menu_close_tab -> {
+                    popupNavListener?.onMenuCloseTab()
+                    true
+                }
+
                 R.id.share_link -> {
                     shareWebLink()
                     true

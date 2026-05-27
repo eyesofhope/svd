@@ -1,34 +1,24 @@
 <resources>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Set the splash screen background, animated icon, and animation duration. -->
         <item name="windowSplashScreenBackground">@color/black_85</item>
-
-        <!-- Use windowSplashScreenAnimatedIcon to add either a drawable or an
-             animated drawable. One of these is required. -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
-        <!-- Required for animated icons -->
         <item name="windowSplashScreenAnimationDuration">200</item>
-
-        <!-- Set the theme of the Activity that directly follows your splash screen. -->
-        <!-- Required -->
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
-
 
     <!-- Base application theme. -->
     <style name="Base.AppTheme" parent="Theme.Material3.DayNight">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/brand_accent</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/brand_accent</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme">
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <!--Splash screen theme. You should use it in your manifest file for your Splash Activity-->
     <style name="AppTheme.Launcher">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
@@ -55,4 +45,78 @@
         <item name="cornerSize">8dp</item>
     </style>
 
+    <!-- New design helpers -->
+    <style name="QuickPrefix">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_quick_prefix</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingVertical">8dp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SettingsSectionHeader" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/settings_section_header</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">@dimen/padding_normal</item>
+        <item name="android:paddingBottom">@dimen/padding_small</item>
+    </style>
+
+    <style name="SettingsRowTitle" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="SettingsRowSubtitle" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/hint_text</item>
+        <item name="android:textSize">@dimen/text_tiny</item>
+    </style>
+
+    <style name="SettingsRow">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">@dimen/settings_row_min_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingVertical">@dimen/padding_small</item>
+    </style>
+
+    <style name="SettingsRowSwitch" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="android:minHeight">@dimen/settings_row_min_height</item>
+        <item name="android:paddingVertical">@dimen/padding_small</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="thumbTint">@color/switch_thumb_selector</item>
+        <item name="trackDecorationTint">@color/colorAccentDark</item>
+        <item name="trackTint">@color/color_gray</item>
+    </style>
+
+    <style name="SettingsDivider">
+        <item name="android:background">@color/settings_divider</item>
+    </style>
+
+    <!-- Download bottom sheet -->
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalBottomSheetStyle</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppModalBottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="shapeAppearanceOverlay">@style/AppBottomSheetShapeOverlay</item>
+    </style>
+
+    <style name="AppBottomSheetShapeOverlay" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeTopLeft">24dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
 </resources>

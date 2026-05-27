@@ -1,4 +1,4 @@
-package com.myAllVideoBrowser.ui.main.home.browser
+﻿package com.myAllVideoBrowser.ui.main.home.browser
 
 //import com.allVideoDownloaderXmaster.OpenForTesting
 
@@ -16,6 +16,7 @@ import android.webkit.ServiceWorkerController
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
@@ -43,6 +44,7 @@ import com.myAllVideoBrowser.ui.main.home.MainViewModel
 import com.myAllVideoBrowser.ui.main.home.browser.detectedVideos.GlobalVideoDetectionModel
 import com.myAllVideoBrowser.ui.main.home.browser.homeTab.BrowserHomeFragment
 import com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTab
+import com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTabFactory
 import com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTabFragment
 import com.myAllVideoBrowser.ui.main.progress.WrapContentLinearLayoutManager
 import com.myAllVideoBrowser.ui.main.settings.SettingsViewModel
@@ -325,6 +327,50 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
             this.drawerLayoutContent.setBackgroundColor(color)
 
             this.viewModel = browserViewModel
+
+            // Drawer overflow: close current/other tabs
+            this.drawerOverflow.setOnClickListener { showDrawerOverflowMenu(it) }
+
+            // Favorite sites footer goes back to the home tab
+            this.btnFavoriteSites.setOnClickListener {
+                browserViewModel.currentTab.set(HOME_TAB_INDEX)
+                this.drawerLayout.close()
+            }
+
+            this.btnDrawerHome.setOnClickListener {
+                browserViewModel.currentTab.set(HOME_TAB_INDEX)
+                this.drawerLayout.close()
+            }
+            this.btnDrawerBack.setOnClickListener {
+                val tabs = browserViewModel.tabs.get() ?: emptyList()
+                val current = browserViewModel.currentTab.get()
+                if (tabs.isNotEmpty() && current > 0) {
+                    browserViewModel.currentTab.set(current - 1)
+                }
+            }
+            this.btnDrawerForward.setOnClickListener {
+                val tabs = browserViewModel.tabs.get() ?: emptyList()
+                val current = browserViewModel.currentTab.get()
+                if (tabs.isNotEmpty() && current < tabs.size - 1) {
+                    browserViewModel.currentTab.set(current + 1)
+                }
+            }
+            this.btnNewTabDrawer.setOnClickListener {
+                val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                if (newTab != WebTab.HOME_TAB) {
+                    browserViewModel.openPageEvent.value = newTab
+                } else {
+                    browserViewModel.currentTab.set(HOME_TAB_INDEX)
+                }
+                this.drawerLayout.close()
+            }
+
+            // Set up the New Tab button
+            this.btnNewTab.setOnClickListener {
+                // Create a new tab (empty or with default URL)
+                val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                browserViewModel.openPageEvent.value = newTab
+            }
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
@@ -486,6 +532,37 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
         }
     }
 
+    private fun showDrawerOverflowMenu(anchor: android.view.View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menu.add(0, 1, 0, getString(R.string.close_current_tab))
+        popup.menu.add(0, 2, 0, getString(R.string.close_other_tabs))
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> {
+                    val current = browserViewModel.currentTab.get()
+                    val tabs = browserViewModel.tabs.get() ?: emptyList()
+                    if (current in tabs.indices && current != HOME_TAB_INDEX) {
+                        browserViewModel.closePageEvent.value = tabs[current]
+                    }
+                    true
+                }
+                2 -> {
+                    val tabs = browserViewModel.tabs.get()?.toMutableList() ?: mutableListOf(WebTab.HOME_TAB)
+                    val current = browserViewModel.currentTab.get()
+                    val keep = if (current in tabs.indices) tabs[current] else WebTab.HOME_TAB
+                    val cleaned = mutableListOf<WebTab>()
+                    cleaned.add(WebTab.HOME_TAB)
+                    if (keep != WebTab.HOME_TAB) cleaned.add(keep)
+                    browserViewModel.tabs.set(cleaned)
+                    browserViewModel.currentTab.set(if (keep == WebTab.HOME_TAB) HOME_TAB_INDEX else 1)
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
     private val onGoThroughListener = object : OnGoThroughListener {
         override fun onRightGoThrough() {
             val currentTabIndex = browserViewModel.currentTab.get()
@@ -495,3 +572,4 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
         }
     }
 }
+

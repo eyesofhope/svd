@@ -21,124 +21,256 @@
             type="com.myAllVideoBrowser.ui.main.home.MainViewModel" />
     </data>
 
-
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/home_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:animateLayoutChanges="true"
+        android:background="?attr/colorSurface">
 
+        <!-- Top app bar: tab counter + ad badge + help + settings + menu -->
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/home_topbar"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/padding_normal"
+            android:paddingVertical="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.appbar.AppBarLayout
-                android:id="@id/appBarLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
+            <FrameLayout
+                android:id="@+id/tab_counter_container"
+                android:layout_width="@dimen/home_top_icon_size"
+                android:layout_height="@dimen/home_top_icon_size"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/tabs"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/materialToolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tab_counter"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_tab_counter"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/browser_home_menu_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="@dimen/padding_small"
-                        android:elevation="0dp"
-                        android:shadowColor="@android:color/transparent"
-                        app:cardBackgroundColor="@android:color/transparent"
-                        app:cardCornerRadius="8dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0"
-                        app:strokeColor="@android:color/transparent">
+            <ImageView
+                android:id="@+id/btn_help"
+                android:layout_width="@dimen/home_top_icon_size"
+                android:layout_height="@dimen/home_top_icon_size"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/help"
+                android:padding="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_settings"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_help_circle"
+                app:tint="?attr/colorOnSurface" />
 
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/browser_home_menu_button"
-                            android:layout_width="49dp"
-                            android:layout_height="49dp"
-                            android:layout_gravity="end"
-                            android:contentDescription="@string/menu"
-                            android:onClick="@{() -> browserMenuListener.onBrowserMenuClicked()}"
-                            android:padding="@dimen/padding_small"
-                            app:srcCompat="@drawable/ic_more_24dp"
-                            tools:ignore="VectorDrawableCompat" />
-                    </com.google.android.material.card.MaterialCardView>
-                </com.google.android.material.appbar.MaterialToolbar>
+            <ImageView
+                android:id="@+id/btn_settings"
+                android:layout_width="@dimen/home_top_icon_size"
+                android:layout_height="@dimen/home_top_icon_size"
+                android:layout_marginStart="@dimen/padding_small"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/title_settings"
+                android:padding="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/browser_home_menu_button"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_settings_gear"
+                app:tint="?attr/colorOnSurface" />
 
-            </com.google.android.material.appbar.AppBarLayout>
+            <ImageView
+                android:id="@+id/browser_home_menu_button"
+                android:layout_width="@dimen/home_top_icon_size"
+                android:layout_height="@dimen/home_top_icon_size"
+                android:layout_marginStart="@dimen/padding_small"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/menu"
+                android:onClick="@{() -> browserMenuListener.onBrowserMenuClicked()}"
+                android:padding="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/more_vert_24px"
+                app:tint="?attr/colorOnSurface" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- Search / URL bar with focus animation -->
+        <FrameLayout
+            android:id="@+id/search_bar_card"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/home_search_bar_height"
+            android:layout_marginHorizontal="@dimen/padding_normal"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_search_bar_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/home_topbar">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/home_et_search"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="@dimen/padding_normal"
-                android:background="@drawable/round_corner"
-                android:elevation="5dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
                 android:focusable="@{viewModel.isSearchInputFocused}"
                 android:focusableInTouchMode="@{viewModel.isSearchInputFocused}"
                 android:hint="@string/browser_search_hint"
-                android:maxWidth="450dp"
+                android:imeOptions="actionGo"
+                android:inputType="textUri"
                 android:onClick="@{() -> viewModel.changeSearchFocus(true)}"
                 android:paddingStart="@dimen/padding_normal"
-                android:paddingEnd="@dimen/padding_normal"
+                android:paddingEnd="48dp"
                 android:singleLine="true"
                 android:text="@{viewModel.searchTextInput}"
-                android:textSize="@dimen/text_small"
-                app:items="@{viewModel.listSuggestions}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-                app:layout_constraintVertical_bias="0.476" />
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="@color/hint_text"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/text_medium"
+                app:items="@{viewModel.listSuggestions}" />
 
-            <com.google.android.material.button.MaterialButton
+            <ImageView
                 android:id="@+id/go_button"
-                android:layout_width="150dp"
-                android:layout_height="50dp"
-                android:layout_margin="@dimen/padding_normal"
-                android:text="@string/go"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/home_et_search"
-                app:layout_constraintVertical_bias="0.0" />
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="6dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/go"
+                android:padding="6dp"
+                app:srcCompat="@drawable/ic_search_url_return"
+                app:tint="?attr/colorOnSurfaceVariant" />
+        </FrameLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Search suggestions list (only visible while focused) -->
+        <ListView
+            android:id="@+id/suggestions_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/padding_normal"
+            android:layout_marginTop="@dimen/padding_small"
+            android:divider="@null"
+            android:listSelector="@android:color/transparent"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_card" />
 
-        <GridView
-            android:id="@+id/top_pages_grid"
+        <!-- Quick URL prefixes (above keyboard) -->
+        <LinearLayout
+            android:id="@+id/quick_prefix_row"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/search_bar_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/padding_normal"
+            android:paddingVertical="10dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                style="@style/QuickPrefix"
+                android:tag="www."
+                android:text="@string/prefix_www" />
+
+            <TextView
+                style="@style/QuickPrefix"
+                android:tag="m."
+                android:text="@string/prefix_m" />
+
+            <TextView
+                style="@style/QuickPrefix"
+                android:tag="wap."
+                android:text="@string/prefix_wap" />
+
+            <TextView
+                style="@style/QuickPrefix"
+                android:tag="."
+                android:text="@string/prefix_dot" />
+
+            <TextView
+                style="@style/QuickPrefix"
+                android:tag="/"
+                android:text="@string/prefix_slash" />
+        </LinearLayout>
+
+        <!-- Scrollable home content -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/home_scroll"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:horizontalSpacing="4dp"
-            android:numColumns="4"
-            android:padding="4dp"
-            android:verticalSpacing="4dp"
-            app:items="@{mainVModel.bookmarksList}" />
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_bar_card">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/padding_normal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="16dp"
-            android:layout_gravity="bottom|center"
-            android:gravity="center">
+                <!-- Favorite sites grid -->
+                <GridView
+                    android:id="@+id/top_pages_grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:horizontalSpacing="0dp"
+                    android:numColumns="4"
+                    android:overScrollMode="never"
+                    android:paddingHorizontal="@dimen/padding_small"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="@dimen/padding_normal"
+                    app:items="@{mainVModel.bookmarksList}" />
 
-        </LinearLayout>
-    </LinearLayout>
+                <!-- How to download CTA -->
+                <LinearLayout
+                    android:id="@+id/how_to_download_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginHorizontal="@dimen/padding_normal"
+                    android:layout_marginTop="40dp"
+                    android:background="@drawable/bg_how_to_download"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/how_to_download"
+                        app:srcCompat="@drawable/ic_help_circle"
+                        app:tint="@color/brand_accent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/padding_small"
+                        android:text="@string/how_to_download"
+                        android:textColor="@color/brand_accent"
+                        android:textSize="@dimen/text_medium"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/padding_large" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

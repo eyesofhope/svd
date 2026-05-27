@@ -5,4 +5,13 @@
     <color name="colorAccent">#D93DE616</color>
     <color name="colorAccentDark">#D920750C</color>
     <color name="colorOnPrimary">#FFFFFF</color>
+
+    <!-- Night-mode overrides for the new design -->
+    <color name="brand_accent">#82B1FF</color>
+    <color name="brand_accent_soft">#1F2A3A</color>
+    <color name="search_bar_bg">#1F2329</color>
+    <color name="settings_section_header">#82B1FF</color>
+    <color name="settings_divider">#2A2F36</color>
+    <color name="surface_light">#121417</color>
+    <color name="hint_text">#7A8694</color>
 </resources>

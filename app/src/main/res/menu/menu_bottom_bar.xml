@@ -4,20 +4,20 @@
     <item
         android:id="@+id/tab_browser"
         android:enabled="true"
-        android:icon="@drawable/tab_group_24px"
-        android:title="Browser"
+        android:icon="@drawable/ic_tab_outline"
+        android:title="@string/bottom_nav_tab"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/tab_progress"
         android:enabled="true"
         android:icon="@drawable/downloading_24px"
-        android:title="Progress"
+        android:title="@string/bottom_nav_progress"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/tab_video"
         android:enabled="true"
-        android:icon="@drawable/video_library_24px"
-        android:title="Video"
+        android:icon="@drawable/ic_finished_folder"
+        android:title="@string/bottom_nav_finished"
         app:showAsAction="ifRoom" />
 
     <item

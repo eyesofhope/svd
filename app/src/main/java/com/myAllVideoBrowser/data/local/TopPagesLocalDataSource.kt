@@ -1,6 +1,5 @@
 package com.myAllVideoBrowser.data.local
 
-import android.net.Uri
 import com.myAllVideoBrowser.data.local.room.dao.PageDao
 import com.myAllVideoBrowser.data.local.room.entity.PageInfo
 import com.myAllVideoBrowser.data.repository.TopPagesRepository
@@ -48,20 +47,20 @@ class TopPagesLocalDataSource @Inject constructor(
     }
 
     private fun getDefaultBookmarks(): List<PageInfo> {
-        val defaultList = arrayListOf<PageInfo>()
+        // Curated default favorites that match the supported-platforms reference design.
+        val defaults = listOf(
+            "Facebook" to "https://www.facebook.com",
+            "Instagram" to "https://www.instagram.com",
+            "Vimeo" to "https://vimeo.com",
+            "Dailymotion" to "https://www.dailymotion.com",
+            "TikTok" to "https://www.tiktok.com",
+            "Twitter" to "https://twitter.com",
+            "Ringtone" to "https://www.zedge.net/ringtones",
+            "WhatsApp" to "https://web.whatsapp.com"
+        )
 
-        defaultList.add(PageInfo(link = "https://www.imdb.com"))
-        defaultList.add(PageInfo(link = "https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v3/public-resolvers.md"))
-        defaultList.add(PageInfo(link = "https://www.dailymotion.com"))
-        defaultList.add(PageInfo(link = "https://www.instagram.com"))
-        defaultList.add(PageInfo(link = "https://www.twitter.com"))
-        defaultList.add(PageInfo(link = "https://www.pinterest.com/videos"))
-        defaultList.add(PageInfo(link = "https://www.twitch.tv"))
-
-        return defaultList.mapIndexed { index, page ->
-            page.name = Uri.parse(page.link).host.toString()
-            page.order = index
-            page
+        return defaults.mapIndexed { index, (label, link) ->
+            PageInfo(link = link, name = label, order = index)
         }
     }
 }

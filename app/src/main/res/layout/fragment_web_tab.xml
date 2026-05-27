@@ -48,144 +48,160 @@
             <com.google.android.material.appbar.AppBarLayout
                 android:id="@+id/app_bar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/colorSurface"
+                    app:contentInsetEnd="0dp"
+                    app:contentInsetStart="0dp"
                     app:layout_scrollFlags="scroll|enterAlways|snap">
 
+                    <!-- Chrome-style single-row top bar:
+                         Home | URL pill (with leading icon + refresh) | + | Tab counter | 3-dot menu -->
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="fill_horizontal"
-                        android:orientation="horizontal">
+                        android:layout_height="56dp"
+                        android:paddingHorizontal="@dimen/padding_small">
 
-                        <LinearLayout
-                            android:id="@+id/buttons_block"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
+                        <!-- Home button -->
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/iv_home_button"
+                            android:layout_width="@dimen/home_top_icon_size"
+                            android:layout_height="@dimen/home_top_icon_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/home"
+                            android:padding="6dp"
+                            android:scaleType="centerInside"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
-
-                            <com.google.android.material.imageview.ShapeableImageView
-                                android:id="@+id/iv_close_tab"
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:adjustViewBounds="true"
-                                android:contentDescription="@string/home"
-                                android:foreground="?android:attr/selectableItemBackground"
-                                android:onClick="@{() -> browserMenuListener.onTabCloseClicked()}"
-                                android:padding="@dimen/padding_small"
-                                android:scaleType="centerCrop"
-                                app:shapeAppearanceOverlay="@style/customImageViewRounded"
-                                app:srcCompat="@drawable/tab_close_24px"
-                                tools:ignore="VectorDrawableCompat" />
-
-                            <com.google.android.material.imageview.ShapeableImageView
-                                android:id="@+id/iv_go_back"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:adjustViewBounds="true"
-                                android:contentDescription="@string/home"
-                                android:foreground="?android:attr/selectableItemBackground"
-                                android:onClick="@{() -> browserMenuListener.onBrowserBackClicked()}"
-                                android:padding="@dimen/padding_small"
-                                android:scaleType="centerCrop"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:shapeAppearanceOverlay="@style/customImageViewRounded"
-                                app:srcCompat="@drawable/arrow_back24px"
-                                tools:ignore="VectorDrawableCompat" />
-
-                            <com.google.android.material.imageview.ShapeableImageView
-                                android:id="@+id/iv_go_forward"
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:adjustViewBounds="true"
-                                android:contentDescription="@string/home"
-                                android:foreground="?android:attr/selectableItemBackground"
-                                android:onClick="@{() -> browserMenuListener.onBrowserForwardClicked()}"
-                                android:padding="@dimen/padding_small"
-                                android:scaleType="centerCrop"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:shapeAppearanceOverlay="@style/customImageViewRounded"
-                                app:srcCompat="@drawable/arrow_forward24px"
-                                tools:ignore="VectorDrawableCompat" />
-                        </LinearLayout>
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@id/et_search"
-                            android:layout_width="0dp"
-                            android:layout_height="50dp"
-                            android:layout_weight="1"
-                            android:focusable="@{viewModel.isTabInputFocused}"
-                            android:focusableInTouchMode="@{viewModel.isTabInputFocused}"
-                            android:hint="@string/browser_search_hint"
-                            android:maxWidth="480dp"
-                            android:onClick="@{() -> viewModel.changeTabFocus(true)}"
-                            android:paddingStart="@dimen/padding_small"
-                            android:paddingEnd="@dimen/browser_title_padding"
-                            android:singleLine="true"
-                            android:text="@{viewModel.getTabTextInput()}"
-                            android:textSize="@dimen/text_small"
-                            app:items="@{viewModel.listTabSuggestions}"
-                            app:layout_constraintEnd_toStartOf="@+id/browser_menu_container"
-                            app:layout_constraintStart_toEndOf="@+id/buttons_block"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/iv_close_refresh"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:adjustViewBounds="true"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:onClick="@{() -> viewModel.isShowProgress() ? browserMenuListener.onBrowserStopClicked() : browserMenuListener.onBrowserReloadClicked()}"
-                            android:padding="@dimen/padding_small"
-                            android:scaleType="centerCrop"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="@+id/et_search"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.466"
-                            app:shapeAppearanceOverlay="@style/customImageViewRounded"
-                            app:srcCompat="@{viewModel.progressIcon}"
+                            app:srcCompat="@drawable/home_48px"
+                            app:tint="?attr/colorOnSurface"
                             tools:ignore="VectorDrawableCompat" />
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/browser_menu_container"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/padding_small"
-                            android:elevation="0dp"
-                            android:shadowColor="@android:color/transparent"
-                            app:cardBackgroundColor="@android:color/transparent"
-                            app:cardCornerRadius="8dp"
+                        <!-- URL pill -->
+                        <FrameLayout
+                            android:id="@+id/url_pill"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="@dimen/padding_tiny"
+                            android:layout_marginEnd="@dimen/padding_tiny"
+                            android:background="@drawable/bg_url_pill"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/iv_new_tab"
+                            app:layout_constraintStart_toEndOf="@id/iv_home_button"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iv_url_lead"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="start|center_vertical"
+                                android:layout_marginStart="10dp"
+                                android:contentDescription="@string/url_info"
+                                app:srcCompat="@drawable/ic_url_lead_tune"
+                                app:tint="?attr/colorOnSurfaceVariant" />
+
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/et_search"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent"
+                                android:focusable="@{viewModel.isTabInputFocused}"
+                                android:focusableInTouchMode="@{viewModel.isTabInputFocused}"
+                                android:hint="@string/browser_search_hint"
+                                android:imeOptions="actionDone"
+                                android:inputType="textUri"
+                                android:maxLines="1"
+                                android:onClick="@{() -> viewModel.changeTabFocus(true)}"
+                                android:paddingStart="38dp"
+                                android:paddingEnd="40dp"
+                                android:singleLine="true"
+                                android:text="@{viewModel.getTabTextInput()}"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textColorHint="@color/hint_text"
+                                android:textCursorDrawable="@null"
+                                android:textSize="@dimen/text_small"
+                                app:items="@{viewModel.listTabSuggestions}" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/iv_close_refresh"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_gravity="end|center_vertical"
+                                android:layout_marginEnd="2dp"
+                                android:adjustViewBounds="true"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/reload"
+                                android:onClick="@{() -> viewModel.isShowProgress() ? browserMenuListener.onBrowserStopClicked() : browserMenuListener.onBrowserReloadClicked()}"
+                                android:padding="8dp"
+                                android:scaleType="centerInside"
+                                app:srcCompat="@{viewModel.progressIcon}"
+                                app:tint="?attr/colorOnSurfaceVariant"
+                                tools:ignore="VectorDrawableCompat" />
+                        </FrameLayout>
+
+                        <!-- New tab (+) button -->
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/iv_new_tab"
+                            android:layout_width="@dimen/home_top_icon_size"
+                            android:layout_height="@dimen/home_top_icon_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/new_tab"
+                            android:padding="6dp"
+                            android:scaleType="centerInside"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/tab_counter_container"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/add_new_tab_icon24"
+                            app:tint="?attr/colorOnSurface"
+                            tools:ignore="VectorDrawableCompat" />
+
+                        <!-- Tab counter -->
+                        <FrameLayout
+                            android:id="@+id/tab_counter_container"
+                            android:layout_width="@dimen/home_top_icon_size"
+                            android:layout_height="@dimen/home_top_icon_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/tabs"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/browser_menu_button"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/tab_counter"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/bg_tab_counter_square"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:text="1"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+
+                        <!-- 3-dot menu -->
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/browser_menu_button"
+                            android:layout_width="@dimen/home_top_icon_size"
+                            android:layout_height="@dimen/home_top_icon_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/menu"
+                            android:onClick="@{() -> browserMenuListener.onBrowserMenuClicked()}"
+                            android:padding="6dp"
+                            android:scaleType="centerInside"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0"
-                            app:strokeColor="@android:color/transparent">
-
-                            <androidx.appcompat.widget.AppCompatImageView
-                                android:id="@+id/browser_menu_button"
-                                android:layout_width="49dp"
-                                android:layout_height="49dp"
-                                android:background="?attr/selectableItemBackground"
-                                android:contentDescription="@string/menu"
-                                android:onClick="@{() -> browserMenuListener.onBrowserMenuClicked()}"
-                                android:padding="@dimen/padding_small"
-                                app:srcCompat="@drawable/ic_more_24dp"
-                                tools:ignore="VectorDrawableCompat" />
-                        </com.google.android.material.card.MaterialCardView>
+                            app:srcCompat="@drawable/more_vert_24px"
+                            app:tint="?attr/colorOnSurface"
+                            tools:ignore="VectorDrawableCompat" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.appbar.MaterialToolbar>

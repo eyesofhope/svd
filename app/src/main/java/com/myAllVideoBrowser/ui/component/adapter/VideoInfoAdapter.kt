@@ -4,12 +4,13 @@ import android.annotation.SuppressLint
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myAllVideoBrowser.R
 import com.myAllVideoBrowser.data.local.room.entity.VideoInfo
@@ -90,7 +91,7 @@ class VideoInfoAdapter(
                     if (isMpd) "MPD List" else "M3U8 List"
                 } else if (info.isMaster) {
                     val isMpd = info.formats.formats.firstOrNull()?.isMpd == true
-                    if (isMpd) "MPD Master List" else "M3U8 Mater List"
+                    if (isMpd) "MPD Master List" else "M3U8 Master List"
                 } else if (info.isRegularDownload) {
                     "Regular MP4 Download"
                 } else {
@@ -99,13 +100,21 @@ class VideoInfoAdapter(
 
                 if (info.isRegularDownload) {
                     val fileSize = info.formats.formats.firstOrNull()?.fileSize
-                    if (fileSize != null) {
+                    if (fileSize != null && fileSize > 0) {
                         val size = FileUtil.getFileSizeReadable(fileSize.toDouble())
                         sizeTextView.text = "Download Size: $size"
+                        sizeTextView.visibility = View.VISIBLE
+                    } else {
+                        sizeTextView.visibility = View.GONE
                     }
+                } else {
+                    sizeTextView.visibility = View.GONE
                 }
                 typeTextView.text = typeText
-                videoTitleRenameButton.setOnClickListener {
+                typeTextView.visibility =
+                    if (typeText.isNotEmpty()) View.VISIBLE else View.GONE
+
+                actionRename.setOnClickListener {
                     videoTitleEdit.requestFocus()
                     this.videoTitleEdit.selectAll()
                     appUtil.showSoftKeyboard(videoTitleEdit)
@@ -123,18 +132,46 @@ class VideoInfoAdapter(
 
                 viewModel = model
 
-                val layoutManager =
-                    LinearLayoutManager(
-                        binding.root.context,
-                        RecyclerView.HORIZONTAL,
-                        false
-                    )
-                candidatesList.layoutManager = layoutManager
-                candidatesList.adapter = CandidatesListRecyclerViewAdapter(
+                val candidatesAdapter = CandidatesListRecyclerViewAdapter(
                     info,
                     model.selectedFormats,
                     candidateFormatListener
                 )
+
+                val gridLayoutManager = GridLayoutManager(binding.root.context, 3)
+                candidatesList.layoutManager = gridLayoutManager
+                candidatesList.adapter = candidatesAdapter
+
+                // Configure the Video / Audio toggle
+                val hasAudio = candidatesAdapter.hasAudioFormats()
+                val hasVideo = candidatesAdapter.hasVideoFormats()
+
+                // Hide the toggle entirely if only one media type is available
+                mediaTypeToggle.visibility =
+                    if (hasAudio && hasVideo) View.VISIBLE else View.GONE
+
+                // Avoid stale listeners on view recycle
+                mediaTypeToggle.clearOnButtonCheckedListeners()
+                mediaTypeToggle.check(R.id.btn_filter_video)
+
+                mediaTypeToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+                    if (!isChecked) return@addOnButtonCheckedListener
+                    val audioOnly = checkedId == R.id.btn_filter_audio
+                    val visible = candidatesAdapter.setAudioOnly(audioOnly)
+                    val firstFormat = visible.firstOrNull()?.format
+                    if (firstFormat != null) {
+                        candidateFormatListener.onSelectFormat(info, firstFormat)
+                    }
+                    tvNoFormats.visibility =
+                        if (visible.isEmpty()) View.VISIBLE else View.GONE
+                    candidatesList.visibility =
+                        if (visible.isEmpty()) View.GONE else View.VISIBLE
+                }
+
+                tvNoFormats.visibility =
+                    if (candidatesAdapter.visibleFormats().isEmpty()) View.VISIBLE else View.GONE
+                candidatesList.visibility =
+                    if (candidatesAdapter.visibleFormats().isEmpty()) View.GONE else View.VISIBLE
 
                 dialogListener = object : DownloadTabListener {
                     override fun onCancel() {

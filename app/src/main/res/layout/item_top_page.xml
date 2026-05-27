@@ -16,46 +16,35 @@
             type="com.myAllVideoBrowser.ui.component.adapter.TopPageAdapter.TopPagesListener" />
     </data>
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="100dp"
-        android:layout_height="90dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:focusable="true"
+        android:gravity="center"
         android:onClick="@{() -> listener.onItemClicked(pageInfo)}"
-        app:strokeWidth="0dp">
+        android:orientation="vertical"
+        android:paddingVertical="@dimen/padding_small">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/img_icon"
+            android:layout_width="@dimen/home_brand_icon_size"
+            android:layout_height="@dimen/home_brand_icon_size"
+            android:contentDescription="@{pageInfo.getTitleFiltered()}"
+            tools:src="@drawable/brand_facebook" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:maxLines="3"
-                android:text="@{pageInfo.getTitleFiltered()}"
-                android:textAlignment="center"
-                android:textSize="@dimen/text_small"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/img_icon"
-                tools:text="Youtube" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/img_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.050000012"
-                app:shapeAppearanceOverlay="@style/customImageViewRounded" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{pageInfo.getTitleFiltered()}"
+            android:textAlignment="center"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/text_tiny"
+            tools:text="Facebook" />
+    </LinearLayout>
 </layout>

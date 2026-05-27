@@ -94,7 +94,7 @@ targetSdk = "36"
 jvmToolchain = "21"
 
 # Go
-goVersion = "1.25.0"
+goVersion = "1.23.0"
 
 [libraries]
 # Android and Gradle

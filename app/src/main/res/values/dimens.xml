@@ -23,6 +23,11 @@
 
     // Home screen
     <dimen name="home_bottom_bar_size">60dp</dimen>
+    <dimen name="home_search_bar_height">52dp</dimen>
+    <dimen name="home_search_bar_radius">26dp</dimen>
+    <dimen name="home_brand_icon_size">56dp</dimen>
+    <dimen name="home_brand_icon_inner">28dp</dimen>
+    <dimen name="home_top_icon_size">36dp</dimen>
 
     // Browser screen
     <dimen name="browser_title_size">45dp</dimen>
@@ -42,7 +47,8 @@
     <dimen name="player_button_size">50dp</dimen>
 
     // Settings screen
-    <dimen name="settings_divider_size">2dp</dimen>
-    <dimen name="settings_icon_size">50dp</dimen>
+    <dimen name="settings_divider_size">1dp</dimen>
+    <dimen name="settings_icon_size">28dp</dimen>
+    <dimen name="settings_row_min_height">56dp</dimen>
 
 </resources>

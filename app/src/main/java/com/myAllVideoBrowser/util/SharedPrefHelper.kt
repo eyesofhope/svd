@@ -51,6 +51,14 @@ class SharedPrefHelper @Inject constructor(
         private const val IS_USE_LEGACY_M3U8_DETECTION = "IS_USE_LEGACY_M3U8_DETECTION"
 
         private const val IS_DRM_ENABLED = "IS_DRM_ENABLED"
+
+        private const val SEARCH_ENGINE_TEMPLATE = "SEARCH_ENGINE_TEMPLATE"
+        private const val SEARCH_ENGINE_NAME = "SEARCH_ENGINE_NAME"
+        private const val APP_LANGUAGE_TAG = "APP_LANGUAGE_TAG"
+        private const val DOWNLOAD_WIFI_ONLY = "DOWNLOAD_WIFI_ONLY"
+        private const val BLOCK_ADS = "BLOCK_ADS"
+        private const val SHOW_RECENTLY_USED_WEBSITES = "SHOW_RECENTLY_USED_WEBSITES"
+        private const val SYNC_TO_GALLERY = "SYNC_TO_GALLERY"
     }
 
     private val gson = Gson()
@@ -382,6 +390,66 @@ class SharedPrefHelper @Inject constructor(
 
     fun setIsDrmEnabled(isEnabled: Boolean) {
         sharedPreferences.edit { putBoolean(IS_DRM_ENABLED, isEnabled) }
+    }
+
+    // ----- Search engine -----
+    fun getSearchEngineTemplate(): String {
+        return sharedPreferences.getString(SEARCH_ENGINE_TEMPLATE, null)
+            ?: "https://www.google.com/search?q=%s"
+    }
+
+    fun setSearchEngineTemplate(template: String) {
+        sharedPreferences.edit { putString(SEARCH_ENGINE_TEMPLATE, template) }
+    }
+
+    fun getSearchEngineName(): String {
+        return sharedPreferences.getString(SEARCH_ENGINE_NAME, null) ?: "Google"
+    }
+
+    fun setSearchEngineName(name: String) {
+        sharedPreferences.edit { putString(SEARCH_ENGINE_NAME, name) }
+    }
+
+    // ----- App language -----
+    fun getAppLanguageTag(): String {
+        return sharedPreferences.getString(APP_LANGUAGE_TAG, "") ?: ""
+    }
+
+    fun setAppLanguageTag(tag: String) {
+        sharedPreferences.edit { putString(APP_LANGUAGE_TAG, tag) }
+    }
+
+    // ----- Download / browser toggles surfaced in the new settings screen -----
+    fun getDownloadWifiOnly(): Boolean {
+        return sharedPreferences.getBoolean(DOWNLOAD_WIFI_ONLY, false)
+    }
+
+    fun setDownloadWifiOnly(value: Boolean) {
+        sharedPreferences.edit { putBoolean(DOWNLOAD_WIFI_ONLY, value) }
+    }
+
+    fun getBlockAds(): Boolean {
+        return sharedPreferences.getBoolean(BLOCK_ADS, true)
+    }
+
+    fun setBlockAds(value: Boolean) {
+        sharedPreferences.edit { putBoolean(BLOCK_ADS, value) }
+    }
+
+    fun getShowRecentlyUsedWebsites(): Boolean {
+        return sharedPreferences.getBoolean(SHOW_RECENTLY_USED_WEBSITES, true)
+    }
+
+    fun setShowRecentlyUsedWebsites(value: Boolean) {
+        sharedPreferences.edit { putBoolean(SHOW_RECENTLY_USED_WEBSITES, value) }
+    }
+
+    fun getSyncToGallery(): Boolean {
+        return sharedPreferences.getBoolean(SYNC_TO_GALLERY, true)
+    }
+
+    fun setSyncToGallery(value: Boolean) {
+        sharedPreferences.edit { putBoolean(SYNC_TO_GALLERY, value) }
     }
 
 }

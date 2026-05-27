@@ -17,38 +17,70 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/detected_videos_tab_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_sheet"
         android:orientation="vertical"
-        android:layout_marginBottom="60dp"
-        android:padding="@dimen/padding_normal"
+        android:paddingBottom="@dimen/padding_small"
         tools:context=".ui.main.home.browser.detectedVideos.DetectedVideosTabFragment">
+
+        <View
+            android:id="@+id/drag_handle"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/padding_small"
+            android:background="@drawable/bg_drag_handle" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            android:text="@string/title"
-            android:maxLines="2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/padding_normal"
+            android:layout_marginTop="@dimen/padding_normal"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/title"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/video_info_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_small"
             android:layout_weight="1"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingHorizontal="@dimen/padding_small"
             app:items="@{viewModel.detectedVideosList}" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <LinearLayout
             android:id="@+id/tv_cancel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_cancel_24dp"
-            android:drawablePadding="@dimen/padding_small"
+            android:layout_marginStart="@dimen/padding_normal"
+            android:layout_marginTop="@dimen/padding_small"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
             android:onClick="@{() -> dialogListener.onCancel()}"
-            android:padding="@dimen/padding_normal"
-            android:text="@string/dialog_download_cancel"
-            android:layout_marginBottom="16dp"
-            android:textSize="@dimen/text_medium" />
+            android:orientation="horizontal"
+            android:padding="@dimen/padding_small">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_cancel_24dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_small"
+                android:text="@string/dialog_download_cancel"
+                android:textSize="@dimen/text_medium" />
+        </LinearLayout>
 
     </LinearLayout>
 </layout>

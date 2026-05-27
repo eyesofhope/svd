@@ -73,21 +73,6 @@
                 app:layout_constraintVertical_chainStyle="packed"
                 tools:text="Title" />
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/progress_bar_size"
-                android:layout_marginStart="@dimen/padding_normal"
-                android:layout_marginTop="@dimen/padding_small"
-                android:background="@android:color/transparent"
-                android:progress="@{progressInfo.progress}"
-                app:layout_constraintBottom_toTopOf="@id/tv_progress"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintLeft_toRightOf="@id/iv_thumbnail"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_title"
-                tools:progress="10" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_progress"

@@ -7,6 +7,7 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.viewModelScope
 //import com.allVideoDownloaderXmaster.OpenForTesting
 import com.myAllVideoBrowser.ui.main.base.BaseViewModel
+import com.myAllVideoBrowser.data.repository.HistoryRepository
 import com.myAllVideoBrowser.util.FileUtil
 import com.myAllVideoBrowser.util.SharedPrefHelper
 import com.myAllVideoBrowser.util.SingleLiveEvent
@@ -23,6 +24,7 @@ enum class StorageType {
 //@OpenForTesting
 class SettingsViewModel @Inject constructor(
     private val sharedPrefHelper: SharedPrefHelper,
+    private val historyRepository: HistoryRepository,
 ) :
     BaseViewModel() {
     val isDrmEnabled = ObservableBoolean(false)
@@ -142,6 +144,15 @@ class SettingsViewModel @Inject constructor(
 
     fun clearCookies() {
         clearCookiesEvent.call()
+    }
+
+    fun viewModelScopeClearHistory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                historyRepository.deleteAllHistory()
+            } catch (_: Throwable) {
+            }
+        }
     }
 
     fun setIsInterruptInterceptedResources(isTurnedOn: Boolean) {

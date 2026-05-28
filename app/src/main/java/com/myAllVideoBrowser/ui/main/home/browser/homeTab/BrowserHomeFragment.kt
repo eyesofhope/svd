@@ -221,7 +221,9 @@ class BrowserHomeFragment : BaseWebTabFragment() {
     }
 
     private fun updateTabCounter() {
-        val count = openPageIProvider.getTabsListChangeEvent().get()?.size ?: 1
+        // Home tab is always non-incognito, so the counter shows non-incognito tabs only.
+        val tabs = openPageIProvider.getTabsListChangeEvent().get() ?: emptyList()
+        val count = tabs.count { !it.isIncognito }
         binding.tabCounter.text = count.toString()
         binding.tabCounter.contentDescription =
             getString(R.string.tab_counter_content_description, count)

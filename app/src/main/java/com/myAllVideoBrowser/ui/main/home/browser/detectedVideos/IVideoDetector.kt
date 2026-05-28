@@ -37,4 +37,13 @@ interface IVideoDetector {
      * floating download FAB so it can show a loading animation until then.
      */
     fun isDetectionSettled(): ObservableBoolean
+
+    /**
+     * True when the currently-loaded page is YouTube (or a subdomain such as
+     * `m.youtube.com`, `music.youtube.com`, or `youtu.be`). Downloading from
+     * YouTube is blocked for Google Play policy reasons, so the floating
+     * download FAB shows a faded download icon (no loading dots) and a tap
+     * surfaces a warning instead of running detection.
+     */
+    fun isYoutubeBlocked(): ObservableBoolean
 }

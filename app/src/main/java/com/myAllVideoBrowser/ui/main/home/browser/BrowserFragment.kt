@@ -356,7 +356,16 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
                 }
             }
             this.btnNewTabDrawer.setOnClickListener {
-                val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                // Match the active tab's mode: from inside an incognito tab, the
+                // drawer's "+" creates a new incognito tab.
+                val activeTabs = browserViewModel.tabs.get() ?: emptyList()
+                val activeIdx = browserViewModel.currentTab.get()
+                val activeTab = activeTabs.getOrNull(activeIdx) ?: WebTab.HOME_TAB
+                val newTab = if (activeTab.isIncognito) {
+                    WebTabFactory.createIncognitoTabFromInput("", sharedPrefHelper)
+                } else {
+                    WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                }
                 if (newTab != WebTab.HOME_TAB) {
                     browserViewModel.openPageEvent.value = newTab
                 } else {
@@ -400,6 +409,7 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
         handleCloseWebTabEventEvent()
         handleOpenNavDrawerEvent()
         handleUpdateWebTabEventEvent()
+        installDrawerModeFilter()
         checkIsPowerSaveMode()
     }
 
@@ -486,6 +496,48 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
 
             browserViewModel.tabs.set(tabs ?: emptyList())
         }
+    }
+
+    /**
+     * Drawer + tab counter mode segregation.
+     *
+     * The internal tab list mixes normal and incognito tabs (the ViewPager has to
+     * back every tab by an index). For the user-facing drawer and the top-bar tab
+     * counter we present them as two parallel modes:
+     *  - while a normal tab is active, show only normal tabs
+     *  - while an incognito tab is active, show only incognito tabs
+     *
+     * The active mode is determined by the currently-selected tab's [WebTab.isIncognito].
+     */
+    private fun installDrawerModeFilter() {
+        val tabsListener = object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                refreshDrawerForCurrentMode()
+            }
+        }
+        val currentTabListener = object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                refreshDrawerForCurrentMode()
+            }
+        }
+        browserViewModel.tabs.addOnPropertyChangedCallback(tabsListener)
+        browserViewModel.currentTab.addOnPropertyChangedCallback(currentTabListener)
+        // Initial paint
+        refreshDrawerForCurrentMode()
+    }
+
+    private fun refreshDrawerForCurrentMode() {
+        val tabs = browserViewModel.tabs.get() ?: return
+        val activeIndex = browserViewModel.currentTab.get()
+        val activeTab = tabs.getOrNull(activeIndex) ?: WebTab.HOME_TAB
+        val incognitoMode = activeTab.isIncognito
+
+        val visibleTabs = if (incognitoMode) {
+            tabs.filter { it.isIncognito }
+        } else {
+            tabs.filter { !it.isIncognito }
+        }
+        drawerAdapter.setData(visibleTabs)
     }
 
     private fun handleOpenNavDrawerEvent() {

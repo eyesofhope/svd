@@ -15,7 +15,7 @@ import com.myAllVideoBrowser.ui.main.bookmarks.BookmarksFragment
 import com.myAllVideoBrowser.ui.main.help.HelpFragment
 import com.myAllVideoBrowser.ui.main.history.HistoryFragment
 import com.myAllVideoBrowser.ui.main.home.MainActivity
-import com.myAllVideoBrowser.ui.main.proxies.ProxiesFragment
+import com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTabFactory
 import com.myAllVideoBrowser.ui.main.settings.SettingsFragment
 import com.myAllVideoBrowser.util.AppLogger
 import com.myAllVideoBrowser.util.SharedPrefHelper
@@ -69,19 +69,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
         }
     }
 
-    private val proxyOnCallback = object : Observable.OnPropertyChangedCallback() {
-        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-            if (!isAdded) {
-                return
-            }
-            val isProxyOn = mainActivity.proxiesViewModel.isProxyOn.get() == true
-            lifecycleScope.launch(Dispatchers.Main) {
-                popupMenu?.menu?.findItem(R.id.proxies)?.isChecked = isProxyOn
-            }
-            sharedPrefHelper.setIsProxyOn(isProxyOn)
-        }
-    }
-
     override fun onDestroyView() {
         popupMenu?.dismiss()
         popupMenu = null
@@ -89,7 +76,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
         mainActivity.settingsViewModel.isDarkMode.removeOnPropertyChangedCallback(darkModeCallback)
         mainActivity.settingsViewModel.isAutoDarkMode.removeOnPropertyChangedCallback(autoDarkModeCallback)
         mainActivity.settingsViewModel.isDesktopMode.removeOnPropertyChangedCallback(desktopModeCallback)
-        mainActivity.proxiesViewModel.isProxyOn.removeOnPropertyChangedCallback(proxyOnCallback)
 
         super.onDestroyView()
     }
@@ -111,15 +97,12 @@ abstract class BaseWebTabFragment : BaseFragment() {
             }
             menu.findItem(R.id.desktop_mode)?.isChecked =
                 mainActivity.settingsViewModel.isDesktopMode.get() == true
-            menu.findItem(R.id.proxies)?.isChecked =
-                mainActivity.proxiesViewModel.isProxyOn.get() == true
 
             popupMenu!!.setForceShowIcon(true)
 
             mainActivity.settingsViewModel.isDarkMode.addOnPropertyChangedCallback(darkModeCallback)
             mainActivity.settingsViewModel.isAutoDarkMode.addOnPropertyChangedCallback(autoDarkModeCallback)
             mainActivity.settingsViewModel.isDesktopMode.addOnPropertyChangedCallback(desktopModeCallback)
-            mainActivity.proxiesViewModel.isProxyOn.addOnPropertyChangedCallback(proxyOnCallback)
 
             // Hide tab-only items when on the home tab popup
             menu.findItem(R.id.share_link)?.isVisible = !isHomeTab
@@ -143,6 +126,32 @@ abstract class BaseWebTabFragment : BaseFragment() {
         Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
     }
 
+    private fun openNewTabFromMenu(isIncognito: Boolean) {
+        val provider = mainActivity.mainViewModel.browserServicesProvider ?: return
+        val newTab = if (isIncognito) {
+            WebTabFactory.createIncognitoTabFromInput("", sharedPrefHelper)
+        } else {
+            WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+        }
+
+        // Defer the dispatch by one frame. The PopupMenu is in the middle of
+        // dismissing when this fires; on a fresh app launch the openPageEvent
+        // observer in BrowserFragment is occasionally not active yet because
+        // the popup's transient window stole focus. Posting to the next loop
+        // tick guarantees the popup tear-down has completed and the
+        // BrowserFragment's view lifecycle is back at STARTED, so the
+        // SingleLiveEvent observer is guaranteed to fire.
+        view?.post {
+            // For non-incognito empty input, factory returns HOME_TAB. In that
+            // case, jump to the home tab instead of inserting a duplicate.
+            if (!isIncognito && newTab == com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTab.HOME_TAB) {
+                provider.getCurrentTabIndex().set(HOME_TAB_INDEX)
+            } else {
+                provider.getOpenTabEvent().value = newTab
+            }
+        }
+    }
+
     private fun buildPopupMenu(view: View): PopupMenu {
         val popupMenu = PopupMenu(requireContext(), view)
 
@@ -151,6 +160,16 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.new_tab_menu -> {
+                    openNewTabFromMenu(isIncognito = false)
+                    true
+                }
+
+                R.id.incognito_tab -> {
+                    openNewTabFromMenu(isIncognito = true)
+                    true
+                }
+
                 R.id.share_link -> {
                     shareWebLink()
                     true
@@ -179,11 +198,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
 
                 R.id.settings -> {
                     navigateToSettings()
-                    true
-                }
-
-                R.id.proxies -> {
-                    navigateToProxies()
                     true
                 }
 
@@ -232,24 +246,6 @@ abstract class BaseWebTabFragment : BaseFragment() {
                     currentFragment.requireActivity().supportFragmentManager.beginTransaction()
                 transaction.add(it.id, SettingsFragment.newInstance())
                 transaction.addToBackStack("settings")
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                transaction.commit()
-            }
-        } catch (e: ClassCastException) {
-            AppLogger.d("Can't get the fragment manager with this")
-        }
-    }
-
-    private fun navigateToProxies() {
-        try {
-            val currentFragment = this
-            val activityFragmentContainer =
-                currentFragment.activity?.findViewById<FragmentContainerView>(R.id.fragment_container_view)
-            activityFragmentContainer?.let {
-                val transaction =
-                    currentFragment.requireActivity().supportFragmentManager.beginTransaction()
-                transaction.add(it.id, ProxiesFragment.newInstance())
-                transaction.addToBackStack("proxies")
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 transaction.commit()
             }

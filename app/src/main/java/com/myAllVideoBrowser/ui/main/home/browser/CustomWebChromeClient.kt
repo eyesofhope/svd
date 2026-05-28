@@ -91,13 +91,18 @@ class CustomWebChromeClient(
         val newWebView = WebView(view.context)
         transport.webView = newWebView
 
+        // Inherit incognito mode from the parent tab so popups opened from an
+        // incognito context don't leak into a normal-mode tab.
+        val parentTab = pageTabProvider.getPageTab(tabViewModel.thisTabIndex.get())
+
         tabViewModel.openPageEvent.value =
             WebTab(
                 webview = newWebView,
                 resultMsg = resultMsg,
                 url = url,
                 title = "Loading...",
-                iconBytes = null
+                iconBytes = null,
+                isIncognito = parentTab.isIncognito
             )
 
         return true
@@ -113,7 +118,10 @@ class CustomWebChromeClient(
             icon ?: pageTab.getFavicon(),
             headers,
             view,
-            id = pageTab.id
+            id = pageTab.id,
+            // Preserve incognito flag across favicon updates so the tab stays
+            // in the incognito drawer.
+            isIncognito = pageTab.isIncognito
         )
         updateTabEvent.value = updateTab
     }

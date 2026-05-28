@@ -67,6 +67,16 @@ open class VideoDetectionTabViewModel @Inject constructor(
 
     val videoPushedEvent = SingleLiveEvent<Void?>()
 
+    /**
+     * Fires when the user taps the (faded) download FAB on a YouTube page.
+     * The fragment listens to this and shows a Snackbar explaining that
+     * YouTube downloads are unsupported for legal / policy reasons.
+     */
+    val youtubeBlockedEvent = SingleLiveEvent<Void?>()
+
+    /** True while the active page lives on a YouTube host. */
+    private val _isYoutubeBlocked = ObservableBoolean(false)
+
     @Volatile
     var downloadButtonState =
         ObservableField<DownloadButtonState>(DownloadButtonStateCanNotDownload())
@@ -188,6 +198,14 @@ open class VideoDetectionTabViewModel @Inject constructor(
         _isDetectionSettled.set(false)
         settleHandler.removeCallbacks(settleRunnable)
 
+        // YouTube is blocked for policy reasons. Flag it before we touch any
+        // detection plumbing so the FAB renders faded immediately.
+        applyYoutubeBlockState(url)
+        if (_isYoutubeBlocked.get()) {
+            AppLogger.d("onStartPage: YouTube host detected, skipping detection.")
+            return
+        }
+
         if (url != initialUrl) {
             AppLogger.d("onStartPage: URL is not initial url. Clearing list.")
             detectedVideosList.set(mutableSetOf())
@@ -214,6 +232,12 @@ open class VideoDetectionTabViewModel @Inject constructor(
         detectedVideosList.set(mutableSetOf())
         cancelAllCheckJobs()
 
+        applyYoutubeBlockState(url)
+        if (_isYoutubeBlocked.get()) {
+            AppLogger.d("onReloadPage: YouTube host detected, skipping detection.")
+            return
+        }
+
         val req = getRequestWithHeadersForUrl(
             url, url, userAgentString
         )?.build()
@@ -235,8 +259,62 @@ open class VideoDetectionTabViewModel @Inject constructor(
         return _isDetectionSettled
     }
 
+    override fun isYoutubeBlocked(): ObservableBoolean {
+        return _isYoutubeBlocked
+    }
+
+    /**
+     * Returns true when [url] points at YouTube (any of its known surface
+     * domains: `www.youtube.com`, `m.youtube.com`, `music.youtube.com`,
+     * `youtube-nocookie.com`, the short link `youtu.be`). The check is host
+     * based so query parameters and paths cannot be used to slip past it.
+     */
+    protected fun isYoutubeUrl(url: String): Boolean {
+        if (url.isBlank()) return false
+        val host = runCatching {
+            val parsed = if (url.startsWith("http", ignoreCase = true)) {
+                java.net.URI(url)
+            } else {
+                java.net.URI("https://$url")
+            }
+            parsed.host?.lowercase()
+        }.getOrNull() ?: return false
+
+        return host == "youtube.com" ||
+                host.endsWith(".youtube.com") ||
+                host == "youtu.be" ||
+                host.endsWith(".youtu.be") ||
+                host == "youtube-nocookie.com" ||
+                host.endsWith(".youtube-nocookie.com")
+    }
+
+    /**
+     * Apply / clear the YouTube block for the page identified by [url].
+     * When blocked we wipe any in-flight detection state so the FAB stays
+     * faded (no loading dots) and never advertises a downloadable video.
+     */
+    private fun applyYoutubeBlockState(url: String) {
+        val blocked = isYoutubeUrl(url)
+        _isYoutubeBlocked.set(blocked)
+        if (blocked) {
+            // Stop any work that might still be flying in from a previous
+            // page so the FAB doesn't briefly flash a download icon.
+            cancelAllCheckJobs()
+            detectedVideosList.set(mutableSetOf())
+            downloadButtonState.set(DownloadButtonStateCanNotDownload())
+            _isDetectionSettled.set(false)
+            settleHandler.removeCallbacks(settleRunnable)
+        }
+    }
+
     override fun showVideoInfo() {
         AppLogger.d("SHOW")
+        // On YouTube the FAB is faded and acts purely as a "blocked" hint —
+        // surface the legal/policy warning instead of running detection.
+        if (_isYoutubeBlocked.get()) {
+            youtubeBlockedEvent.call()
+            return
+        }
         val state = downloadButtonState.get()
 
         if (state is DownloadButtonStateCanNotDownload) {
@@ -261,6 +339,10 @@ open class VideoDetectionTabViewModel @Inject constructor(
         resourceRequest: Request, hlsTitle: String?, isM3u8: Boolean, isMpd: Boolean
     ) {
         if (resourceRequest.url.toString().contains("tiktok.")) {
+            return
+        }
+        // Suppress every detection path while we are on a YouTube host.
+        if (_isYoutubeBlocked.get() || isYoutubeUrl(resourceRequest.url.toString())) {
             return
         }
 
@@ -425,6 +507,12 @@ open class VideoDetectionTabViewModel @Inject constructor(
         }
 
         if (newInfo.id.isEmpty()) {
+            return
+        }
+
+        // Drop any straggler that arrived after we navigated to YouTube so
+        // the FAB never advertises a downloadable video on a blocked host.
+        if (_isYoutubeBlocked.get()) {
             return
         }
 
@@ -721,6 +809,12 @@ open class VideoDetectionTabViewModel @Inject constructor(
         val uriString = request.url.toString()
 
         if (!uriString.startsWith("http")) {
+            return null
+        }
+
+        // Skip every regular-resource probe while on a YouTube host so we
+        // never fingerprint or surface a downloadable stream.
+        if (_isYoutubeBlocked.get() || isYoutubeUrl(uriString)) {
             return null
         }
 

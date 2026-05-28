@@ -80,6 +80,31 @@
                 app:chipEndPadding="10dp"
                 tools:text="2" />
 
+            <!-- Small accent badge: live count of currently downloading items.
+                 Hidden when nothing is actively downloading. -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_active_count"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginStart="6dp"
+                android:clickable="false"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:chipBackgroundColor="@color/brand_accent"
+                app:chipMinTouchTargetSize="0dp"
+                app:chipStartPadding="8dp"
+                app:chipEndPadding="8dp"
+                app:chipIcon="@drawable/ic_dot_active"
+                app:chipIconSize="8dp"
+                app:chipIconTint="@android:color/white"
+                app:iconStartPadding="0dp"
+                app:iconEndPadding="4dp"
+                tools:text="1"
+                tools:visibility="visible" />
+
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

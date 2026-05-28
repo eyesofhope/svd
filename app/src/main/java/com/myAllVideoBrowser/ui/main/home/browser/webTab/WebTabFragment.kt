@@ -135,6 +135,11 @@ class WebTabFragment : BaseWebTabFragment() {
         webTab = pageTabProvider.getPageTab(thisTabIndex)
         videoDetectionTabViewModel.initialUrl = webTab.getUrl()
 
+        // Propagate the tab's privacy mode into the view-model so the
+        // web-view client and downstream features can short-circuit history,
+        // cookies, and cache writes for this tab.
+        tabViewModel.isIncognito.set(webTab.isIncognito)
+
         AppLogger.d("onCreate Webview::::::::: ${webTab.getUrl()} $savedInstanceState")
         suggestionAdapter =
             TabSuggestionAdapter(requireContext(), mutableListOf(), suggestionListener)
@@ -173,13 +178,23 @@ class WebTabFragment : BaseWebTabFragment() {
             }
 
             ivNewTab.setOnClickListener {
-                val newTab = WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                // Match the active tab's mode: a "+" tap from inside an incognito
+                // tab creates another incognito tab.
+                val newTab = if (webTab.isIncognito) {
+                    WebTabFactory.createIncognitoTabFromInput("", sharedPrefHelper)
+                } else {
+                    WebTabFactory.createWebTabFromInput("", sharedPrefHelper)
+                }
                 tabManagerProvider.getOpenTabEvent().value = newTab
             }
 
             tabCounterContainer.setOnClickListener {
                 mainActivity.mainViewModel.openNavDrawerEvent.call()
             }
+
+            // Wire close-all-incognito (visible only inside an incognito tab)
+            ivCloseAllIncognito.setOnClickListener { confirmCloseAllIncognito() }
+            applyIncognitoChrome(this)
 
             updateTabCounter()
             // Idempotent: remove before add in case the view is recreated without
@@ -283,6 +298,7 @@ class WebTabFragment : BaseWebTabFragment() {
         handleOpenDetectedVideos()
         handleVideoPushed()
         handleVideoFoundSnackbar()
+        handleYoutubeBlockedEvent()
         tabViewModel.start()
         videoDetectionTabViewModel.start()
     }
@@ -307,6 +323,17 @@ class WebTabFragment : BaseWebTabFragment() {
     override fun onDestroy() {
         AppLogger.d("onDestroy Webview::::::::: ${webTab.getUrl()}")
         super.onDestroy()
+        // Final wipe for incognito tabs so nothing leaks beyond this WebView's lifetime.
+        if (webTab.isIncognito) {
+            webTab.getWebView()?.let { wv ->
+                try {
+                    wv.clearCache(true)
+                    wv.clearFormData()
+                    wv.clearHistory()
+                    wv.clearSslPreferences()
+                } catch (_: Throwable) { /* no-op */ }
+            }
+        }
         webTab.getWebView()?.let { destroyWebView(it) }
         tabViewModel.stop()
         webTab.setWebView(null)
@@ -371,6 +398,25 @@ class WebTabFragment : BaseWebTabFragment() {
             .make(root, R.string.video_found, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
             .setAction(R.string.view) { navigateToDownloads() }
             .show()
+    }
+
+    /**
+     * YouTube downloads are disabled to comply with Play Store policy. The
+     * FAB stays faded on YouTube hosts and a tap surfaces this Snackbar
+     * instead of running detection or opening the download dialog.
+     */
+    private fun handleYoutubeBlockedEvent() {
+        videoDetectionTabViewModel.youtubeBlockedEvent.observe(viewLifecycleOwner) {
+            if (!isResumed) return@observe
+            val root = view ?: return@observe
+            com.google.android.material.snackbar.Snackbar
+                .make(
+                    root,
+                    R.string.youtube_download_blocked,
+                    com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                )
+                .show()
+        }
     }
 
     private fun onVideoPreviewPropagate(
@@ -520,6 +566,25 @@ class WebTabFragment : BaseWebTabFragment() {
                 userAgentString = BrowserFragment.DESKTOP_USER_AGENT
             }
         }
+
+        // Apply incognito-only hardening: drop site data, form data, cookie persistence.
+        if (webTab.isIncognito) {
+            webSettings?.apply {
+                domStorageEnabled = false
+                databaseEnabled = false
+                @Suppress("DEPRECATION")
+                saveFormData = false
+                @Suppress("DEPRECATION")
+                savePassword = false
+                cacheMode = WebSettings.LOAD_NO_CACHE
+            }
+            currentWebView?.let { wv ->
+                android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(wv, false)
+            }
+            currentWebView?.clearCache(true)
+            currentWebView?.clearFormData()
+            currentWebView?.clearHistory()
+        }
         currentWebView?.setOnCreateContextMenuListener { menu, v, menuInfo ->
             val webView = v as WebView
             val hitTestResult = webView.hitTestResult
@@ -529,7 +594,10 @@ class WebTabFragment : BaseWebTabFragment() {
                 if (url != null) {
                     menu.setHeaderTitle(url)
                     menu.add(0, 1, 0, "Open in new tab").setOnMenuItemClickListener {
-                        tabViewModel.openPageEvent.value = WebTab(url, url)
+                        // Inherit incognito mode so long-press "Open in new tab"
+                        // from inside an incognito tab stays incognito.
+                        tabViewModel.openPageEvent.value =
+                            WebTab(url, url, isIncognito = webTab.isIncognito)
                         true
                     }
                 }
@@ -592,6 +660,8 @@ class WebTabFragment : BaseWebTabFragment() {
             if (tab.getUrl().startsWith("http")) {
                 webTab.getWebView()?.stopLoading()
                 webTab.getWebView()?.loadUrl(tab.getUrl())
+                // User picked a destination — hide the incognito home overlay.
+                if (webTab.isIncognito) hideIncognitoOverlay()
             }
         }
     }
@@ -651,7 +721,14 @@ class WebTabFragment : BaseWebTabFragment() {
     }
 
     private fun updateTabCounter() {
-        val count = tabManagerProvider.getTabsListChangeEvent().get()?.size ?: 1
+        val tabs = tabManagerProvider.getTabsListChangeEvent().get() ?: emptyList()
+        // Tab counter follows the mode of the active tab: incognito tab counts
+        // only incognito tabs, normal tab counts only normal tabs.
+        val count = if (webTab.isIncognito) {
+            tabs.count { it.isIncognito }
+        } else {
+            tabs.count { !it.isIncognito }
+        }
         if (::dataBinding.isInitialized) {
             dataBinding.tabCounter.text = count.toString()
             dataBinding.tabCounter.contentDescription =
@@ -804,6 +881,91 @@ class WebTabFragment : BaseWebTabFragment() {
         webViewContainer.removeView(webView)
         webView.destroy()
         webTab.setWebView(null)
+    }
+
+    /**
+     * Configure top-bar chrome and incognito-only UI bits for this tab. Called once
+     * from [onCreateView]. Visual treatment for incognito tabs:
+     *  - "Close all incognito" button visible at the top bar
+     *  - URL pill leading icon swapped for the incognito glyph
+     *  - Dedicated dark "incognito home" overlay shown when no page is loaded yet
+     */
+    private fun applyIncognitoChrome(b: com.myAllVideoBrowser.databinding.FragmentWebTabBinding) {
+        if (webTab.isIncognito) {
+            b.ivCloseAllIncognito.visibility = View.VISIBLE
+            b.ivUrlLead.setImageResource(R.drawable.ic_incognito_24)
+
+            // Show the incognito home overlay only when the tab hasn't navigated yet.
+            if (webTab.isIncognitoHome()) {
+                b.incognitoHomeOverlay.visibility = View.VISIBLE
+            } else {
+                b.incognitoHomeOverlay.visibility = View.GONE
+            }
+        } else {
+            b.ivCloseAllIncognito.visibility = View.GONE
+            b.incognitoHomeOverlay.visibility = View.GONE
+        }
+    }
+
+    private fun hideIncognitoOverlay() {
+        if (::dataBinding.isInitialized) {
+            dataBinding.incognitoHomeOverlay.visibility = View.GONE
+        }
+    }
+
+    /**
+     * Confirm with the user, then close every incognito tab in the browser. Reverts
+     * the active tab to the standard home tab. Cookies/cache for incognito web views
+     * are wiped on tab destruction (see [destroyWebView] + per-tab WebView clearing).
+     */
+    private fun confirmCloseAllIncognito() {
+        val ctx = context ?: return
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.close_all_incognito_confirm_title)
+            .setMessage(R.string.close_all_incognito_confirm_message)
+            .setPositiveButton(R.string.close_all_incognito_action) { dialog, _ ->
+                closeAllIncognitoTabs()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun closeAllIncognitoTabs() {
+        val provider = tabManagerProvider
+        val tabs = provider.getTabsListChangeEvent().get() ?: return
+        val incognitoTabs = tabs.filter { it.isIncognito }
+        if (incognitoTabs.isEmpty()) return
+
+        // Wipe in-memory cookies for incognito sessions before tearing down the tabs.
+        try {
+            android.webkit.CookieManager.getInstance().removeSessionCookies(null)
+        } catch (_: Throwable) { /* no-op */ }
+
+        // Clear each incognito web view explicitly. The fragments' own
+        // onDestroy() does this too, but doing it here makes the cleanup
+        // immediate and independent of fragment lifecycle timing.
+        for (t in incognitoTabs) {
+            val wv = t.getWebView()
+            try {
+                wv?.stopLoading()
+                wv?.clearCache(true)
+                wv?.clearFormData()
+                wv?.clearHistory()
+                wv?.clearSslPreferences()
+            } catch (_: Throwable) { /* no-op */ }
+        }
+
+        // Replace the tab list in one shot — using the SingleLiveEvent close
+        // path coalesces consecutive setValue() calls so only the last tab
+        // would actually be removed.
+        val remaining = tabs.filter { !it.isIncognito }
+            .ifEmpty { listOf(com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTab.HOME_TAB) }
+
+        // Snap selection back to the home tab so the user lands somewhere safe.
+        currentTabIndexProvider.getCurrentTabIndex().set(HOME_TAB_INDEX)
+        // Mutate the canonical list directly via the BrowserViewModel's tabs field.
+        com.myAllVideoBrowser.ui.main.home.browser.BrowserViewModel.instance?.tabs?.set(remaining)
     }
 
     private fun navigateToDownloads() {

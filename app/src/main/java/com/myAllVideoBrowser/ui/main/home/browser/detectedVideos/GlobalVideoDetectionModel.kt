@@ -67,6 +67,10 @@ class GlobalVideoDetectionModel @Inject constructor(
         if (resourceRequest.url.toString().contains("tiktok.")) {
             return
         }
+        // YouTube is blocked (Play Store policy) — never run detection.
+        if (isYoutubeBlocked().get() || isYoutubeUrl(resourceRequest.url.toString())) {
+            return
+        }
 
         val urlToVerify = resourceRequest.url.toString()
 
@@ -176,6 +180,12 @@ class GlobalVideoDetectionModel @Inject constructor(
             return null
         }
 
+        // YouTube hosts are blocked end to end — short circuit before any
+        // network probe runs in the background.
+        if (isYoutubeBlocked().get() || isYoutubeUrl(uriString)) {
+            return null
+        }
+
         val clearedUrl = uriString.split("?").first().trim()
 
         if (clearedUrl.contains(filterRegex)) {
@@ -202,6 +212,11 @@ class GlobalVideoDetectionModel @Inject constructor(
 
     override fun pushNewVideoInfoToAll(newInfo: VideoInfo) {
         if (newInfo.formats.formats.isEmpty()) {
+            return
+        }
+
+        // Drop late-arriving results once a YouTube page is active.
+        if (isYoutubeBlocked().get()) {
             return
         }
 

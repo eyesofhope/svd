@@ -13,7 +13,8 @@ class WebTab(
     private val headers: Map<String, String> = emptyMap(),
     private var webview: WebView? = null,
     private var resultMsg: Message? = null,
-    var id: String = UUID.randomUUID().toString()
+    var id: String = UUID.randomUUID().toString(),
+    val isIncognito: Boolean = false
 ) {
 
     companion object {
@@ -61,9 +62,13 @@ class WebTab(
         return this.id.contains("home")
     }
 
+    fun isIncognitoHome(): Boolean {
+        return this.isIncognito && this.url.isEmpty()
+    }
+
 
     override fun toString(): String {
-        return "WebTab(url='$url', title=$title, iconBytes=$iconBytes, headers=$headers, webview=$webview, resultMsg=$resultMsg, id='$id')"
+        return "WebTab(url='$url', title=$title, iconBytes=$iconBytes, headers=$headers, webview=$webview, resultMsg=$resultMsg, id='$id', isIncognito=$isIncognito)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -79,6 +84,7 @@ class WebTab(
         if (webview != other.webview) return false
         if (resultMsg != other.resultMsg) return false
         if (id != other.id) return false
+        if (isIncognito != other.isIncognito) return false
 
         return true
     }
@@ -91,6 +97,7 @@ class WebTab(
         result = 31 * result + (webview?.hashCode() ?: 0)
         result = 31 * result + (resultMsg?.hashCode() ?: 0)
         result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + isIncognito.hashCode()
         return result
     }
 }

@@ -61,6 +61,13 @@ open class DLApplication : DaggerApplication() {
 
         initializeFileUtils()
 
+        // Proxy feature has been removed from the user-facing app. Force the
+        // persistent proxy flag off so the proxy service never auto-starts even
+        // if it was enabled by a previous build of the app.
+        try {
+            sharedPrefHelper.setIsProxyOn(false)
+        } catch (_: Throwable) { /* defensive: pref helper not ready */ }
+
         val file: File = fileUtil.folderDir
         val ctx = applicationContext
 

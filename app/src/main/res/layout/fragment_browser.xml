@@ -74,7 +74,8 @@
                     app:tint="?attr/colorOnSurface" />
             </LinearLayout>
 
-            <!-- Tabs list -->
+            <!-- Tabs list (data set programmatically by BrowserFragment so we can
+                 segregate normal vs incognito tabs in the drawer). -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tabs_list"
                 android:layout_width="match_parent"
@@ -82,8 +83,7 @@
                 android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingHorizontal="@dimen/padding_small"
-                android:paddingTop="@dimen/padding_small"
-                app:items="@{viewModel.tabs}" />
+                android:paddingTop="@dimen/padding_small" />
 
             <!-- Favorite sites footer -->
             <LinearLayout

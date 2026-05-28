@@ -25,6 +25,7 @@ import com.myAllVideoBrowser.ui.main.home.MainActivity
 import com.myAllVideoBrowser.ui.main.home.MainViewModel
 import com.myAllVideoBrowser.util.AppLogger
 import com.myAllVideoBrowser.util.FileUtil
+import com.myAllVideoBrowser.util.downloaders.generic_downloader.models.VideoTaskState
 import javax.inject.Inject
 
 /**
@@ -148,8 +149,7 @@ class ProgressFragment : BaseFragment() {
         // touching any view, and bail out if the fragment's view is gone.
         progressViewModel.progressInfos.addOnPropertyChangedCallback(progressInfosCallback)
         // Apply initial state directly — we are still on the main thread here.
-        dataBinding.chipCount.text =
-            progressViewModel.progressInfos.get().orEmpty().size.toString()
+        renderCounts(progressViewModel.progressInfos.get().orEmpty())
     }
 
     /** Re-runs every chrome refresh on the main thread. Stored as a field so
@@ -157,9 +157,38 @@ class ProgressFragment : BaseFragment() {
     private val updateChromeRunnable = Runnable {
         if (view == null || !::dataBinding.isInitialized) return@Runnable
         val list = progressViewModel.progressInfos.get().orEmpty()
-        dataBinding.chipCount.text = list.size.toString()
+        renderCounts(list)
         if (list.isEmpty() && actionMode != null) {
             actionMode?.finish()
+        }
+    }
+
+    /**
+     * Refreshes the section-header counters: the neutral total chip and the
+     * accent badge that surfaces how many downloads are *currently moving*.
+     * The badge is hidden when nothing is actively downloading so it never
+     * feels like noise.
+     */
+    private fun renderCounts(list: List<com.myAllVideoBrowser.data.local.room.entity.ProgressInfo>) {
+        dataBinding.chipCount.text = list.size.toString()
+
+        val activeCount = list.count { info ->
+            when (info.downloadStatus) {
+                VideoTaskState.DOWNLOADING,
+                VideoTaskState.PREPARE,
+                VideoTaskState.START,
+                VideoTaskState.PROXYREADY,
+                VideoTaskState.PENDING -> true
+                else -> false
+            }
+        }
+        with(dataBinding.chipActiveCount) {
+            if (activeCount > 0) {
+                text = activeCount.toString()
+                visibility = View.VISIBLE
+            } else {
+                visibility = View.GONE
+            }
         }
     }
 

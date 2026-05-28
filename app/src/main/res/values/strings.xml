@@ -310,4 +310,20 @@
     <string name="progress_empty_title">No downloads yet</string>
     <string name="progress_empty_tip">Tip: open any video in the browser and tap the download button to add it here.</string>
 
+    <!-- Incognito feature -->
+    <string name="incognito">Incognito</string>
+    <string name="new_incognito_tab">New incognito tab</string>
+    <string name="new_tab_menu">New tab</string>
+    <string name="incognito_home_title">You\'re browsing in private</string>
+    <string name="incognito_home_subtitle">Pages you view in incognito tabs won\'t appear in your browser history or cookie store after you close all of your incognito tabs.</string>
+    <string name="incognito_badge">Incognito tab</string>
+    <string name="close_all_incognito">Close all incognito tabs</string>
+    <string name="close_all_incognito_confirm_title">Close all incognito tabs?</string>
+    <string name="close_all_incognito_confirm_message">This will close all of your incognito tabs and clear their cookies, cache and site data.</string>
+    <string name="close_all_incognito_action">Close all</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- YouTube download restriction (Play Store policy compliance) -->
+    <string name="youtube_download_blocked">Due to legal restrictions, YouTube is not supported.</string>
+
 </resources>

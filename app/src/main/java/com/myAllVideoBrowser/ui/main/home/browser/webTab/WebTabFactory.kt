@@ -14,16 +14,24 @@ class WebTabFactory {
          */
         @JvmStatic
         @JvmOverloads
-        fun createWebTabFromInput(input: String, sharedPrefHelper: SharedPrefHelper? = null): WebTab {
-            if (input.isEmpty()) return WebTab.HOME_TAB
+        fun createWebTabFromInput(
+            input: String,
+            sharedPrefHelper: SharedPrefHelper? = null,
+            isIncognito: Boolean = false
+        ): WebTab {
+            // Incognito tabs are allowed to be empty (they show the incognito home).
+            if (input.isEmpty() && !isIncognito) return WebTab.HOME_TAB
+            if (input.isEmpty() && isIncognito) {
+                return WebTab("", null, null, emptyMap(), isIncognito = true)
+            }
 
             val trimmed = input.trim()
             return when {
                 trimmed.startsWith("http://") || trimmed.startsWith("https://") ->
-                    WebTab(trimmed, null, null, emptyMap())
+                    WebTab(trimmed, null, null, emptyMap(), isIncognito = isIncognito)
 
                 Patterns.WEB_URL.matcher(trimmed).matches() ->
-                    WebTab("https://$trimmed", null, null, emptyMap())
+                    WebTab("https://$trimmed", null, null, emptyMap(), isIncognito = isIncognito)
 
                 else -> {
                     val template = sharedPrefHelper?.getSearchEngineTemplate()
@@ -34,9 +42,17 @@ class WebTabFactory {
                     } else {
                         String.format(template, encoded)
                     }
-                    WebTab(url, null, null, emptyMap())
+                    WebTab(url, null, null, emptyMap(), isIncognito = isIncognito)
                 }
             }
         }
+
+        /** Convenience: create an incognito tab from arbitrary input. */
+        @JvmStatic
+        @JvmOverloads
+        fun createIncognitoTabFromInput(
+            input: String,
+            sharedPrefHelper: SharedPrefHelper? = null
+        ): WebTab = createWebTabFromInput(input, sharedPrefHelper, isIncognito = true)
     }
 }

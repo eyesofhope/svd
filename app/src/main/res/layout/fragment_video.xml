@@ -124,34 +124,6 @@
                     android:textColor="@color/color_gray_2"
                     android:textSize="@dimen/text_small" />
 
-                <!-- Tip card with a helpful hint -->
-                <LinearLayout
-                    android:id="@+id/tip_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:background="@drawable/bg_empty_tip_card"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/padding_normal">
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_empty_tip_bulb" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/padding_small"
-                        android:layout_weight="1"
-                        android:text="@string/video_empty_tip"
-                        android:textColor="?android:attr/textColorPrimary"
-                        android:textSize="@dimen/text_small" />
-
-                </LinearLayout>
-
                 <!-- Primary CTA: jump to the browser tab -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_browse"

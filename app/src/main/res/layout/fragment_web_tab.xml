@@ -168,7 +168,7 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/tabs"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/browser_menu_button"
+                            app:layout_constraintEnd_toStartOf="@id/iv_close_all_incognito"
                             app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
@@ -184,6 +184,23 @@
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </FrameLayout>
+
+                        <!-- Close all incognito tabs (only visible while in an incognito tab) -->
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/iv_close_all_incognito"
+                            android:layout_width="@dimen/home_top_icon_size"
+                            android:layout_height="@dimen/home_top_icon_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/close_all_incognito"
+                            android:padding="6dp"
+                            android:scaleType="centerInside"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/browser_menu_button"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/ic_incognito_close_all_24"
+                            app:tint="?attr/colorOnSurface"
+                            tools:ignore="VectorDrawableCompat" />
 
                         <!-- 3-dot menu -->
                         <androidx.appcompat.widget.AppCompatImageView
@@ -218,6 +235,60 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal" />
+
+                <!-- Incognito home overlay: shown when an incognito tab has not navigated yet -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/incognito_home_overlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#0E0E10"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/incognito_home_icon"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        android:contentDescription="@string/incognito"
+                        app:layout_constraintBottom_toTopOf="@id/incognito_home_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_chainStyle="packed"
+                        app:srcCompat="@drawable/ic_incognito_large" />
+
+                    <TextView
+                        android:id="@+id/incognito_home_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="32dp"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:text="@string/incognito_home_title"
+                        android:textColor="#FFFFFF"
+                        android:textSize="@dimen/text_large"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@id/incognito_home_subtitle"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/incognito_home_icon" />
+
+                    <TextView
+                        android:id="@+id/incognito_home_subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="40dp"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
+                        android:text="@string/incognito_home_subtitle"
+                        android:textColor="#B0B0B6"
+                        android:textSize="@dimen/text_small"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/incognito_home_title" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <FrameLayout
                     android:layout_width="3dp"
@@ -276,11 +347,11 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/padding_large"
                     android:backgroundTint="?attr/colorPrimary"
-                    android:clickable="@{videoTabVModel.isDetectionSettled().get() ? true : false}"
+                    android:clickable="@{videoTabVModel.isYoutubeBlocked().get() || videoTabVModel.isDetectionSettled().get() ? true : false}"
                     android:contentDescription="@string/open_download_dialog_or_restart"
                     android:onClick="@{() -> videoTabVModel.showVideoInfo()}"
-                    android:alpha="@{videoTabVModel.isDetectionSettled().get() ? 1.0f : 0.85f}"
-                    android:src="@{videoTabVModel.isDetectionSettled().get() ? videoTabVModel.getDownloadBtnIcon().get() : R.drawable.invisible_24px}"
+                    android:alpha="@{videoTabVModel.isYoutubeBlocked().get() ? 0.4f : (videoTabVModel.isDetectionSettled().get() ? 1.0f : 0.85f)}"
+                    android:src="@{videoTabVModel.isYoutubeBlocked().get() ? R.drawable.ic_download_24dp : (videoTabVModel.isDetectionSettled().get() ? videoTabVModel.getDownloadBtnIcon().get() : R.drawable.invisible_24px)}"
                     app:tint="@color/white"
                     app:borderWidth="0dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -299,7 +370,7 @@
                     android:contentDescription="@string/loading_image_view"
                     android:focusable="false"
                     android:translationZ="@dimen/padding_small"
-                    android:visibility="@{(videoTabVModel.getDownloadBtnIcon().get() == R.drawable.invisible_24px || !videoTabVModel.isDetectionSettled().get()) ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{videoTabVModel.isYoutubeBlocked().get() ? View.GONE : ((videoTabVModel.getDownloadBtnIcon().get() == R.drawable.invisible_24px || !videoTabVModel.isDetectionSettled().get()) ? View.VISIBLE : View.GONE)}"
                     app:layout_constraintBottom_toBottomOf="@+id/fab"
                     app:layout_constraintEnd_toEndOf="@+id/fab"
                     app:layout_constraintStart_toStartOf="@+id/fab"

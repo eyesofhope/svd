@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="webTab"
             type="com.myAllVideoBrowser.ui.main.home.browser.webTab.WebTab" />
@@ -55,6 +57,16 @@
                 android:textSize="@dimen/text_medium"
                 android:textStyle="bold"
                 tools:text="Homepage" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/incognitoBadge"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@string/incognito_badge"
+                android:visibility="@{webTab.isIncognito ? View.VISIBLE : View.GONE}"
+                app:srcCompat="@drawable/ic_incognito_24"
+                app:tint="?attr/colorOnSurface" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/closeTab"

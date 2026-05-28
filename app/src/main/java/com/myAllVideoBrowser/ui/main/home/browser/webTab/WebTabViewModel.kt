@@ -32,6 +32,13 @@ class WebTabViewModel @Inject constructor(
     val changeTabFocusEvent = SingleLiveEvent<Boolean>()
     val thisTabIndex = ObservableInt(-1)
     val isDownloadDialogShown = ObservableBoolean(false)
+    /**
+     * Marks this view-model as belonging to an incognito tab. Set once from
+     * [WebTabFragment.onCreateView] from the owning [WebTab.isIncognito]. The
+     * web-view client reads this flag (rather than re-deriving it via the
+     * tab index) to decide whether to skip writing into history.
+     */
+    val isIncognito = ObservableBoolean(false)
     lateinit var tabPublishSubject: PublishSubject<String>
     var listTabSuggestions: ObservableField<MutableList<HistoryItem>> = ObservableField(
         mutableListOf()

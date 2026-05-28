@@ -3,6 +3,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Row 1: New Tab -->
+    <item
+        android:id="@+id/new_tab_menu"
+        android:icon="@drawable/add_new_tab_icon24"
+        android:title="@string/new_tab_menu"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <!-- Row 2: Incognito -->
+    <item
+        android:id="@+id/incognito_tab"
+        android:icon="@drawable/ic_incognito_24"
+        android:title="@string/incognito"
+        app:showAsAction="ifRoom|collapseActionView" />
+
     <item
         android:id="@+id/history_screen_menu_item"
         android:icon="@drawable/history_menu_icon_24dp"
@@ -39,14 +53,6 @@
         android:id="@+id/settings"
         android:icon="@drawable/settings_24px"
         android:title="@string/settings"
-        app:showAsAction="ifRoom|collapseActionView" />
-
-    <item
-        android:id="@+id/proxies"
-        android:checkable="true"
-        android:checked="false"
-        android:icon="@drawable/wifi_proxy_icon24"
-        android:title="@string/proxy"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item

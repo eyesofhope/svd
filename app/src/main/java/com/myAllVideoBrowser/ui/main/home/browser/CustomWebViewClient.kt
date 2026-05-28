@@ -200,7 +200,11 @@ class CustomWebViewClient(
             favi,
             headers,
             view,
-            id = pageTab.id
+            id = pageTab.id,
+            // Preserve incognito flag — this re-emit replaces the tab in the
+            // browser's tabs list and would otherwise drop the flag, causing
+            // the tab to disappear from the incognito drawer.
+            isIncognito = pageTab.isIncognito
         )
         tabViewModel.onStartPage(url, view.title)
     }
@@ -258,6 +262,14 @@ class CustomWebViewClient(
 
     private suspend fun saveUrlToHistory(url: String, favicon: Bitmap?, title: String?) {
         val isTitleEmpty = title?.trim()?.isEmpty() == true
+
+        // Skip history saving entirely for incognito tabs. Use the per-tab
+        // view-model flag rather than peeking back through the page-tab provider:
+        // the index lookup races with tab list mutations and was missing the
+        // incognito flag on a freshly-opened tab.
+        if (tabViewModel.isIncognito.get()) {
+            return
+        }
 
         if (!isTitleEmpty && lastSavedTitleHistory != title && lastSavedHistoryUrl != url && url.isNotEmpty() && !url.contains(
                 "about:blank"

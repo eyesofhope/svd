@@ -1,0 +1,882 @@
+{
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\DLApplication.kt": {
+    "mtime": 1779884551.6824026,
+    "ast_hash": "6b81527685ef34c7f557888ef7b4b475",
+    "semantic_hash": "6b81527685ef34c7f557888ef7b4b475"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\ConfigLocalDataSource.kt": {
+    "mtime": 1778037888.45422,
+    "ast_hash": "7271d5292ee957b7f8db92aa3ee0ce76",
+    "semantic_hash": "7271d5292ee957b7f8db92aa3ee0ce76"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\GeneratedProxyCreds.kt": {
+    "mtime": 1778037888.45422,
+    "ast_hash": "5cb35d88dd62770b33f98652e34e132d",
+    "semantic_hash": "5cb35d88dd62770b33f98652e34e132d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\HistoryLocalDataSource.kt": {
+    "mtime": 1778037888.45422,
+    "ast_hash": "a40764a1f527330eb92144d0ee4a84b2",
+    "semantic_hash": "a40764a1f527330eb92144d0ee4a84b2"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\ProgressLocalDataSource.kt": {
+    "mtime": 1778037888.45422,
+    "ast_hash": "63830ba049ea02e7a2adb24591fe138b",
+    "semantic_hash": "63830ba049ea02e7a2adb24591fe138b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\TopPagesLocalDataSource.kt": {
+    "mtime": 1779905295.7424865,
+    "ast_hash": "e89d03170321ac4e3740cdc79d38f83b",
+    "semantic_hash": "e89d03170321ac4e3740cdc79d38f83b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\VideoLocalDataSource.kt": {
+    "mtime": 1778037888.45422,
+    "ast_hash": "16d7a629a55dc38f2d799d3eafe41219",
+    "semantic_hash": "16d7a629a55dc38f2d799d3eafe41219"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\model\\LocalVideo.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "8c1ce23aecb00207e3758be3908d262a",
+    "semantic_hash": "8c1ce23aecb00207e3758be3908d262a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\model\\Proxy.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "e958805c2fcba13f6f8f9b4ce6f4c188",
+    "semantic_hash": "e958805c2fcba13f6f8f9b4ce6f4c188"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\model\\Suggestion.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "044c663c0e1d2526353effbfd6fdf77e",
+    "semantic_hash": "044c663c0e1d2526353effbfd6fdf77e"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\model\\VideoInfoWrapper.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "10662ea08cf762efabf163bac50812be",
+    "semantic_hash": "10662ea08cf762efabf163bac50812be"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\AppDatabase.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "b9c428408bf3cc6fdbe1a327cb06e483",
+    "semantic_hash": "b9c428408bf3cc6fdbe1a327cb06e483"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\dao\\ConfigDao.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "a5a7b190c3ca725bab7c1022c0ada5f6",
+    "semantic_hash": "a5a7b190c3ca725bab7c1022c0ada5f6"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\dao\\HistoryDao.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "6e8b45b7a9a61c49c1e4f1da9a51c5a0",
+    "semantic_hash": "6e8b45b7a9a61c49c1e4f1da9a51c5a0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\dao\\PageDao.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "dac939a1c9d2b1ef49fee00dd5f18b05",
+    "semantic_hash": "dac939a1c9d2b1ef49fee00dd5f18b05"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\dao\\ProgressDao.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "190154505dd50b05b25b79df3f03cc64",
+    "semantic_hash": "190154505dd50b05b25b79df3f03cc64"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\dao\\VideoDao.kt": {
+    "mtime": 1778037888.458263,
+    "ast_hash": "4f6948e5b3da5d61cd11ce43b71966b8",
+    "semantic_hash": "4f6948e5b3da5d61cd11ce43b71966b8"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\entity\\HistoryItem.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "89aa944833d4bc9828b64ffc84e44ca1",
+    "semantic_hash": "89aa944833d4bc9828b64ffc84e44ca1"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\entity\\PageInfo.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "a5cf206bd4bdc5df7a207db3dae0ce0a",
+    "semantic_hash": "a5cf206bd4bdc5df7a207db3dae0ce0a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\entity\\ProgressInfo.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "dcd70c0dd9a5d1088ce41427bae640c4",
+    "semantic_hash": "dcd70c0dd9a5d1088ce41427bae640c4"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\entity\\SupportedPage.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "283f3f6c31f098bfdefbe23cab588d0f",
+    "semantic_hash": "283f3f6c31f098bfdefbe23cab588d0f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\entity\\VideoFormatEntity.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "be469068bac50200876cb6cd58e58d32",
+    "semantic_hash": "be469068bac50200876cb6cd58e58d32"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\local\\room\\entity\\VideoInfo.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "64287f3466211cbfb0df67324bad2efc",
+    "semantic_hash": "64287f3466211cbfb0df67324bad2efc"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\ConfigRemoteDataSource.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "6036188b18272b33d87f5ec5812fd359",
+    "semantic_hash": "6036188b18272b33d87f5ec5812fd359"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\TopPagesRemoteDataSource.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "36849fc2b9a4e6ea70e193bb4cc95941",
+    "semantic_hash": "36849fc2b9a4e6ea70e193bb4cc95941"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\VideoRemoteDataSource.kt": {
+    "mtime": 1779883115.456821,
+    "ast_hash": "e6ca57f64058a9e60f55b786fbecc9ed",
+    "semantic_hash": "e6ca57f64058a9e60f55b786fbecc9ed"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\service\\ConfigService.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "f725a31ba9649a4d1549ceb474f934c3",
+    "semantic_hash": "f725a31ba9649a4d1549ceb474f934c3"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\service\\SearchService.kt": {
+    "mtime": 1778037888.4600096,
+    "ast_hash": "4254de96bbfd13525aee78130f85b262",
+    "semantic_hash": "4254de96bbfd13525aee78130f85b262"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\service\\VideoService.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "a92dccad8c14341f15c9e5eac70c35ce",
+    "semantic_hash": "a92dccad8c14341f15c9e5eac70c35ce"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\remote\\service\\VideoServiceSuperX.kt": {
+    "mtime": 1779935035.6968834,
+    "ast_hash": "78f631c34c5a9c4518fd646a870bcd1d",
+    "semantic_hash": "78f631c34c5a9c4518fd646a870bcd1d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\repository\\ConfigRepository.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "328517811ae09406a154efe3d02017c0",
+    "semantic_hash": "328517811ae09406a154efe3d02017c0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\repository\\HistoryRepository.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "603e4fb13e2eaab8118df71b2e7cbac4",
+    "semantic_hash": "603e4fb13e2eaab8118df71b2e7cbac4"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\repository\\PlaybackStateRepository.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "17d6e4bc37fbeb4f445307594c857edb",
+    "semantic_hash": "17d6e4bc37fbeb4f445307594c857edb"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\repository\\ProgressRepository.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "07c0420b45f3040632b4dad9e7fea9f3",
+    "semantic_hash": "07c0420b45f3040632b4dad9e7fea9f3"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\repository\\TopPagesRepository.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "e259e466c97b3a03ba1e43588840c6ca",
+    "semantic_hash": "e259e466c97b3a03ba1e43588840c6ca"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\data\\repository\\VideoRepository.kt": {
+    "mtime": 1779883113.6241379,
+    "ast_hash": "6ac1527b51a856150893084f078b4cd3",
+    "semantic_hash": "6ac1527b51a856150893084f078b4cd3"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\ActivityScoped.kt": {
+    "mtime": 1778037888.4617488,
+    "ast_hash": "b02eff86ac4bcf134ed77b3b778b68fd",
+    "semantic_hash": "b02eff86ac4bcf134ed77b3b778b68fd"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\FragmentScoped.kt": {
+    "mtime": 1778037888.4634888,
+    "ast_hash": "8c0eb0f3978b6b44ebc3db23f88eb90b",
+    "semantic_hash": "8c0eb0f3978b6b44ebc3db23f88eb90b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\ViewModelKey.kt": {
+    "mtime": 1778037888.4634888,
+    "ast_hash": "25f252ebee2a759fe528c95219eb8026",
+    "semantic_hash": "25f252ebee2a759fe528c95219eb8026"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\component\\AppComponent.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "2828ec13b657b6f6950fafe520742557",
+    "semantic_hash": "2828ec13b657b6f6950fafe520742557"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\ActivityBindingModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "81c25a1817144612bddb3027528c2d76",
+    "semantic_hash": "81c25a1817144612bddb3027528c2d76"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\AppModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "4e848d96a190f756b45ef6bbd28ec855",
+    "semantic_hash": "4e848d96a190f756b45ef6bbd28ec855"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\DatabaseModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "6a0a64d30290cc72ddbad2a424de029b",
+    "semantic_hash": "6a0a64d30290cc72ddbad2a424de029b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\MyWorkerModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "c771b52f600507f37600788247e1ac7f",
+    "semantic_hash": "c771b52f600507f37600788247e1ac7f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\NetworkModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "7de5aa6b6cb305bb26d6971375830662",
+    "semantic_hash": "7de5aa6b6cb305bb26d6971375830662"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\RepositoryModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "cf69e618e54077811fa66594ec7fcbed",
+    "semantic_hash": "cf69e618e54077811fa66594ec7fcbed"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\ServiceBuilderModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "4b69a3415fb3a99ebd9e79c64e7cb7d6",
+    "semantic_hash": "4b69a3415fb3a99ebd9e79c64e7cb7d6"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\UtilModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "baabc96ed08173d35b66057d27f7d4bb",
+    "semantic_hash": "baabc96ed08173d35b66057d27f7d4bb"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\ViewModelModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "ae94fc5c25f510c575f018e6348eae01",
+    "semantic_hash": "ae94fc5c25f510c575f018e6348eae01"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\activity\\MainModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "cc4ddb1143eb6e2ed73a46fbfe0e7250",
+    "semantic_hash": "cc4ddb1143eb6e2ed73a46fbfe0e7250"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\module\\activity\\VideoPlayerModule.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "8033e53ed7ad416f10042e3edb5ed4fe",
+    "semantic_hash": "8033e53ed7ad416f10042e3edb5ed4fe"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\qualifier\\ActivityContext.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "e7d0e2c363e671d693b6dbad9f1f7e5a",
+    "semantic_hash": "e7d0e2c363e671d693b6dbad9f1f7e5a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\qualifier\\ApplicationContext.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "37aa65c5d2383cab53a51d92d9182a57",
+    "semantic_hash": "37aa65c5d2383cab53a51d92d9182a57"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\qualifier\\LocalData.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "a403c0e9043d48d6a3a06e7a4a9c4401",
+    "semantic_hash": "a403c0e9043d48d6a3a06e7a4a9c4401"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\di\\qualifier\\RemoteData.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "7a0a0c3d3fb20b6543cf95b836cf9d4a",
+    "semantic_hash": "7a0a0c3d3fb20b6543cf95b836cf9d4a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\BookmarksAdapter.kt": {
+    "mtime": 1779883772.5604396,
+    "ast_hash": "90e81ba8d665d80a2b917afcdc6ab957",
+    "semantic_hash": "90e81ba8d665d80a2b917afcdc6ab957"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\CandidatesListRecyclerViewAdapter.kt": {
+    "mtime": 1779889227.233397,
+    "ast_hash": "85a6fb4b52f6bf8449b13b36d93fe6ab",
+    "semantic_hash": "85a6fb4b52f6bf8449b13b36d93fe6ab"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\HistoryAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "a2c5df24bfa8c41bfa11763721b5650a",
+    "semantic_hash": "a2c5df24bfa8c41bfa11763721b5650a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\HistorySearchAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "917c84f74b4629b0ce6e36a92c57e787",
+    "semantic_hash": "917c84f74b4629b0ce6e36a92c57e787"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\MainAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "da379023cd7042aaf60b38091e22875f",
+    "semantic_hash": "da379023cd7042aaf60b38091e22875f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\ProgressAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "2e1a8de270b3406f9ae8cc32663071af",
+    "semantic_hash": "2e1a8de270b3406f9ae8cc32663071af"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\ProxiesAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "9e374f0f8140d082fa9f630dedce5307",
+    "semantic_hash": "9e374f0f8140d082fa9f630dedce5307"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\SettingsAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "0b2b305bd44a080bbc9be289beff9dab",
+    "semantic_hash": "0b2b305bd44a080bbc9be289beff9dab"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\SuggestionAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "65e3216cb43cdb257739addeb2024dc4",
+    "semantic_hash": "65e3216cb43cdb257739addeb2024dc4"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\TabSuggestionAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "e9d466fd973f9d556f6e103954fbd9d4",
+    "semantic_hash": "e9d466fd973f9d556f6e103954fbd9d4"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\TopPageAdapter.kt": {
+    "mtime": 1779883704.527996,
+    "ast_hash": "2a9bc809cc7047917de6913ece1c6f6e",
+    "semantic_hash": "2a9bc809cc7047917de6913ece1c6f6e"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\VideoAdapter.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "116c46751d29f3e5729d704eb7a19173",
+    "semantic_hash": "116c46751d29f3e5729d704eb7a19173"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\VideoInfoAdapter.kt": {
+    "mtime": 1779889301.6631427,
+    "ast_hash": "cccc5feba4bc76f4481ed2beb9199f0e",
+    "semantic_hash": "cccc5feba4bc76f4481ed2beb9199f0e"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\adapter\\WebTabsAdapter.kt": {
+    "mtime": 1779857328.9462247,
+    "ast_hash": "a953d155ec55aaf97981bede247c1c67",
+    "semantic_hash": "a953d155ec55aaf97981bede247c1c67"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\AppBarBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "d40103c3d3cae9e62f19b69551e4be10",
+    "semantic_hash": "d40103c3d3cae9e62f19b69551e4be10"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\AutoCompleteTextViewBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "5a7bad6770c3aa14266ce704535c7ffd",
+    "semantic_hash": "5a7bad6770c3aa14266ce704535c7ffd"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\BottomNavigationViewBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "09ebede388c6ac75ce596359eac11519",
+    "semantic_hash": "09ebede388c6ac75ce596359eac11519"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\CustomViewPager2Binding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "e68ac0df89f9ec904507c1dc3cf91f85",
+    "semantic_hash": "e68ac0df89f9ec904507c1dc3cf91f85"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\GridViewBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "87ef2160b8f95cf5aed5755f92750b6c",
+    "semantic_hash": "87ef2160b8f95cf5aed5755f92750b6c"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\ImageBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "4b5c443c76d7ee048a4de3de76e72b74",
+    "semantic_hash": "4b5c443c76d7ee048a4de3de76e72b74"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\RecyclerViewBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "7a9dd346c1b123adeca40a30f7b44ccc",
+    "semantic_hash": "7a9dd346c1b123adeca40a30f7b44ccc"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\ShapeableImageBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "dcdff463c9868c9312d0aa55605c5c76",
+    "semantic_hash": "dcdff463c9868c9312d0aa55605c5c76"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\VideoViewBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "a2ba203949d4c3e583e7c13380b72012",
+    "semantic_hash": "a2ba203949d4c3e583e7c13380b72012"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\ViewPager2Binding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "cb7f36eb921fb24b13c8ed3af62f4e1f",
+    "semantic_hash": "cb7f36eb921fb24b13c8ed3af62f4e1f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\ViewPagerBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "0e755672668fe3eb257e7be4173587c2",
+    "semantic_hash": "0e755672668fe3eb257e7be4173587c2"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\binding\\WebViewBinding.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "0d2de2d9da64bab4d1e936da7de6799f",
+    "semantic_hash": "0d2de2d9da64bab4d1e936da7de6799f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\dialog\\RenameVideoDialog.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "8b0f89e707425077a4ffb100d8e93d0d",
+    "semantic_hash": "8b0f89e707425077a4ffb100d8e93d0d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\component\\widget\\MovableContainer.kt": {
+    "mtime": 1778037888.4639952,
+    "ast_hash": "dcbc04de60992ddaa7e4b9e8af1693fe",
+    "semantic_hash": "dcbc04de60992ddaa7e4b9e8af1693fe"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\base\\BaseActivity.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "0baa41889c9f80f89769ae11a4e9852a",
+    "semantic_hash": "0baa41889c9f80f89769ae11a4e9852a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\base\\BaseFragment.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "e6fa3031397bfc07176b094b45ceb21a",
+    "semantic_hash": "e6fa3031397bfc07176b094b45ceb21a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\base\\BaseViewModel.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "ee375b0134d872f7ebad831e678fbbb6",
+    "semantic_hash": "ee375b0134d872f7ebad831e678fbbb6"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\bookmarks\\BookmarksFragment.kt": {
+    "mtime": 1779883810.4356177,
+    "ast_hash": "c76da87e2c0b3cc3b575c18c98f60573",
+    "semantic_hash": "c76da87e2c0b3cc3b575c18c98f60573"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\help\\HelpFragment.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "34e0b48af9cf69bdae51bbb66410c682",
+    "semantic_hash": "34e0b48af9cf69bdae51bbb66410c682"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\history\\HistoryFragment.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "02fa5a0d198d344055c36d1b573900cc",
+    "semantic_hash": "02fa5a0d198d344055c36d1b573900cc"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\history\\HistoryViewModel.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "b8ae27205c13d748d2e390b5cc413c37",
+    "semantic_hash": "b8ae27205c13d748d2e390b5cc413c37"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\MainActivity.kt": {
+    "mtime": 1778037888.4720418,
+    "ast_hash": "2604f1ade089c95b0a98d2f7e9713c3f",
+    "semantic_hash": "2604f1ade089c95b0a98d2f7e9713c3f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\MainViewModel.kt": {
+    "mtime": 1779883686.4527478,
+    "ast_hash": "382d27d2eb4cc36538a007dd09d5f932",
+    "semantic_hash": "382d27d2eb4cc36538a007dd09d5f932"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\BaseWebTabFragment.kt": {
+    "mtime": 1779883509.6412916,
+    "ast_hash": "3614c7abd24b3d56036805c117061e50",
+    "semantic_hash": "3614c7abd24b3d56036805c117061e50"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\BrowserFragment.kt": {
+    "mtime": 1779857284.0657308,
+    "ast_hash": "8fd6aa2137524dd6c5a47c9355d0460c",
+    "semantic_hash": "8fd6aa2137524dd6c5a47c9355d0460c"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\BrowserViewModel.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "7f22d0f0ff7a8e4d057de9a1f27c90d0",
+    "semantic_hash": "7f22d0f0ff7a8e4d057de9a1f27c90d0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\CustomViewPager2.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "6536f134c59224f94808745b100e6f8f",
+    "semantic_hash": "6536f134c59224f94808745b100e6f8f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\CustomWebChromeClient.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "d8291d83cc1b45509684a32ae6043bd9",
+    "semantic_hash": "d8291d83cc1b45509684a32ae6043bd9"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\CustomWebViewClient.kt": {
+    "mtime": 1779882992.919231,
+    "ast_hash": "500645af9d80ea89459d3c1c08b767d6",
+    "semantic_hash": "500645af9d80ea89459d3c1c08b767d6"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\detectedVideos\\DetectedVideosTabFragment.kt": {
+    "mtime": 1779870753.3102505,
+    "ast_hash": "a3ccd2bd6252209fef3fe0cc3a23a8d0",
+    "semantic_hash": "a3ccd2bd6252209fef3fe0cc3a23a8d0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\detectedVideos\\GlobalVideoDetectionModel.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "5c714c7d42f6647aa1d23863369e7430",
+    "semantic_hash": "5c714c7d42f6647aa1d23863369e7430"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\detectedVideos\\IVideoDetector.kt": {
+    "mtime": 1779905835.2457945,
+    "ast_hash": "ba596be0aba032c87e27614d04df6fa1",
+    "semantic_hash": "ba596be0aba032c87e27614d04df6fa1"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\detectedVideos\\VideoDetectionTabViewModel.kt": {
+    "mtime": 1779935800.4422777,
+    "ast_hash": "7d9872dc3c9709f358d5ad849fac95f9",
+    "semantic_hash": "7d9872dc3c9709f358d5ad849fac95f9"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\homeTab\\BrowserHomeFragment.kt": {
+    "mtime": 1779883720.478974,
+    "ast_hash": "c204609c7b0d6412bae7a7ff02c46731",
+    "semantic_hash": "c204609c7b0d6412bae7a7ff02c46731"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\homeTab\\BrowserHomeViewModel.kt": {
+    "mtime": 1779884370.2703438,
+    "ast_hash": "828a0fba85d964cc1d3a97d75e9fe966",
+    "semantic_hash": "828a0fba85d964cc1d3a97d75e9fe966"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\webTab\\WebTab.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "6b7eab95a23aeccc283036cb3440145d",
+    "semantic_hash": "6b7eab95a23aeccc283036cb3440145d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\webTab\\WebTabFactory.kt": {
+    "mtime": 1779856962.5713708,
+    "ast_hash": "fcf02751300a0e710334fab4a7f599aa",
+    "semantic_hash": "fcf02751300a0e710334fab4a7f599aa"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\webTab\\WebTabFragment.kt": {
+    "mtime": 1779888461.220897,
+    "ast_hash": "f05232df633ac5f102df6763640e1ff3",
+    "semantic_hash": "f05232df633ac5f102df6763640e1ff3"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\home\\browser\\webTab\\WebTabViewModel.kt": {
+    "mtime": 1779884386.7789032,
+    "ast_hash": "99482fc752f90c06ab9b4db832cb6ed7",
+    "semantic_hash": "99482fc752f90c06ab9b4db832cb6ed7"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\player\\VideoPlayerActivity.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "9124d0dc646825ba2ddf1ad9ce0937e3",
+    "semantic_hash": "9124d0dc646825ba2ddf1ad9ce0937e3"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\player\\VideoPlayerFragment.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "e20123b859c9f27bbb3978f8b09b1f71",
+    "semantic_hash": "e20123b859c9f27bbb3978f8b09b1f71"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\player\\VideoPlayerViewModel.kt": {
+    "mtime": 1778037888.4740477,
+    "ast_hash": "7956e338cac27cb0e1d32aa693541a50",
+    "semantic_hash": "7956e338cac27cb0e1d32aa693541a50"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\progress\\ProgressFragment.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "575c29a277157ea853fe620aac337469",
+    "semantic_hash": "575c29a277157ea853fe620aac337469"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\progress\\ProgressViewModel.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "2f0e3a8901d13e4780b62c033179b83b",
+    "semantic_hash": "2f0e3a8901d13e4780b62c033179b83b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\proxies\\ProxiesFragment.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "8f621571f20c19188bd166f24a87ba57",
+    "semantic_hash": "8f621571f20c19188bd166f24a87ba57"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\proxies\\ProxiesViewModel.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "f04bbc90f87ad7fdc70db5cd8832f3e0",
+    "semantic_hash": "f04bbc90f87ad7fdc70db5cd8832f3e0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\settings\\SettingsFragment.kt": {
+    "mtime": 1779884589.336394,
+    "ast_hash": "feda3adee2367a2ab89f6f97e23dcb13",
+    "semantic_hash": "feda3adee2367a2ab89f6f97e23dcb13"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\settings\\SettingsViewModel.kt": {
+    "mtime": 1779857521.4908829,
+    "ast_hash": "3e07d58b95156c5c07506edc87b4f487",
+    "semantic_hash": "3e07d58b95156c5c07506edc87b4f487"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\splash\\SplashActivity.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "a080194833c416e69ca9d94541d46b9c",
+    "semantic_hash": "a080194833c416e69ca9d94541d46b9c"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\splash\\SplashViewModel.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "198f84322a38f246049ac4b12e004f4f",
+    "semantic_hash": "198f84322a38f246049ac4b12e004f4f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\video\\VideoFragment.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "7424510c25277365c86b94a94cccd9be",
+    "semantic_hash": "7424510c25277365c86b94a94cccd9be"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\ui\\main\\video\\VideoViewModel.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "10bc8d28981baad8d04017dcb33ed293",
+    "semantic_hash": "10bc8d28981baad8d04017dcb33ed293"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\AppLogger.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "6a3ca69846d7c59829de542f1a75bca8",
+    "semantic_hash": "6a3ca69846d7c59829de542f1a75bca8"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\AppUtil.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "9528e10ac9e38f2c2e75278d16e0206d",
+    "semantic_hash": "9528e10ac9e38f2c2e75278d16e0206d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\ContextUtils.java": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "b50036ff535b0f785e553b117ed7b234",
+    "semantic_hash": "b50036ff535b0f785e553b117ed7b234"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\CookieUtils.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "8fd7263a4053e5214f65d23671d77a76",
+    "semantic_hash": "8fd7263a4053e5214f65d23671d77a76"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\DnsStampHelper.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "d240156b4e59c7bd94f950ac632986c1",
+    "semantic_hash": "d240156b4e59c7bd94f950ac632986c1"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\FaviconUtils.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "f414c507006305f5021fec9cdde83ecc",
+    "semantic_hash": "f414c507006305f5021fec9cdde83ecc"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\FfmpegProcessor.kt": {
+    "mtime": 1778037888.4790163,
+    "ast_hash": "1616ae2905be35a9ef89a62188add78e",
+    "semantic_hash": "1616ae2905be35a9ef89a62188add78e"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\FileUtil.kt": {
+    "mtime": 1778037888.4833512,
+    "ast_hash": "be0c4b020c92e2adce8fbe09714dd93c",
+    "semantic_hash": "be0c4b020c92e2adce8fbe09714dd93c"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\IntentUtil.kt": {
+    "mtime": 1778037888.4833512,
+    "ast_hash": "73e621530b9a1b1542e1f8eb875c6a32",
+    "semantic_hash": "73e621530b9a1b1542e1f8eb875c6a32"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\Memory.kt": {
+    "mtime": 1778037888.4833512,
+    "ast_hash": "7d75d22eb461ee1c2896afdc6fc3aa7f",
+    "semantic_hash": "7d75d22eb461ee1c2896afdc6fc3aa7f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\NotificationsHelper.kt": {
+    "mtime": 1778037888.4833512,
+    "ast_hash": "23f0085fffc9812b3abe1e768c7e192f",
+    "semantic_hash": "23f0085fffc9812b3abe1e768c7e192f"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\RoomConverter.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "6a366a34076a00644c82816f9a169408",
+    "semantic_hash": "6a366a34076a00644c82816f9a169408"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\SearchEngineRegistry.kt": {
+    "mtime": 1779884320.313326,
+    "ast_hash": "ee40d84121aa7e412633cc428a496672",
+    "semantic_hash": "ee40d84121aa7e412633cc428a496672"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\SharedPrefHelper.kt": {
+    "mtime": 1779884284.6738977,
+    "ast_hash": "5427de43d935bc9f0f7e3da570dd0665",
+    "semantic_hash": "5427de43d935bc9f0f7e3da570dd0665"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\SingleLiveEvent.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "d39bc82bc675b277ac771f3f13bf9002",
+    "semantic_hash": "d39bc82bc675b277ac771f3f13bf9002"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\SuggestionsUtil.kt": {
+    "mtime": 1779884339.2832992,
+    "ast_hash": "9ee7e7feb48e3cc69d192eb2e398b987",
+    "semantic_hash": "9ee7e7feb48e3cc69d192eb2e398b987"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\SystemUtil.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "cf9d6d1a1648294376a761554c904815",
+    "semantic_hash": "cf9d6d1a1648294376a761554c904815"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\TimeUtil.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "632026349a33c6bf530fe46d268e6f22",
+    "semantic_hash": "632026349a33c6bf530fe46d268e6f22"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\VideoUtils.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "09c31c8220ed27f5e546aba2918b4277",
+    "semantic_hash": "09c31c8220ed27f5e546aba2918b4277"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\ViewModelFactory.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "0826835b0b7effb74004f6103507d74d",
+    "semantic_hash": "0826835b0b7effb74004f6103507d74d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\NotificationReceiver.kt": {
+    "mtime": 1778037888.4843583,
+    "ast_hash": "5097d5d0abb741b3d11bfca0822492c3",
+    "semantic_hash": "5097d5d0abb741b3d11bfca0822492c3"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\custom_downloader\\CustomFileDownloader.kt": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "a89b3d1bbcb2f018c85b7cd08b479356",
+    "semantic_hash": "a89b3d1bbcb2f018c85b7cd08b479356"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\custom_downloader\\CustomRegularDownloader.kt": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "d61f14ff96fe3f3e2950db7338808fc5",
+    "semantic_hash": "d61f14ff96fe3f3e2950db7338808fc5"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\custom_downloader\\CustomRegularDownloaderWorker.kt": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "c03abda227d465a8d10014e56dd17258",
+    "semantic_hash": "c03abda227d465a8d10014e56dd17258"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\DaggerFactory.kt": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "c07ca1727eb109bf1442bf81b6b3487b",
+    "semantic_hash": "c07ca1727eb109bf1442bf81b6b3487b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\GenericDownloader.kt": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "e1dea38273cd07afe16bee12171091dd",
+    "semantic_hash": "e1dea38273cd07afe16bee12171091dd"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\models\\Video.java": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "7ffb339a305657ccc9ea6fe9957d95c8",
+    "semantic_hash": "7ffb339a305657ccc9ea6fe9957d95c8"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\models\\VideoTaskItem.java": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "9ce50e3e1794c85aa9b0a967b61a2029",
+    "semantic_hash": "9ce50e3e1794c85aa9b0a967b61a2029"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\models\\VideoTaskState.java": {
+    "mtime": 1778037888.4858787,
+    "ast_hash": "b3f5f0dcb6010e2236fb931e9417aac7",
+    "semantic_hash": "b3f5f0dcb6010e2236fb931e9417aac7"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\workers\\GenericDownloadWorker.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "8dd68db6135c2cc2f0709d22a3c0448c",
+    "semantic_hash": "8dd68db6135c2cc2f0709d22a3c0448c"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\generic_downloader\\workers\\GenericDownloadWorkerWrapper.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "9e774352b854e221f0555e6cc30a3076",
+    "semantic_hash": "9e774352b854e221f0555e6cc30a3076"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\DownloaderUtils.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "d5de003291b522806f0ffa4e4cb19c0a",
+    "semantic_hash": "d5de003291b522806f0ffa4e4cb19c0a"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\SegmentDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "ae01f3e71c16c733619dcb07bf391147",
+    "semantic_hash": "ae01f3e71c16c733619dcb07bf391147"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\SuperXDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "fb2b5ad1013b1dcf23d87b0f946f4136",
+    "semantic_hash": "fb2b5ad1013b1dcf23d87b0f946f4136"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\SuperXDownloaderWorker.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "acd27bd68babce47fd8113fc8d731681",
+    "semantic_hash": "acd27bd68babce47fd8113fc8d731681"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\control\\FileBasedDownloadController.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "5c72ddcc2408dcd91ca1e83c6ff58412",
+    "semantic_hash": "5c72ddcc2408dcd91ca1e83c6ff58412"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\strategy\\HlsDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "bef784a1f4857058a968d0f3e01c0b25",
+    "semantic_hash": "bef784a1f4857058a968d0f3e01c0b25"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\strategy\\HlsLiveDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "5c154e077b8f34a8d89f0215e7905153",
+    "semantic_hash": "5c154e077b8f34a8d89f0215e7905153"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\strategy\\ManifestDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "91472dd2aeef4e2d5cca3f702500d663",
+    "semantic_hash": "91472dd2aeef4e2d5cca3f702500d663"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\strategy\\MpdDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "57f483bd2bcfa35daa68376f1c2756e0",
+    "semantic_hash": "57f483bd2bcfa35daa68376f1c2756e0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\super_x_downloader\\strategy\\MpdLiveDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "9912a5ef48f0d2cc16ada41a0c0208cc",
+    "semantic_hash": "9912a5ef48f0d2cc16ada41a0c0208cc"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\youtubedl_downloader\\YoutubeDlDownloader.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "f1633cadc71e59e4554d91f5403afc5d",
+    "semantic_hash": "f1633cadc71e59e4554d91f5403afc5d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\downloaders\\youtubedl_downloader\\YoutubeDlDownloaderWorker.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "ae07e49a8bc951c899f67b88aff71d90",
+    "semantic_hash": "ae07e49a8bc951c899f67b88aff71d90"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\ext\\ActivityExt.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "83d711e084fab54ab083b36ac5079769",
+    "semantic_hash": "83d711e084fab54ab083b36ac5079769"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\fragment\\FragmentFactory.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "441e95a9b0b7816490f1a369625cd344",
+    "semantic_hash": "441e95a9b0b7816490f1a369625cd344"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\fragment\\StubbedFragmentFactory.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "6871f008c186cf4df3ce3019ec799573",
+    "semantic_hash": "6871f008c186cf4df3ce3019ec799573"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\hls_parser\\HlsPlaylistParser.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "ad25b45b32c82623792ca8985488f1a0",
+    "semantic_hash": "ad25b45b32c82623792ca8985488f1a0"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\hls_parser\\MpdPlaylistParser.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "d6fc2a25876fc66ab16875071f7403b1",
+    "semantic_hash": "d6fc2a25876fc66ab16875071f7403b1"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\proxy_utils\\CustomProxyController.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "551227ece90628b45d33dd8075a2cc9b",
+    "semantic_hash": "551227ece90628b45d33dd8075a2cc9b"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\proxy_utils\\OkHttpProxyClient.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "16e5033ba27cfc1ccce086ea2571a674",
+    "semantic_hash": "16e5033ba27cfc1ccce086ea2571a674"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\proxy_utils\\ProxyService.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "ff720111727f9277be2781661fc1b9cd",
+    "semantic_hash": "ff720111727f9277be2781661fc1b9cd"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\proxy_utils\\proxy_manager\\ProxyManager.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "163ab50962015511590fcbac141d19d9",
+    "semantic_hash": "163ab50962015511590fcbac141d19d9"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\scheduler\\BaseSchedulers.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "d6f8cf31b7a156ec62eeb8ffd4e8a46d",
+    "semantic_hash": "d6f8cf31b7a156ec62eeb8ffd4e8a46d"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\util\\scheduler\\StubbedSchedulers.kt": {
+    "mtime": 1778037888.4876423,
+    "ast_hash": "01c409a696da26afd0cfae56ec51f107",
+    "semantic_hash": "01c409a696da26afd0cfae56ec51f107"
+  },
+  "D:\\underdevelopment\\SVD\\app\\src\\main\\java\\com\\myAllVideoBrowser\\v2ray\\V2Ray.kt": {
+    "mtime": 1778037888.494218,
+    "ast_hash": "40c4555a64ad172748f46e2ba2c1893d",
+    "semantic_hash": "40c4555a64ad172748f46e2ba2c1893d"
+  }
+}

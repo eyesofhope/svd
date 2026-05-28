@@ -1,0 +1,17 @@
+---
+source_file: "util/downloaders/super_x_downloader/control/FileBasedDownloadController.kt"
+type: "code"
+community: "Community 63"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_63
+---
+
+# FileBasedDownloadController.kt
+
+## Connections
+- [[FileBasedDownloadController]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_63

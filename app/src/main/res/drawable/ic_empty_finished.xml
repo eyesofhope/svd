@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Empty-state hero for the Finished tab.
+
+    A film-card stacked over a soft tray, with a big "completed" check
+    badge in front and a few decorative sparkles. Conceptually it tells
+    the user "your library is set up and ready" instead of just "empty".
+    All shapes are vector paths so the asset stays crisp at any density.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Pill / tray under the card -->
+    <path
+        android:fillColor="#1F1A73E8"
+        android:pathData="M22,158 h156 a18,18 0 0 1 0,36 h-156 a18,18 0 0 1 0,-36 z" />
+
+    <!-- Back card (slight offset for depth) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FF1A73E8"
+        android:strokeAlpha="0.45"
+        android:strokeWidth="2"
+        android:pathData="M58,30 h100 a8,8 0 0 1 8,8 v100 a8,8 0 0 1 -8,8 h-100 a8,8 0 0 1 -8,-8 v-100 a8,8 0 0 1 8,-8 z" />
+
+    <!-- Front film card body -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FF1A73E8"
+        android:strokeWidth="3"
+        android:pathData="M40,46 h100 a8,8 0 0 1 8,8 v98 a8,8 0 0 1 -8,8 h-100 a8,8 0 0 1 -8,-8 v-98 a8,8 0 0 1 8,-8 z" />
+
+    <!-- Film perforations (left + right) -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.85"
+        android:pathData="M44,58 h6 v6 h-6 z M44,74 h6 v6 h-6 z M44,90 h6 v6 h-6 z M44,106 h6 v6 h-6 z M44,122 h6 v6 h-6 z M130,58 h6 v6 h-6 z M130,74 h6 v6 h-6 z M130,90 h6 v6 h-6 z M130,106 h6 v6 h-6 z M130,122 h6 v6 h-6 z" />
+
+    <!-- Inner placeholder rectangles (lighter tint to feel "ready, waiting") -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.10"
+        android:pathData="M58,58 h64 v34 h-64 z M58,98 h64 v34 h-64 z" />
+
+    <!-- Soft halo behind the check badge -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.18"
+        android:pathData="M138,128 a32,32 0 1,0 0.001,0 z" />
+
+    <!-- Check badge (green) -->
+    <path
+        android:fillColor="#FF22C55E"
+        android:pathData="M138,128 m-26,0 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 z" />
+
+    <!-- Check mark stroke (white) -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M126,128 l8,8 l18,-18" />
+
+    <!-- Decorative sparkles -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.45"
+        android:pathData="M170,46 l3,7 l7,3 l-7,3 l-3,7 l-3,-7 l-7,-3 l7,-3 z M22,90 l2,5 l5,2 l-5,2 l-2,5 l-2,-5 l-5,-2 l5,-2 z M178,98 l2,5 l5,2 l-5,2 l-2,5 l-2,-5 l-5,-2 l5,-2 z" />
+</vector>

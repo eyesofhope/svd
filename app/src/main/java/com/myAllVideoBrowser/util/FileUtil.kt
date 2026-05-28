@@ -42,6 +42,23 @@ class FileUtil @Inject constructor() {
         // For downloads
         var IS_APP_DATA_DIR_USE = false
 
+        /**
+         * Optional absolute filesystem path picked by the user from the Files app.
+         * When non-null/blank, it overrides every other rule in [folderDir].
+         */
+        var OVERRIDE_DOWNLOAD_PATH: String? = null
+
+        /** Optional SAF tree URI of the picked folder. Kept for permission persistence and UI display. */
+        var OVERRIDE_DOWNLOAD_TREE_URI: String? = null
+
+        /**
+         * Memoised resolved folder for [OVERRIDE_DOWNLOAD_PATH]. Avoids a fresh `File.exists()`
+         * stat syscall on every call to the [folderDir] getter, which is hit frequently from the
+         * downloader workers' progress paths.
+         */
+        @Volatile
+        private var cachedOverrideFolder: File? = null
+
         const val FOLDER_NAME = "SuperX"
         const val TMP_DATA_FOLDER_NAME = "superx_tmp_data"
 
@@ -96,6 +113,26 @@ class FileUtil @Inject constructor() {
             }
 
             val context = ContextUtils.getApplicationContext()
+
+            // Honor a user-picked download folder when it is on a writable file path.
+            // The resolved File is cached and only re-checked when OVERRIDE_DOWNLOAD_PATH changes,
+            // so we don't pay for a stat syscall on every getter call.
+            val override = OVERRIDE_DOWNLOAD_PATH?.takeIf { it.isNotBlank() }
+            if (override != null) {
+                val cached = cachedOverrideFolder
+                if (cached != null && cached.absolutePath == override) {
+                    return cached
+                }
+                val folder = File(override)
+                if (folder.exists() || folder.mkdirs()) {
+                    cachedOverrideFolder = folder
+                    return folder
+                }
+                AppLogger.w("Custom download folder not usable, falling back: $override")
+                cachedOverrideFolder = null
+            } else if (cachedOverrideFolder != null) {
+                cachedOverrideFolder = null
+            }
 
             when {
                 IS_EXTERNAL_STORAGE_USE && !IS_APP_DATA_DIR_USE -> {
@@ -608,6 +645,10 @@ class FileUtil @Inject constructor() {
         cursor?.close()
 
         return exists
+    }
+
+    fun scanFileIfEnabled(context: Context, file: File) {
+        scanFile(context, file)
     }
 
     private fun scanFile(context: Context, file: File) {

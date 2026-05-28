@@ -202,6 +202,12 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             inputData.getBoolean(GenericDownloader.Constants.IS_FILE_REMOVE_KEY, false)
 
         if (taskId != null) {
+            // Drop the progress notification immediately so the user doesn't
+            // see a stale "downloading" notification after a cancel/delete.
+            // The full cleanup happens via finishWork below (or via the
+            // YoutubeDL process error path when the task was actively running).
+            notificationsHelper.hideNotification(taskId.hashCode())
+
             YoutubeDL.getInstance().destroyProcessById(taskId)
 
             val fileToRemove = File("${fileUtil.tmpDir}/$taskId")
@@ -314,6 +320,9 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
                 if (moved) {
                     tmpFile.deleteRecursively()
+                    if (sharedPrefHelper.getSyncToGallery()) {
+                        fileUtil.scanFileIfEnabled(applicationContext, destinationFile)
+                    }
                 }
                 finishWork(VideoTaskItem(url).also { f ->
                     f.fileName = finalFile.name
@@ -562,7 +571,7 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
         }
         val data = notificationsHelper.createNotificationBuilder(taskItem)
 
-        showLongRunningNotificationAsync(data.first, data.second)
+        showLongRunningNotificationAsync(taskItem.mId.hashCode(), data?.second)
     }
 
 
@@ -585,10 +594,14 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
 
         notificationsHelper.hideNotification(taskId.hashCode())
         if (item != null) {
+            // The helper returns null for CANCELED — in that case
+            // showNotificationFinal will dismiss the notification slot
+            // instead of showing a stale "downloading" message.
             showNotificationFinal(
-                taskId.hashCode(), notificationsHelper.createNotificationBuilder(item.also {
+                taskId.hashCode(),
+                notificationsHelper.createNotificationBuilder(item.also {
                     it.mId = taskId
-                }).second
+                })?.second
             )
         }
 

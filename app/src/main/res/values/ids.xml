@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Used by ThumbnailLoader to verify that a recycled ImageView still
+         belongs to the original downloadId before applying an async result. -->
+    <item name="tag_thumbnail_id" type="id" />
+</resources>

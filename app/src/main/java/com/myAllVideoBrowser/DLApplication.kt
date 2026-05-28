@@ -88,6 +88,8 @@ open class DLApplication : DaggerApplication() {
 
         FileUtil.IS_EXTERNAL_STORAGE_USE = isExternal
         FileUtil.IS_APP_DATA_DIR_USE = isAppDir
+        FileUtil.OVERRIDE_DOWNLOAD_PATH = sharedPrefHelper.getCustomDownloadFolderPath()
+        FileUtil.OVERRIDE_DOWNLOAD_TREE_URI = sharedPrefHelper.getCustomDownloadFolderUri()
         FileUtil.INITIIALIZED = true
     }
 
@@ -98,6 +100,12 @@ open class DLApplication : DaggerApplication() {
      * service is disabled in that case). On Android 12 and below the AppCompat backport handles
      * persistence through `autoStoreLocales`, but we still apply our SharedPrefs value as a
      * safety net so previously saved values survive this upgrade.
+     *
+     * When nothing is saved, we deliberately do **not** force a default locale here. Forcing
+     * `setApplicationLocales` at every cold start triggers a configuration change/activity
+     * recreation, and would also override the user's system locale on devices that have never
+     * picked a language in-app. The Settings picker takes care of presenting "English" as the
+     * default highlighted choice in the UI.
      */
     private fun applySavedAppLocaleIfNeeded() {
         try {

@@ -10,6 +10,7 @@ import com.myAllVideoBrowser.data.repository.ProgressRepository
 import com.myAllVideoBrowser.ui.main.base.BaseViewModel
 import com.myAllVideoBrowser.util.ContextUtils
 import com.myAllVideoBrowser.util.FileUtil
+import com.myAllVideoBrowser.util.NotificationsHelper
 import com.myAllVideoBrowser.util.downloaders.generic_downloader.models.VideoTaskState
 import com.myAllVideoBrowser.util.downloaders.custom_downloader.CustomRegularDownloader
 import com.myAllVideoBrowser.util.downloaders.super_x_downloader.SuperXDownloader
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class ProgressViewModel @Inject constructor(
     private val fileUtil: FileUtil,
     private val progressRepository: ProgressRepository,
+    private val notificationsHelper: NotificationsHelper,
 ) : BaseViewModel() {
     @VisibleForTesting
     internal val compositeDisposable: CompositeDisposable = CompositeDisposable()
@@ -72,6 +74,12 @@ class ProgressViewModel @Inject constructor(
     fun cancelDownload(id: Long, removeFile: Boolean) {
         val inf = progressInfos.get()?.find { it.downloadId == id }
         inf?.let { progressInfo ->
+            // Dismiss the download notification synchronously. Even though
+            // each worker also dismisses on cancel, doing it here means a
+            // pending/queued download (whose worker may not have started yet)
+            // doesn't briefly resurrect a notification slot.
+            notificationsHelper.hideNotification(progressInfo.videoInfo.id.hashCode())
+
             deleteProgressInfo(progressInfo) { info ->
                 if (info.videoInfo.isRegularDownload) {
                     CustomRegularDownloader.cancelDownload(
@@ -144,6 +152,49 @@ class ProgressViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Pause every download that is currently active. Triggered from the
+     * top-bar overflow menu ("Pause all").
+     */
+    fun pauseAllDownloads() {
+        val active = progressInfos.get().orEmpty().filter {
+            it.downloadStatus == VideoTaskState.DOWNLOADING ||
+                    it.downloadStatus == VideoTaskState.PREPARE ||
+                    it.downloadStatus == VideoTaskState.START ||
+                    it.downloadStatus == VideoTaskState.PENDING
+        }
+        active.forEach { pauseDownload(it.downloadId) }
+    }
+
+    /**
+     * Resume / kick off every paused download. Triggered from "Download all".
+     */
+    fun resumeAllDownloads() {
+        val paused = progressInfos.get().orEmpty().filter {
+            it.downloadStatus == VideoTaskState.PAUSE ||
+                    it.downloadStatus == VideoTaskState.ERROR ||
+                    it.downloadStatus == VideoTaskState.ENOSPC
+        }
+        paused.forEach { resumeDownload(it.downloadId) }
+    }
+
+    /**
+     * Cancel and remove every download tracked on the page (with their
+     * partial files). Caller is responsible for warning the user first.
+     */
+    fun cancelAllDownloads(removeFiles: Boolean) {
+        val all = progressInfos.get().orEmpty().toList()
+        all.forEach { cancelDownload(it.downloadId, removeFiles) }
+    }
+
+    /**
+     * Cancel and remove an explicit list of downloads — used by the multi-select
+     * batch-delete flow.
+     */
+    fun cancelDownloads(ids: Collection<Long>, removeFiles: Boolean) {
+        ids.forEach { cancelDownload(it, removeFiles) }
     }
 
     fun downloadVideo(videoInfo: VideoInfo?) {

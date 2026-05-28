@@ -97,7 +97,6 @@ class BrowserHomeFragment : BaseWebTabFragment() {
             }
 
             // Top bar shortcuts
-            this.btnHelp.setOnClickListener { navigateToHelp() }
             this.btnSettings.setOnClickListener { navigateToSettings() }
             this.tabCounterContainer.setOnClickListener {
                 mainViewModel.openNavDrawerEvent.call()

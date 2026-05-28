@@ -1,0 +1,31 @@
+# Ignore VCS and IDE
+.git/
+.idea/
+.kotlin/
+.kiro/
+
+# Ignore Gradle build artifacts and caches (huge and not source)
+.gradle/
+.gradle-cache/
+build/
+**/build/
+release/
+captures/
+
+# Ignore generated/binary outputs already produced
+graphify-out/
+
+# Ignore app-local libs (binary)
+app/libs/
+
+# Ignore screenshots and image dumps
+screenshots/
+images/
+
+# Ignore logs
+*.log
+
+# Ignore lockfiles / props that don't add semantic value
+local.properties
+
+# Keep README, source under app/, and gradle scripts

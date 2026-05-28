@@ -1,0 +1,22 @@
+---
+type: community
+cohesion: 1.00
+members: 3
+---
+
+# Community 128
+
+**Cohesion:** 1.00 - tightly connected
+**Members:** 3 nodes
+
+## Members
+- [[.setSelectedItemId()]] - code - ui/component/binding/BottomNavigationViewBinding.kt
+- [[BottomNavigationViewBinding]] - code - ui/component/binding/BottomNavigationViewBinding.kt
+- [[BottomNavigationViewBinding.kt]] - code - ui/component/binding/BottomNavigationViewBinding.kt
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_128
+SORT file.name ASC
+```

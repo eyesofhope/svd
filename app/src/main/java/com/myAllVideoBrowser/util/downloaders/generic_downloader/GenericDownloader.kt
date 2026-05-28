@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 
-
 abstract class GenericDownloader {
     companion object {
         private var instance: GenericDownloader? = null
@@ -93,6 +92,8 @@ abstract class GenericDownloader {
         downloaderData.putString(Constants.ACTION_KEY, DownloaderActions.DOWNLOAD)
         downloadWork.setInputData(downloaderData.build())
 
+        applyNetworkConstraints(context, downloadWork)
+
         runWorkerTask(
             context,
             videoInfo,
@@ -137,11 +138,31 @@ abstract class GenericDownloader {
         downloaderData.putString(Constants.ACTION_KEY, DownloaderActions.RESUME)
         downloadWork.setInputData(downloaderData.build())
 
+        applyNetworkConstraints(context, downloadWork)
+
         runWorkerTask(
             context,
             progressInfo.videoInfo,
             downloadWork.build()
         )
+    }
+
+    /**
+     * Honor the "Download with Wi-Fi only" toggle from SharedPrefHelper. When enabled,
+     * WorkManager will keep the request queued until an unmetered (Wi-Fi) network is reachable.
+     */
+    private fun applyNetworkConstraints(context: Context, builder: OneTimeWorkRequest.Builder) {
+        try {
+            val prefs = context.applicationContext
+                .getSharedPreferences("settings_prefs", Context.MODE_PRIVATE)
+            val wifiOnly = prefs.getBoolean("DOWNLOAD_WIFI_ONLY", false)
+            val networkType = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
+            builder.setConstraints(
+                Constraints.Builder().setRequiredNetworkType(networkType).build()
+            )
+        } catch (t: Throwable) {
+            AppLogger.e("applyNetworkConstraints failed: ${t.message}")
+        }
     }
 
     fun saveStringToSharedPreferences(

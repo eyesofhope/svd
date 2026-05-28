@@ -100,6 +100,15 @@
         <item name="android:background">@color/settings_divider</item>
     </style>
 
+    <!-- Help / How to download cards -->
+    <style name="HelpCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_help_card</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">@dimen/padding_normal</item>
+    </style>
+
     <!-- Download bottom sheet -->
     <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppModalBottomSheetStyle</item>

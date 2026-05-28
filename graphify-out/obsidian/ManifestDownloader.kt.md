@@ -1,0 +1,17 @@
+---
+source_file: "util/downloaders/super_x_downloader/strategy/ManifestDownloader.kt"
+type: "code"
+community: "Community 136"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_136
+---
+
+# ManifestDownloader.kt
+
+## Connections
+- [[ManifestDownloader]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_136

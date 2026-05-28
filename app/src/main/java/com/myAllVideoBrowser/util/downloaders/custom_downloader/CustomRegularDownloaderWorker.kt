@@ -83,7 +83,9 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
         try {
             val notificationData = notificationsHelper.createNotificationBuilder(item)
-            showNotificationFinal(notificationData.first, notificationData.second)
+            // CANCELED downloads return null here — we dismiss the slot instead
+            // of leaving a "downloading" notification visible.
+            showNotificationFinal(item.mId.hashCode(), notificationData?.second)
 
             val result =
                 if (item.taskState == VideoTaskState.ERROR) Result.failure() else Result.success()
@@ -219,6 +221,9 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
 
             if (fileMovedSuccess) {
                 finalSource.toFile().parentFile?.deleteRecursively()
+                if (sharedPrefHelper.getSyncToGallery()) {
+                    fileUtil.scanFileIfEnabled(applicationContext, File(target))
+                }
             }
             val finalItem: VideoTaskItem?
             if (!fileMovedSuccess) {
@@ -397,14 +402,16 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
             return
         }
 
+        // Hide any download/progress notification immediately. The download
+        // itself is finished asynchronously by `CustomFileDownloader.cancel`
+        // below, but if we wait for that callback the user keeps seeing a
+        // stale "downloading" notification while the file finishes flushing.
+        notificationsHelper.hideNotification(taskId.hashCode())
+
         val tmpFile = fileUtil.tmpDir.resolve(taskId).resolve(File(task.fileName).name)
         CustomFileDownloader.cancel(tmpFile)
 
         getContinuation().resume(Result.success())
-//        finishWork(task.also {
-//            it.mId = taskId
-//            it.taskState = VideoTaskState.CANCELED
-//        })
     }
 
     private fun pauseTask(task: VideoTaskItem) {
@@ -451,7 +458,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
         }
 
         val notificationData = notificationsHelper.createNotificationBuilder(taskItem)
-        showLongRunningNotificationAsync(notificationData.first, notificationData.second)
+        showLongRunningNotificationAsync(taskItem.mId.hashCode(), notificationData?.second)
     }
 
 
@@ -469,7 +476,7 @@ class CustomRegularDownloaderWorker(appContext: Context, workerParams: WorkerPar
         }
 
         val notificationData = notificationsHelper.createNotificationBuilder(taskItem)
-        showLongRunningNotificationAsync(notificationData.first, notificationData.second)
+        showLongRunningNotificationAsync(taskItem.mId.hashCode(), notificationData?.second)
     }
 
     private fun saveProgress(

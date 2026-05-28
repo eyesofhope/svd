@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AnimatedVectorDrawable: while a download is active the arrow head bobs
+    down to the tray repeatedly, communicating "actively downloading".
+-->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_download_arrow">
+
+    <target android:name="head_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="900"
+                android:propertyName="translateY"
+                android:repeatCount="infinite"
+                android:repeatMode="restart"
+                android:valueFrom="-6"
+                android:valueTo="0"
+                android:valueType="floatType"
+                android:interpolator="@android:anim/accelerate_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="head">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="900"
+                android:propertyName="fillAlpha"
+                android:repeatCount="infinite"
+                android:repeatMode="reverse"
+                android:valueFrom="0.55"
+                android:valueTo="1.0"
+                android:valueType="floatType" />
+        </aapt:attr>
+    </target>
+</animated-vector>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Empty-state hero: a film-strip card with a translucent download arrow on
+    top, sitting on a soft pill-shaped tray. The inner rectangles inside the
+    film hint at "no clips yet". All shapes are vector paths so the asset
+    looks crisp at any density.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="180dp"
+    android:height="180dp"
+    android:viewportWidth="180"
+    android:viewportHeight="180">
+
+    <!-- Pill / tray under the film strip -->
+    <path
+        android:fillColor="#1F1A73E8"
+        android:pathData="M22,142 h136 a18,18 0 0 1 0,36 h-136 a18,18 0 0 1 0,-36 z" />
+
+    <!-- Film strip body -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FF1A73E8"
+        android:strokeWidth="3"
+        android:pathData="M40,40 h100 a8,8 0 0 1 8,8 v90 a8,8 0 0 1 -8,8 h-100 a8,8 0 0 1 -8,-8 v-90 a8,8 0 0 1 8,-8 z" />
+
+    <!-- Film strip perforations (left + right) -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.85"
+        android:pathData="M44,52 h6 v6 h-6 z M44,68 h6 v6 h-6 z M44,84 h6 v6 h-6 z M44,100 h6 v6 h-6 z M44,116 h6 v6 h-6 z M130,52 h6 v6 h-6 z M130,68 h6 v6 h-6 z M130,84 h6 v6 h-6 z M130,100 h6 v6 h-6 z M130,116 h6 v6 h-6 z" />
+
+    <!-- Inner placeholder rectangles -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.10"
+        android:pathData="M58,52 h64 v32 h-64 z M58,90 h64 v32 h-64 z" />
+
+    <!-- Download arrow over the strip -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:pathData="M86,58 h8 v32 h12 l-16,18 l-16,-18 h12 z" />
+
+    <!-- Decorative dots -->
+    <path
+        android:fillColor="#FF1A73E8"
+        android:fillAlpha="0.30"
+        android:pathData="M22,28 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0z M156,32 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0z M14,108 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0z M162,108 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0z" />
+</vector>

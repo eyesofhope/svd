@@ -31,6 +31,8 @@ class TopPageAdapter(
         return when {
             "facebook.com" in link || name == "facebook" -> R.drawable.brand_facebook
             "instagram.com" in link || name == "instagram" -> R.drawable.brand_instagram
+            "twitch.tv" in link || name == "twitch" -> R.drawable.brand_twitch
+            "kick.com" in link || name == "kick" -> R.drawable.brand_kick
             "vimeo.com" in link || name == "vimeo" -> R.drawable.brand_vimeo
             "dailymotion.com" in link || name == "dailymotion" -> R.drawable.brand_dailymotion
             "tiktok.com" in link || name == "tiktok" -> R.drawable.brand_tiktok

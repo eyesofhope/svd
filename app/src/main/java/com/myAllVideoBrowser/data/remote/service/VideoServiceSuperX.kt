@@ -270,34 +270,51 @@ class VideoServiceSuperX(
                 // like ".../1080p.mp4.m3u8", ".../720p.av1.mp4.m3u8",
                 // ".../1920x1080/index.m3u8", ".../hls-480p-12345.m3u8" etc.
                 val inferredHeight = inferHeightFromUrl(manifest.baseUri)
-                // Without a master we don't know the bandwidth, so use a
-                // reasonable per-resolution average to estimate file size.
-                val approxBytes = approxFileSize(
-                    bitrate = typicalBitrateForHeight(inferredHeight),
-                    durationMs = duration
+
+                // Some sites (doppiocdn etc.) only ever expose a single child
+                // playlist URL but advertise the full quality ladder inside a
+                // ".../multi=...:144p:,240p:,480p:,720p:,1080p:/..." segment.
+                // In that case synthesise one selectable VideoFormatEntity per
+                // advertised resolution so the user sees the full ladder
+                // instead of just the quality the site happened to send.
+                val synthesised = synthesizeMultiVariantFormats(
+                    manifest = manifest,
+                    durationMs = duration,
+                    headers = headers
                 )
 
-                formats.add(
-                    VideoFormatEntity(
-                        // Encode the inferred height into the format id so
-                        // sibling media playlists for different qualities
-                        // (240p / 480p / 720p) don't collapse into the same
-                        // entry when they're merged into a single card.
-                        formatId = "hls-media-${inferredHeight ?: "unknown"}",
-                        format = if (inferredHeight != null) "hls-${inferredHeight}p" else "hls-media",
-                        formatNote = if (inferredHeight != null) "${inferredHeight}p" else "Auto",
-                        ext = "mp4",
-                        vcodec = "unknown",
-                        acodec = "unknown",
-                        url = manifest.baseUri,
-                        manifestUrl = manifest.baseUri,
-                        httpHeaders = headers,
-                        height = inferredHeight ?: 0,
-                        width = 0,
-                        fileSizeApproximate = approxBytes,
-                        duration = duration
+                if (synthesised.isNotEmpty()) {
+                    formats.addAll(synthesised)
+                } else {
+                    // Without a master we don't know the bandwidth, so use a
+                    // reasonable per-resolution average to estimate file size.
+                    val approxBytes = approxFileSize(
+                        bitrate = typicalBitrateForHeight(inferredHeight),
+                        durationMs = duration
                     )
-                )
+
+                    formats.add(
+                        VideoFormatEntity(
+                            // Encode the inferred height into the format id so
+                            // sibling media playlists for different qualities
+                            // (240p / 480p / 720p) don't collapse into the same
+                            // entry when they're merged into a single card.
+                            formatId = "hls-media-${inferredHeight ?: "unknown"}",
+                            format = if (inferredHeight != null) "hls-${inferredHeight}p" else "hls-media",
+                            formatNote = if (inferredHeight != null) "${inferredHeight}p" else "Auto",
+                            ext = "mp4",
+                            vcodec = "unknown",
+                            acodec = "unknown",
+                            url = manifest.baseUri,
+                            manifestUrl = manifest.baseUri,
+                            httpHeaders = headers,
+                            height = inferredHeight ?: 0,
+                            width = 0,
+                            fileSizeApproximate = approxBytes,
+                            duration = duration
+                        )
+                    )
+                }
             }
         }
 
@@ -481,6 +498,85 @@ class VideoServiceSuperX(
             ?.let { return it }
 
         return null
+    }
+
+    /**
+     * Some CDNs (notably doppiocdn-style hosts) advertise the full quality
+     * ladder in the URL itself instead of in a master playlist. The pattern
+     * looks like ".../multi=144p:,240p:,480p:,720p:,1080p:/.../480p.av1.mp4.m3u8"
+     * and the site only ever serves one child playlist. Detect that pattern,
+     * pull every advertised resolution out, and synthesise a selectable
+     * [VideoFormatEntity] per resolution by swapping the height token in the
+     * filename. Returns an empty list if the URL doesn't follow the pattern,
+     * which signals the caller to fall back to single-quality behaviour.
+     */
+    private fun synthesizeMultiVariantFormats(
+        manifest: HlsPlaylistParser.MediaPlaylist,
+        durationMs: Long,
+        headers: Map<String, String>,
+    ): List<VideoFormatEntity> {
+        val baseUri = manifest.baseUri
+        val cleaned = baseUri.substringBefore('?').substringBefore('#')
+
+        // Look for the multi=...: ladder block. It can appear with or without
+        // a leading "multi=" depending on the site, but the colon-separated
+        // resolution list (e.g. ":144p:,240p:,480p:,720p:") is the consistent
+        // marker.
+        val ladderRegex = Regex("multi=([^/]*?(?:\\d{2,4}p[^/]*?))/")
+        val ladderMatch = ladderRegex.find(cleaned) ?: return emptyList()
+
+        val resolutionRegex = Regex("(\\d{2,4})p")
+        val advertisedHeights = resolutionRegex.findAll(ladderMatch.groupValues[1])
+            .mapNotNull { it.groupValues.getOrNull(1)?.toIntOrNull() }
+            .toSortedSet()
+
+        if (advertisedHeights.size <= 1) return emptyList()
+
+        // We need the height token in the filename so we know what to swap.
+        // Without it we can't safely build sibling URLs.
+        val currentHeight = inferHeightFromUrl(baseUri) ?: return emptyList()
+        val currentToken = "${currentHeight}p"
+        val filenameStart = cleaned.lastIndexOf('/').coerceAtLeast(0)
+        val tokenIndex = cleaned.indexOf(currentToken, startIndex = filenameStart)
+        if (tokenIndex < 0) return emptyList()
+
+        // Preserve the query string and fragment from the original URL when
+        // we rebuild siblings, since signed CDN URLs often carry tokens there.
+        val querySuffix = baseUri.substring(cleaned.length)
+
+        return advertisedHeights.map { height ->
+            val swappedUrl = if (height == currentHeight) {
+                baseUri
+            } else {
+                val swappedPath = cleaned.replaceRange(
+                    tokenIndex,
+                    tokenIndex + currentToken.length,
+                    "${height}p"
+                )
+                swappedPath + querySuffix
+            }
+
+            val approxBytes = approxFileSize(
+                bitrate = typicalBitrateForHeight(height),
+                durationMs = durationMs
+            )
+
+            VideoFormatEntity(
+                formatId = "hls-media-$height",
+                format = "hls-${height}p",
+                formatNote = "${height}p",
+                ext = "mp4",
+                vcodec = "unknown",
+                acodec = "unknown",
+                url = swappedUrl,
+                manifestUrl = swappedUrl,
+                httpHeaders = headers,
+                height = height,
+                width = 0,
+                fileSizeApproximate = approxBytes,
+                duration = durationMs
+            )
+        }
     }
 
     /**

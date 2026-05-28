@@ -1,39 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    <FrameLayout
         android:id="@+id/help_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:background="?attr/colorSurface"
         tools:context=".ui.main.help.HelpFragment">
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_margin="32dp"
-            android:layout_marginTop="64dp"
-            android:layout_weight="1">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:paddingBottom="120dp">
 
-            <com.google.android.material.textview.MaterialTextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="@string/instruction"
-                android:textSize="@dimen/text_medium" />
-        </ScrollView>
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/padding_normal"
+                android:paddingTop="@dimen/padding_large">
+
+                <!-- Hero -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:background="@drawable/bg_help_illustration"
+                    android:contentDescription="@string/help_title"
+                    android:padding="@dimen/padding_normal"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/illus_help_browse" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_normal"
+                    android:text="@string/help_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/text_xxlarge"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/help_subtitle"
+                    android:textColor="@color/hint_text"
+                    android:textSize="@dimen/text_medium" />
+
+                <!-- Step 1 -->
+                <LinearLayout
+                    style="@style/HelpCard"
+                    android:layout_marginTop="@dimen/padding_normal">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:background="@drawable/bg_help_illustration"
+                        android:contentDescription="@string/help_step1_title"
+                        android:padding="@dimen/padding_small"
+                        android:scaleType="fitCenter"
+                        app:srcCompat="@drawable/illus_help_browse" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_normal"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_help_step_circle"
+                            android:gravity="center"
+                            android:text="1"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/text_medium"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding_normal"
+                            android:layout_weight="1"
+                            android:text="@string/help_step1_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="@dimen/text_large"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_small"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/help_step1_body"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <!-- Step 2 -->
+                <LinearLayout
+                    style="@style/HelpCard"
+                    android:layout_marginTop="@dimen/padding_normal">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:background="@drawable/bg_help_illustration"
+                        android:contentDescription="@string/help_step2_title"
+                        android:padding="@dimen/padding_small"
+                        android:scaleType="fitCenter"
+                        app:srcCompat="@drawable/illus_help_play" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_normal"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_help_step_circle"
+                            android:gravity="center"
+                            android:text="2"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/text_medium"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding_normal"
+                            android:layout_weight="1"
+                            android:text="@string/help_step2_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="@dimen/text_large"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_small"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/help_step2_body"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <!-- Step 3 -->
+                <LinearLayout
+                    style="@style/HelpCard"
+                    android:layout_marginTop="@dimen/padding_normal">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:background="@drawable/bg_help_illustration"
+                        android:contentDescription="@string/help_step3_title"
+                        android:padding="@dimen/padding_small"
+                        android:scaleType="fitCenter"
+                        app:srcCompat="@drawable/illus_help_download" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_normal"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_help_step_circle"
+                            android:gravity="center"
+                            android:text="3"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/text_medium"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding_normal"
+                            android:layout_weight="1"
+                            android:text="@string/help_step3_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="@dimen/text_large"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_small"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/help_step3_body"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <!-- Tips -->
+                <LinearLayout
+                    style="@style/HelpCard"
+                    android:layout_marginTop="@dimen/padding_normal">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/help_tip_title"
+                        android:textColor="@color/brand_accent"
+                        android:textSize="@dimen/text_large"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/padding_small"
+                        android:lineSpacingExtra="4dp"
+                        android:text="@string/help_tip_body"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/padding_large" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/get_started_ok_button"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/ok" />
-
-        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp" />
-    </LinearLayout>
-</FrameLayout>
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="@dimen/padding_normal"
+            android:layout_marginBottom="24dp"
+            android:text="@string/help_got_it"
+            app:cornerRadius="28dp"
+            android:minHeight="52dp" />
+    </FrameLayout>
+</layout>

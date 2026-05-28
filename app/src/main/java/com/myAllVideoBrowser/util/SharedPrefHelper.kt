@@ -63,6 +63,8 @@ class SharedPrefHelper @Inject constructor(
         private const val BLOCK_ADS = "BLOCK_ADS"
         private const val SHOW_RECENTLY_USED_WEBSITES = "SHOW_RECENTLY_USED_WEBSITES"
         private const val SYNC_TO_GALLERY = "SYNC_TO_GALLERY"
+        private const val DOWNLOAD_FOLDER_URI = "DOWNLOAD_FOLDER_URI"
+        private const val DOWNLOAD_FOLDER_PATH = "DOWNLOAD_FOLDER_PATH"
     }
 
     private val gson = Gson()
@@ -454,6 +456,33 @@ class SharedPrefHelper @Inject constructor(
 
     fun setSyncToGallery(value: Boolean) {
         sharedPreferences.edit { putBoolean(SYNC_TO_GALLERY, value) }
+    }
+
+    // ----- Custom download folder picked from the Files app (SAF) -----
+    fun getCustomDownloadFolderUri(): String? {
+        return sharedPreferences.getString(DOWNLOAD_FOLDER_URI, null)
+    }
+
+    fun setCustomDownloadFolderUri(value: String?) {
+        sharedPreferences.edit {
+            if (value.isNullOrBlank()) remove(DOWNLOAD_FOLDER_URI) else putString(
+                DOWNLOAD_FOLDER_URI,
+                value
+            )
+        }
+    }
+
+    fun getCustomDownloadFolderPath(): String? {
+        return sharedPreferences.getString(DOWNLOAD_FOLDER_PATH, null)
+    }
+
+    fun setCustomDownloadFolderPath(value: String?) {
+        sharedPreferences.edit {
+            if (value.isNullOrBlank()) remove(DOWNLOAD_FOLDER_PATH) else putString(
+                DOWNLOAD_FOLDER_PATH,
+                value
+            )
+        }
     }
 
 }

@@ -51,12 +51,9 @@ class TopPagesLocalDataSource @Inject constructor(
         val defaults = listOf(
             "Facebook" to "https://www.facebook.com",
             "Instagram" to "https://www.instagram.com",
-            "Vimeo" to "https://vimeo.com",
-            "Dailymotion" to "https://www.dailymotion.com",
-            "TikTok" to "https://www.tiktok.com",
             "Twitter" to "https://twitter.com",
-            "Ringtone" to "https://www.zedge.net/ringtones",
-            "WhatsApp" to "https://web.whatsapp.com"
+            "Twitch" to "https://www.twitch.tv",
+            "Kick" to "https://kick.com"
         )
 
         return defaults.mapIndexed { index, (label, link) ->

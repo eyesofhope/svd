@@ -285,6 +285,9 @@ dependencies {
     // Image Loading
     implementation(libs.glideRuntime)
 
+    // Lottie animations
+    implementation(libs.lottie)
+
     // Utilities
     implementation(libs.kotlinxSerializationJson)
     implementation(libs.kotlinxSerializationCore)

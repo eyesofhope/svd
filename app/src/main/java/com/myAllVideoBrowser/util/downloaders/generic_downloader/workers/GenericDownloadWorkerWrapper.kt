@@ -46,13 +46,40 @@ open class GenericDownloadWorkerWrapper(
     // without it final notification not shown
     private val finalNotificationDelay = 2000L
 
-    fun showNotificationFinal(id: Int, notification: NotificationCompat.Builder) {
+    /**
+     * Posts the final/finished notification, with a small delay so it lands
+     * after `setForegroundAsync` has dropped the foreground notification.
+     *
+     * If [notification] is `null` (which the helper returns for states like
+     * CANCELED) we **dismiss** the notification slot for [id] instead of
+     * posting one. That stops the user-initiated cancel/delete flow from
+     * leaving a stale "downloading" notification dangling.
+     */
+    fun showNotificationFinal(id: Int, notification: NotificationCompat.Builder?) {
         Handler(Looper.getMainLooper()).postDelayed({
-            notificationsHelper.showNotification(Pair(id, notification))
+            if (notification == null) {
+                notificationsHelper.hideNotification(id)
+            } else {
+                notificationsHelper.showNotification(Pair(id, notification))
+            }
         }, finalNotificationDelay)
     }
 
-    fun showLongRunningNotificationAsync(id: Int, notification: NotificationCompat.Builder) {
+    /**
+     * Convenience that forwards a [VideoTaskItem] straight through. Callers
+     * use this when they don't already have a builder in hand and don't want
+     * to deal with the null/dismiss case themselves.
+     */
+    fun showNotificationFinalForTask(task: VideoTaskItem) {
+        val pair = notificationsHelper.createNotificationBuilder(task)
+        showNotificationFinal(task.mId.hashCode(), pair?.second)
+    }
+
+    fun showLongRunningNotificationAsync(id: Int, notification: NotificationCompat.Builder?) {
+        if (notification == null) {
+            notificationsHelper.hideNotification(id)
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             setForegroundAsync(
                 ForegroundInfo(

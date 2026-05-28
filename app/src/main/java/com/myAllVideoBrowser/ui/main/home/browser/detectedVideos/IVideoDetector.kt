@@ -30,4 +30,11 @@ interface IVideoDetector {
     fun hasCheckLoadingsRegular(): ObservableBoolean
 
     fun hasCheckLoadingsM3u8(): ObservableBoolean
+
+    /**
+     * True once the detection pipeline on the current page is settled and
+     * every quality the page exposes has been collected. Bound by the
+     * floating download FAB so it can show a loading animation until then.
+     */
+    fun isDetectionSettled(): ObservableBoolean
 }

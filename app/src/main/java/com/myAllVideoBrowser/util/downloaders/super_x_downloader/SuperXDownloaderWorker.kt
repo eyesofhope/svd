@@ -56,6 +56,10 @@ class SuperXDownloaderWorker(appContext: Context, workerParams: WorkerParameters
 
                 GenericDownloader.DownloaderActions.CANCEL -> {
                     AppLogger.d("HLS: Cancel action received for task $taskId. Creating flag file.")
+                    // Drop the foreground/progress notification straight away so
+                    // a user-initiated cancel doesn't leave a "downloading"
+                    // notification visible while the worker tears down.
+                    notificationsHelper.hideNotification(taskId.hashCode())
                     val isWorkerRunning =
                         GenericDownloader.isWorkScheduled(applicationContext, taskId)
                     if (isWorkerRunning) {
@@ -710,7 +714,7 @@ class SuperXDownloaderWorker(appContext: Context, workerParams: WorkerParameters
                 it.lineInfo = "Success"
             }
         })
-        showNotificationFinal(notificationData.first, notificationData.second)
+        showNotificationFinal(item.mId.hashCode(), notificationData?.second)
 
         val result =
             if (item.taskState == VideoTaskState.ERROR) Result.failure() else Result.success()
@@ -757,6 +761,9 @@ class SuperXDownloaderWorker(appContext: Context, workerParams: WorkerParameters
                     sourcePath.parentFile?.deleteRecursively()
                     val successProgress = Progress(item.totalSize, item.totalSize)
                     saveProgress(item.mId, successProgress, VideoTaskState.SUCCESS, "Success")
+                    if (sharedPrefHelper.getSyncToGallery()) {
+                        fileUtil.scanFileIfEnabled(applicationContext, File(targetPath))
+                    }
                 } else {
                     AppLogger.e("FFmpeg: Failed to move file to $targetPath")
                     item.taskState = VideoTaskState.ERROR
@@ -817,7 +824,7 @@ class SuperXDownloaderWorker(appContext: Context, workerParams: WorkerParameters
             }
         }
         val notificationData = notificationsHelper.createNotificationBuilder(taskItem)
-        showLongRunningNotificationAsync(notificationData.first, notificationData.second)
+        showLongRunningNotificationAsync(taskItem.mId.hashCode(), notificationData?.second)
     }
 
     private fun saveProgress(

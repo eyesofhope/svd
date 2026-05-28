@@ -39,6 +39,8 @@ import java.net.URL
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import androidx.core.net.toUri
+import android.os.Handler
+import android.os.Looper
 
 open class VideoDetectionTabViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
@@ -77,6 +79,39 @@ open class VideoDetectionTabViewModel @Inject constructor(
     val filterRegex =
         Regex("^(.*\\.(apk|html|xml|ico|css|js|png|gif|json|jpg|jpeg|svg|woff|woff2|m3u8|mpd|ts|php|ttf|otf|eot|cur|webp|bmp|tif|tiff|psd|ai|eps|pdf|doc|docx|xls|xlsx|ppt|pptx|csv|md|rtf|vtt|srt|swf|jar|log|txt|m4s))?$")
     val downloadButtonIcon = ObservableInt(R.drawable.invisible_24px)
+
+    /**
+     * True once detection on the current page has "settled": at least one
+     * video has been pushed AND no new videos have arrived for [settleWindowMs]
+     * AND no link-verification or regular-content checks are still in flight.
+     *
+     * The floating download FAB binds to this so it can show a loading
+     * animation until every quality the page exposes has been collected.
+     */
+    private val _isDetectionSettled = ObservableBoolean(false)
+
+    private val settleWindowMs = 2_000L
+    private val settleHandler = Handler(Looper.getMainLooper())
+    private val settleRunnable = Runnable {
+        val list = detectedVideosList.get()
+        val anyChecksRunning =  
+            (m3u8LoadingList.get()?.isNotEmpty() == true) ||
+                    (regularLoadingList.get()?.isNotEmpty() == true)
+        if (!list.isNullOrEmpty() && !anyChecksRunning) {
+            _isDetectionSettled.set(true)
+        } else if (!list.isNullOrEmpty()) {
+            // checks still in flight, try again shortly
+            settleHandler.removeCallbacks(scheduledSettle)
+            settleHandler.postDelayed(scheduledSettle, settleWindowMs)
+        }
+    }
+    private val scheduledSettle: Runnable get() = settleRunnable
+
+    private fun bumpSettleTimer() {
+        _isDetectionSettled.set(false)
+        settleHandler.removeCallbacks(settleRunnable)
+        settleHandler.postDelayed(settleRunnable, settleWindowMs)
+    }
 
     @Volatile
     var verifyVideoLinkJobStorage = mutableMapOf<String, Disposable>()
@@ -139,6 +174,7 @@ open class VideoDetectionTabViewModel @Inject constructor(
         regularLoadingList.removeOnPropertyChangedCallback(regularLoadingListCallback)
         m3u8LoadingList.removeOnPropertyChangedCallback(m3u8LoadingListCallback)
         downloadButtonState.removeOnPropertyChangedCallback(downloadButtonStateCallback)
+        settleHandler.removeCallbacks(settleRunnable)
         cancelAllCheckJobs()
     }
 
@@ -149,6 +185,8 @@ open class VideoDetectionTabViewModel @Inject constructor(
         }
         lastUrl = url
         downloadButtonState.set(DownloadButtonStateCanNotDownload())
+        _isDetectionSettled.set(false)
+        settleHandler.removeCallbacks(settleRunnable)
 
         if (url != initialUrl) {
             AppLogger.d("onStartPage: URL is not initial url. Clearing list.")
@@ -170,6 +208,8 @@ open class VideoDetectionTabViewModel @Inject constructor(
     fun onReloadPage(url: String, userAgentString: String) {
         lastUrl = url
         downloadButtonState.set(DownloadButtonStateCanNotDownload())
+        _isDetectionSettled.set(false)
+        settleHandler.removeCallbacks(settleRunnable)
 
         detectedVideosList.set(mutableSetOf())
         cancelAllCheckJobs()
@@ -189,6 +229,10 @@ open class VideoDetectionTabViewModel @Inject constructor(
 
     override fun hasCheckLoadingsM3u8(): ObservableBoolean {
         return hasCheckLoadingsM3u8
+    }
+
+    override fun isDetectionSettled(): ObservableBoolean {
+        return _isDetectionSettled
     }
 
     override fun showVideoInfo() {
@@ -402,6 +446,7 @@ open class VideoDetectionTabViewModel @Inject constructor(
             val updated = (detectedVideos - oldVideo) + mergedVideo
             detectedVideosList.set(updated)
             setButtonState(DownloadButtonStateCanDownload(mergedVideo))
+            bumpSettleTimer()
 
             viewModelScope.launch(Dispatchers.Main) {
                 videoPushedEvent.call()
@@ -426,6 +471,7 @@ open class VideoDetectionTabViewModel @Inject constructor(
         }.toSet()
         detectedVideosList.set(nextList)
         setButtonState(DownloadButtonStateCanDownload(newInfo))
+        bumpSettleTimer()
 
         viewModelScope.launch(Dispatchers.Main) {
             videoPushedEvent.call()
@@ -505,19 +551,34 @@ open class VideoDetectionTabViewModel @Inject constructor(
         if (!aManifest.isNullOrBlank() && aManifest == bManifest) return true
 
         // Sibling HLS / MPD media playlists. Two manifest entries belong to
-        // the same video if they live in the same parent directory AND report
-        // approximately the same duration. This is the common case on sites
-        // that don't expose a master playlist (otherwise we see one card per
-        // quality). For HLS children, downloadUrls is empty so we MUST read
-        // the URL from originalUrl rather than firstUrlToString.
+        // the same video if they live in the same parent directory. This is
+        // the common case on sites that don't expose a master playlist
+        // (otherwise we see one card per quality). For HLS children,
+        // downloadUrls is empty so we MUST read the URL from originalUrl
+        // rather than firstUrlToString.
+        //
+        // Duration alone is too brittle as a tiebreaker: per-quality
+        // playlists on the same CDN sometimes round to slightly different
+        // totals, and ad insertions change it dramatically. Instead, we
+        // compare parent path + the heuristic that both URLs contain a
+        // recognisable resolution segment (e.g. ".../1080p.mp4.m3u8" /
+        // ".../720p.mp4.m3u8"). Same parent + different recognised
+        // resolutions is a near-certain sibling pair.
         if (!a.isRegularDownload && !b.isRegularDownload) {
             val aParent = parentPath(aEff)
             val bParent = parentPath(bEff)
-            val durationDelta = kotlin.math.abs(a.duration - b.duration)
-            if (aParent.isNotEmpty() && aParent == bParent &&
-                a.duration > 0 && b.duration > 0 && durationDelta < 2_000
-            ) {
-                return true
+            if (aParent.isNotEmpty() && aParent == bParent) {
+                // If durations are both known, allow up to 5s drift.
+                val durationDelta = kotlin.math.abs(a.duration - b.duration)
+                if (a.duration > 0 && b.duration > 0 && durationDelta < 5_000) {
+                    return true
+                }
+                // Fallback: if either duration is unknown but the URLs both
+                // expose a resolution token, treat them as siblings of the
+                // same media.
+                val aRes = inferHeightFromUrl(aEff)
+                val bRes = inferHeightFromUrl(bEff)
+                if (aRes != null && bRes != null) return true
             }
         }
 
@@ -554,25 +615,90 @@ open class VideoDetectionTabViewModel @Inject constructor(
     }
 
     /**
+     * Best-effort height extraction from a URL. Recognises forms like
+     *   - .../1080p.mp4.m3u8, .../720p/playlist.m3u8
+     *   - .../1920x1080/index.m3u8
+     *   - .../hls-480p-12345.m3u8
+     */
+    private fun inferHeightFromUrl(url: String): Int? {
+        val cleaned = stripQuery(url).lowercase()
+        val pRegex = Regex("(\\d{2,4})p[^/]*$")
+        pRegex.find(cleaned)?.groupValues?.getOrNull(1)?.toIntOrNull()?.let { return it }
+        val xRegex = Regex("\\d{2,4}x(\\d{2,4})")
+        xRegex.findAll(cleaned).lastOrNull()?.groupValues?.getOrNull(1)?.toIntOrNull()
+            ?.let { return it }
+        return null
+    }
+
+    /**
+     * Domains that are known to serve ad / tracking video streams on the
+     * adult-video sites we target. Anything originating from these hosts is
+     * dropped unconditionally so it can never appear as a downloadable card.
+     */
+    private val adHostBlocklist = listOf(
+        "tsyndicate.com",
+        "trafficstars.com",
+        "trafficjunky.com",
+        "trafficjunky.net",
+        "exoclick.com",
+        "exosrv.com",
+        "doppiocdn.com",
+        "juicyads.com",
+        "ero-advertising.com",
+        "popads.net",
+        "popcash.net",
+        "adsterra.com",
+        "googlesyndication.com",
+        "doubleclick.net",
+    )
+
+    private fun isAdHost(url: String): Boolean {
+        val host = runCatching { java.net.URI(url).host }.getOrNull()?.lowercase() ?: return false
+        return adHostBlocklist.any { host == it || host.endsWith(".$it") }
+    }
+
+    /**
      * If we already have an HLS/MPD-detected video for this page, ignore tiny
      * regular MP4 candidates and short ad streams.
      *
-     * The strongest signal that something is an ad is duration: legitimate
-     * videos on the open web are virtually always longer than 60 seconds.
+     * The strongest signals that something is an ad are:
+     *   1) the host is on the known ad-network blocklist
+     *   2) the duration is short (≤ 60s) AND another candidate on the page
+     *      is meaningfully longer
+     *   3) it is a tiny regular MP4 sitting next to any other source.
      */
     private fun shouldSkipAsTeaser(
         newInfo: VideoInfo, existing: Set<VideoInfo>
     ): Boolean {
-        // 1) Anything (HLS, MPD, MP4) whose total duration is very short and
-        //    where another candidate on the page is meaningfully longer is
-        //    almost certainly an ad / preroll / interstitial.
-        val newDuration = newInfo.duration
-        if (newDuration in 1..30_000) {
-            val longestExisting = existing.maxOfOrNull { it.duration } ?: 0L
-            if (longestExisting > newDuration * 3) return true
+        // 0) Always skip well-known ad hosts. We check both the originalUrl
+        //    and any per-format URL so this catches both manifest-level and
+        //    variant-level matches.
+        val candidateUrls = buildList {
+            add(newInfo.originalUrl)
+            add(newInfo.firstUrlToString)
+            newInfo.formats.formats.forEach {
+                add(it.url.orEmpty())
+                add(it.manifestUrl.orEmpty())
+            }
+        }.filter { it.isNotEmpty() }
+        if (candidateUrls.any { isAdHost(it) }) {
+            AppLogger.d("Skipping ad-host candidate: ${candidateUrls.firstOrNull()}")
+            return true
         }
 
-        // 2) Tiny MP4 candidates beside any other source are almost always ads.
+        val newDuration = newInfo.duration
+
+        // 1) Short streams that sit next to a meaningfully longer one are
+        //    almost always preroll / interstitial ads.
+        if (newDuration in 1..60_000) {
+            val longestExisting = existing.maxOfOrNull { it.duration } ?: 0L
+            if (longestExisting > newDuration * 2) return true
+        }
+
+        // 2) Pure-MP4 candidates with very short duration are ads.
+        if (newInfo.isRegularDownload && newDuration in 1..30_000) return true
+
+        // 3) Tiny MP4 candidates beside any other source are almost always ads.
         if (newInfo.isRegularDownload && existing.isNotEmpty()) {
             val size = newInfo.formats.formats.firstOrNull()?.fileSize ?: 0L
             if (size in 1..(1024L * 1024L)) return true

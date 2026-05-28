@@ -56,6 +56,7 @@ rxandroid3 = "3.0.2"
 
 # Other Dependencies
 glide = "5.0.7"
+lottie = "6.6.6"
 youtubedl = "0.18.1"
 ffmpegKit = "2.1.0"
 
@@ -166,6 +167,9 @@ rxandroid3 = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandro
 # Glide
 glideRuntime = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glideCompiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+
+# Lottie
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 
 # Other Dependencies
 youtubedl = { module = "io.github.junkfood02.youtubedl-android:library", version.ref = "youtubedl" }

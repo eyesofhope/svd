@@ -1,0 +1,53 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp"
+    android:height="100dp"
+    android:viewportWidth="160"
+    android:viewportHeight="100">
+
+    <!-- Phone frame -->
+    <path
+        android:pathData="M50,10h60a6,6 0,0 1,6 6v68a6,6 0,0 1,6 6H50a6,6 0,0 1,-6 -6V16a6,6 0,0 1,6 -6z"
+        android:strokeColor="#1A73E8"
+        android:strokeWidth="2"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Video player area -->
+    <path
+        android:pathData="M50,26h60v36H50z"
+        android:fillColor="#0F0F0F" />
+
+    <!-- Play button -->
+    <path
+        android:pathData="M76,38l12,6 -12,6z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Caption / detection chip -->
+    <path
+        android:pathData="M58,68h44a6,6 0,0 1,6 6a6,6 0,0 1,-6 6H58a6,6 0,0 1,-6 -6a6,6 0,0 1,6 -6z"
+        android:fillColor="#E8F0FE" />
+
+    <!-- Three loading dots -->
+    <path
+        android:pathData="M70,74h4v4h-4z"
+        android:fillColor="#1A73E8" />
+    <path
+        android:pathData="M78,74h4v4h-4z"
+        android:fillColor="#1A73E8" />
+    <path
+        android:pathData="M86,74h4v4h-4z"
+        android:fillColor="#1A73E8" />
+
+    <!-- Floating loading badge over the video corner -->
+    <path
+        android:pathData="M104,52m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0"
+        android:fillColor="#1A73E8" />
+    <path
+        android:pathData="M99,52h2v2h-2z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M103,52h2v2h-2z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M107,52h2v2h-2z"
+        android:fillColor="#FFFFFF" />
+</vector>

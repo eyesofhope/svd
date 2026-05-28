@@ -29,7 +29,19 @@ class NotificationsHelper(private val context: Context) {
         createChannel(context)
     }
 
-    fun createNotificationBuilder(task: VideoTaskItem): Pair<Int, NotificationCompat.Builder> {
+    /**
+     * Returns the notification id and a builder for the given task, or `null`
+     * if the task state means we should not show any notification (e.g.
+     * the user cancelled or deleted the download). When `null` is returned
+     * the caller is expected to fall back to [hideNotification].
+     */
+    fun createNotificationBuilder(task: VideoTaskItem): Pair<Int, NotificationCompat.Builder>? {
+        // User-initiated cancel/delete should never leave a stale "downloading"
+        // notification dangling. Return null so callers know to dismiss it.
+        if (task.taskState == VideoTaskState.CANCELED) {
+            return null
+        }
+
         val taskPercent = if (task.percentFromBytes == 0F) task.percent else task.percentFromBytes
 
         val builder = NotificationCompat.Builder(
@@ -63,9 +75,13 @@ class NotificationsHelper(private val context: Context) {
             }
 
             VideoTaskState.PAUSE -> {
-                builder.setSubText("pause")
+                builder.clearActions()
+                builder.setSubText("paused")
                 builder.setProgress(100, taskPercent.toInt(), false)
-                builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download)
+                // Use the "done" icon while paused — the up-pointing
+                // status-bar arrow falsely communicates active progress.
+                builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
+                builder.addAction(notificationActionOpen(false))
                 builder.addAction(createResumeBroadcastMessage(task.mId))
                 builder.addAction(createCancelBroadcastMessage(task.mId))
             }
@@ -84,26 +100,35 @@ class NotificationsHelper(private val context: Context) {
 
             VideoTaskState.ERROR, VideoTaskState.ENOSPC -> {
                 builder.clearActions()
-                val action = notificationActionOpen(true)
+                val action = notificationActionOpen(true, isError = true)
 
                 builder.setSubText("Error")
                 builder.setContentText("Failed " + task.errorMessage)
-                    .setProgress(100, taskPercent.toInt(), false)
-                builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download_done)
+                    .setProgress(0, 0, false)
+                // Stop showing the active-download arrow on error states.
+                builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_notify_error)
                 builder.addAction(action)
                 builder.addAction(createResumeBroadcastMessage(task.mId))
-            }
-
-            VideoTaskState.CANCELED -> {
-                builder.setSubText("Canceled")
-                builder.setProgress(0, 0, false)
-                builder.setOngoing(false).setSmallIcon(android.R.drawable.stat_sys_download)
             }
 
             else -> {}
         }
 
         return Pair(task.mId.hashCode(), builder)
+    }
+
+    /**
+     * Convenience: build and show a notification, transparently hiding it if
+     * the task state means we shouldn't show one. Centralising the rule here
+     * keeps every backend (Custom / SuperX / yt-dlp) in sync.
+     */
+    fun notify(task: VideoTaskItem) {
+        val pair = createNotificationBuilder(task)
+        if (pair == null) {
+            hideNotification(task.mId.hashCode())
+        } else {
+            showNotification(pair)
+        }
     }
 
     fun showNotification(builderPair: Pair<Int, NotificationCompat.Builder>) {

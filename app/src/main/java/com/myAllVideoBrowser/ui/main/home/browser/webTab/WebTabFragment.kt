@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -26,7 +24,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.myAllVideoBrowser.R
 import com.myAllVideoBrowser.data.local.room.entity.HistoryItem
@@ -104,8 +101,6 @@ class WebTabFragment : BaseWebTabFragment() {
     private lateinit var videoDetectionTabViewModel: VideoDetectionTabViewModel
 
     private lateinit var webTab: WebTab
-
-    private var videoToast: Toast? = null
 
     private var canGoCounter = 0
 
@@ -194,8 +189,6 @@ class WebTabFragment : BaseWebTabFragment() {
             tabManagerProvider.getTabsListChangeEvent()
                 .addOnPropertyChangedCallback(topBarTabsCountListener)
 
-            Glide.with(this@WebTabFragment).asGif().load(R.drawable.loading_floating)
-                .into(loadingWavy)
             loadingWavy.clipToOutline = true
 
             configureWebView(this)
@@ -289,6 +282,7 @@ class WebTabFragment : BaseWebTabFragment() {
         handleWorkerEvent()
         handleOpenDetectedVideos()
         handleVideoPushed()
+        handleVideoFoundSnackbar()
         tabViewModel.start()
         videoDetectionTabViewModel.start()
     }
@@ -330,23 +324,53 @@ class WebTabFragment : BaseWebTabFragment() {
     }
 
     private fun handleVideoPushed() {
-        videoDetectionTabViewModel.videoPushedEvent.observe(viewLifecycleOwner) {
-            onVideoPushed()
-        }
+        // Detection emits this event for every quality the page exposes. The
+        // user does not want to see a dialog or toast on each push (it spams
+        // "Video found" while the page is still being scanned). Instead the
+        // floating download button shows a loading animation until detection
+        // settles, and at that moment we show a single Snackbar with a "View"
+        // action — see [handleVideoFoundSnackbar].
     }
 
-    private fun onVideoPushed() {
-        showToastVideoFound()
+    /**
+     * One-shot "Video found" Snackbar tied to detection settle.
+     *
+     * Mirrors the FAB's own contract: while `isDetectionSettled` is false the
+     * page is still being scanned, so we say nothing. The first time it flips
+     * to true we surface a Snackbar with a "View" action that opens the
+     * downloads dialog. We re-arm on every page navigation (the ViewModel
+     * resets the flag in `onStartPage` / `onReloadPage`).
+     */
+    private var videoFoundSnackbarShown = false
 
-        val isDownloadsVisible = isDetectedVideosTabFragmentVisible()
-        val isCond = !tabViewModel.isDownloadDialogShown.get() && !isDownloadsVisible
-        if (context != null && mainActivity.settingsViewModel.getVideoAlertState()
-                .get() && isCond
-        ) {
-            lifecycleScope.launch(Dispatchers.Main) {
-                showAlertVideoFound()
+    private fun handleVideoFoundSnackbar() {
+        val settled = videoDetectionTabViewModel.isDetectionSettled()
+        settled.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (settled.get()) {
+                    if (!videoFoundSnackbarShown) {
+                        videoFoundSnackbarShown = true
+                        showVideoFoundSnackbar()
+                    }
+                } else {
+                    // Page changed / reloaded — re-arm so the next settle can
+                    // surface a fresh Snackbar.
+                    videoFoundSnackbarShown = false
+                }
             }
-        }
+        })
+    }
+
+    private fun showVideoFoundSnackbar() {
+        if (!isResumed) return
+        if (isDetectedVideosTabFragmentVisible()) return
+        if (!mainActivity.settingsViewModel.getVideoAlertState().get()) return
+
+        val root = view ?: return
+        com.google.android.material.snackbar.Snackbar
+            .make(root, R.string.video_found, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+            .setAction(R.string.view) { navigateToDownloads() }
+            .show()
     }
 
     private fun onVideoPreviewPropagate(
@@ -729,33 +753,6 @@ class WebTabFragment : BaseWebTabFragment() {
         }
     }
 
-    private fun showAlertVideoFound() {
-        if (!tabViewModel.isDownloadDialogShown.get()) {
-            tabViewModel.isDownloadDialogShown.set(true)
-            val client = getWebViewClientCompat(webTab.getWebView())
-
-            client?.videoAlert =
-                MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.video_found)
-            client?.videoAlert?.setOnDismissListener {
-                client.videoAlert = null
-            }
-            client?.videoAlert?.setMessage(R.string.whatshould)?.setPositiveButton(
-                R.string.view
-            ) { dialog, _ ->
-                navigateToDownloads()
-                tabViewModel.isDownloadDialogShown.set(false)
-                dialog.dismiss()
-            }?.setNeutralButton(R.string.dontshow) { dialog, _ ->
-                mainActivity.settingsViewModel.setShowVideoAlertOff()
-                tabViewModel.isDownloadDialogShown.set(false)
-                dialog.dismiss()
-            }?.setNegativeButton(R.string.all_text_cancel) { dialog, _ ->
-                tabViewModel.isDownloadDialogShown.set(false)
-                dialog.dismiss()
-            }?.show()
-        }
-    }
-
     private fun handleOnBackPress() {
         val isBrowserRoute = mainActivity.mainViewModel.currentItem.get() == 0
         val isCurrentTabSelected =
@@ -799,20 +796,6 @@ class WebTabFragment : BaseWebTabFragment() {
             } else {
                 backPressedCallback.remove()
             }
-        }
-    }
-
-    private fun showToastVideoFound() {
-        val context = context
-
-        if (context != null) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                videoToast?.cancel()
-                videoToast = Toast.makeText(
-                    context, context.getString(R.string.video_found), Toast.LENGTH_SHORT
-                )
-                videoToast?.show()
-            }, 1)
         }
     }
 

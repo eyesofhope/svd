@@ -1,0 +1,47 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp"
+    android:height="100dp"
+    android:viewportWidth="160"
+    android:viewportHeight="100">
+
+    <!-- Phone frame -->
+    <path
+        android:pathData="M50,10h60a6,6 0,0 1,6 6v68a6,6 0,0 1,6 6H50a6,6 0,0 1,-6 -6V16a6,6 0,0 1,6 -6z"
+        android:strokeColor="#1A73E8"
+        android:strokeWidth="2"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Video thumbnail -->
+    <path
+        android:pathData="M50,20h60v34H50z"
+        android:fillColor="#0F0F0F" />
+
+    <!-- Quality list rows -->
+    <path
+        android:pathData="M52,58h56a2,2 0,0 1,2 2v6a2,2 0,0 1,-2 2H52a2,2 0,0 1,-2 -2v-6a2,2 0,0 1,2 -2z"
+        android:fillColor="#EEF1F8" />
+    <path
+        android:pathData="M56,62h12"
+        android:strokeColor="#1A73E8"
+        android:strokeWidth="2" />
+    <path
+        android:pathData="M56,66h28"
+        android:strokeColor="#9AA1AC"
+        android:strokeWidth="1.2" />
+
+    <!-- Download CTA -->
+    <path
+        android:pathData="M52,72h56a4,4 0,0 1,4 4v6a4,4 0,0 1,-4 4H52a4,4 0,0 1,-4 -4v-6a4,4 0,0 1,4 -4z"
+        android:fillColor="#1A73E8" />
+    <path
+        android:pathData="M78,76l4,0v4l3,0l-5,5l-5,-5l3,0z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Floating download FAB on the right -->
+    <path
+        android:pathData="M122,46m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"
+        android:fillColor="#1A73E8" />
+    <path
+        android:pathData="M120,42l4,0v4l3,0l-5,5l-5,-5l3,0z"
+        android:fillColor="#FFFFFF" />
+</vector>

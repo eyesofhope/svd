@@ -53,7 +53,7 @@ class BrowserHomeViewModel @Inject constructor(
         suggestionJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 withContext(this.coroutineContext) {
-                    val list = getListSuggestions().blockingFirst()
+                    val list = fetchSuggestions().blockingFirst()
                     if (list.size > 50) {
                         listSuggestions.set(list.subList(0, 50).toMutableList())
                     } else {
@@ -66,7 +66,7 @@ class BrowserHomeViewModel @Inject constructor(
         }
     }
 
-    private fun getListSuggestions(): Flowable<List<Suggestion>> {
+    private fun fetchSuggestions(): Flowable<List<Suggestion>> {
         val engine = SearchEngineRegistry.findByTemplate(sharedPrefHelper.getSearchEngineTemplate())
         return Flowable.combineLatest(
             homePublishSubject.debounce(300, TimeUnit.MILLISECONDS)

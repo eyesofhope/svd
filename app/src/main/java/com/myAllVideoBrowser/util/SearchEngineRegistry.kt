@@ -36,12 +36,6 @@ object SearchEngineRegistry {
             suggestionFormat = SuggestionFormat.DUCKDUCKGO_PHRASES
         ),
         Engine(
-            name = "DuckDuckGo Lite (Privacy)",
-            searchUrlTemplate = "https://lite.duckduckgo.com/lite/?q=%s",
-            suggestUrlTemplate = "https://duckduckgo.com/ac/?q=%s&kl=wt-wt",
-            suggestionFormat = SuggestionFormat.DUCKDUCKGO_PHRASES
-        ),
-        Engine(
             name = "Google",
             searchUrlTemplate = "https://www.google.com/search?q=%s",
             suggestUrlTemplate = "https://suggestqueries.google.com/complete/search?client=firefox&q=%s",
@@ -58,38 +52,6 @@ object SearchEngineRegistry {
             searchUrlTemplate = "https://search.yahoo.com/search?p=%s",
             // Yahoo's own gossip endpoint is JSONP; Bing's osjson works as a sane open-search fallback.
             suggestUrlTemplate = "https://www.bing.com/osjson.aspx?query=%s",
-            suggestionFormat = SuggestionFormat.OPEN_SEARCH_TUPLE
-        ),
-        Engine(
-            name = "Ask",
-            searchUrlTemplate = "https://www.ask.com/web?q=%s",
-            suggestUrlTemplate = "https://amg-ss.ask.com/query?li=ff&q=%s",
-            suggestionFormat = SuggestionFormat.OPEN_SEARCH_TUPLE
-        ),
-        Engine(
-            name = "StartPage",
-            searchUrlTemplate = "https://www.startpage.com/do/search?q=%s",
-            // StartPage has no public CORS-friendly suggest endpoint; use DDG which is privacy-aligned.
-            suggestUrlTemplate = "https://duckduckgo.com/ac/?q=%s&kl=wt-wt",
-            suggestionFormat = SuggestionFormat.DUCKDUCKGO_PHRASES
-        ),
-        Engine(
-            name = "StartPage (Mobile)",
-            searchUrlTemplate = "https://www.startpage.com/sp/search?q=%s&t=mobile",
-            suggestUrlTemplate = "https://duckduckgo.com/ac/?q=%s&kl=wt-wt",
-            suggestionFormat = SuggestionFormat.DUCKDUCKGO_PHRASES
-        ),
-        Engine(
-            name = "Baidu (Chinese)",
-            searchUrlTemplate = "https://www.baidu.com/s?wd=%s",
-            // Baidu's own suggest is JSONP; fall back to the open-search tuple from Bing.
-            suggestUrlTemplate = "https://www.bing.com/osjson.aspx?query=%s",
-            suggestionFormat = SuggestionFormat.OPEN_SEARCH_TUPLE
-        ),
-        Engine(
-            name = "Yandex (Russian)",
-            searchUrlTemplate = "https://yandex.com/search/?text=%s",
-            suggestUrlTemplate = "https://suggest.yandex.com/suggest-ff.cgi?part=%s",
             suggestionFormat = SuggestionFormat.OPEN_SEARCH_TUPLE
         )
     )

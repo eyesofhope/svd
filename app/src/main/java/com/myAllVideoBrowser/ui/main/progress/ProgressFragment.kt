@@ -104,27 +104,31 @@ class ProgressFragment : BaseFragment() {
         dataBinding.toolbar.overflowIcon = androidx.appcompat.content.res.AppCompatResources
             .getDrawable(requireContext(), R.drawable.more_vert_24px)
         dataBinding.toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_resume_all -> {
-                    progressViewModel.resumeAllDownloads(); true
-                }
-                R.id.action_pause_all -> {
-                    progressViewModel.pauseAllDownloads(); true
-                }
-                R.id.action_delete_all -> {
-                    confirmDeleteAll(); true
-                }
-                R.id.action_batch_select -> {
-                    val firstId =
-                        progressViewModel.progressInfos.get()?.firstOrNull()?.downloadId
-                    if (firstId != null) {
-                        progressAdapter.enterSelectionMode(firstId)
-                        startActionMode()
-                    }
-                    true
-                }
-                else -> false
+            onTopActionClicked(item.itemId)
+        }
+    }
+
+    private fun onTopActionClicked(itemId: Int): Boolean {
+        return when (itemId) {
+            R.id.action_resume_all -> {
+                progressViewModel.resumeAllDownloads(); true
             }
+            R.id.action_pause_all -> {
+                progressViewModel.pauseAllDownloads(); true
+            }
+            R.id.action_delete_all -> {
+                confirmDeleteAll(); true
+            }
+            R.id.action_batch_select -> {
+                val firstId =
+                    progressViewModel.progressInfos.get()?.firstOrNull()?.downloadId
+                if (firstId != null) {
+                    progressAdapter.enterSelectionMode(firstId)
+                    startActionMode()
+                }
+                true
+            }
+            else -> false
         }
     }
 
@@ -164,10 +168,10 @@ class ProgressFragment : BaseFragment() {
     }
 
     /**
-     * Refreshes the section-header counters: the neutral total chip and the
-     * accent badge that surfaces how many downloads are *currently moving*.
-     * The badge is hidden when nothing is actively downloading so it never
-     * feels like noise.
+     * Refreshes the section-header counters: the neutral total chip and a
+     * live badge on the bottom-nav "Downloading" tab that surfaces how many
+     * downloads are currently moving. The badge is hidden when nothing is
+     * actively downloading so it never feels like noise.
      */
     private fun renderCounts(list: List<com.myAllVideoBrowser.data.local.room.entity.ProgressInfo>) {
         dataBinding.chipCount.text = list.size.toString()
@@ -182,14 +186,10 @@ class ProgressFragment : BaseFragment() {
                 else -> false
             }
         }
-        with(dataBinding.chipActiveCount) {
-            if (activeCount > 0) {
-                text = activeCount.toString()
-                visibility = View.VISIBLE
-            } else {
-                visibility = View.GONE
-            }
-        }
+
+        // Push the active-count to the bottom-nav badge so the user can see
+        // the live count from any screen, not just this fragment.
+        mainActivity.setDownloadingBadgeCount(activeCount)
     }
 
     private fun renderStorageChip() {

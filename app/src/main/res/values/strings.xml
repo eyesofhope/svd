@@ -5,12 +5,12 @@
     <string name="search_or_type_url">Search or Type URL</string>
 
     <string name="title_video">Video</string>
-    <string name="title_progress">Progress</string>
+    <string name="title_progress">Downloading</string>
     <string name="title_settings">Settings</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_tab">Tab</string>
-    <string name="bottom_nav_progress">Progress</string>
+    <string name="bottom_nav_progress">Downloading</string>
     <string name="bottom_nav_finished">Finished</string>
 
     <!-- Home screen -->

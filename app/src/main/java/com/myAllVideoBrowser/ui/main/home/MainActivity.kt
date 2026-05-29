@@ -250,4 +250,24 @@ class MainActivity : BaseActivity() {
         // CHANGES HANDLING
         settingsViewModel.isLockPortrait.addOnPropertyChangedCallback(screenOrientationCallback)
     }
+
+    /**
+     * Updates the active-downloads badge on the bottom-nav "Downloading" tab.
+     * Pass 0 (or negative) to hide the badge entirely. The badge surfaces the
+     * live count of in-flight downloads so the user can see progress from any
+     * screen without having to navigate to the Downloading tab first.
+     */
+    fun setDownloadingBadgeCount(count: Int) {
+        val badge = dataBinding.bottomBar.getOrCreateBadge(R.id.tab_progress)
+        if (count > 0) {
+            badge.isVisible = true
+            badge.number = count
+            badge.maxCharacterCount = 3
+            badge.backgroundColor =
+                ContextCompat.getColor(this, R.color.brand_accent)
+            badge.badgeTextColor = ContextCompat.getColor(this, android.R.color.white)
+        } else {
+            dataBinding.bottomBar.removeBadge(R.id.tab_progress)
+        }
+    }
 }

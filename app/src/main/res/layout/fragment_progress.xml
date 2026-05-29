@@ -26,14 +26,49 @@
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground">
 
+        <!-- Top bar: "Downloading" title + total-count chip + overflow.
+             The chip is hidden while there are no downloads so the empty
+             state stays clean. -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/colorBackground"
             app:menu="@menu/menu_progress_top"
-            app:title="@string/title_progress"
-            app:titleTextAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_section_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/progress_section_downloading"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_count"
+                    style="@style/Widget.MaterialComponents.Chip.Action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="@dimen/padding_small"
+                    android:clickable="false"
+                    android:textSize="@dimen/text_small"
+                    android:visibility="@{viewModel.progressInfos.size() == 0 ? View.GONE : View.VISIBLE}"
+                    app:chipBackgroundColor="@color/color_gray_1"
+                    app:chipMinTouchTargetSize="0dp"
+                    app:chipStartPadding="10dp"
+                    app:chipEndPadding="10dp"
+                    tools:text="2" />
+
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
 
         <FrameLayout
             android:id="@+id/progress_native_ad_container"
@@ -45,68 +80,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-        <LinearLayout
-            android:id="@+id/section_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/padding_normal"
-            android:paddingTop="@dimen/padding_normal"
-            android:paddingBottom="@dimen/padding_small"
-            android:visibility="@{viewModel.progressInfos.size() == 0 ? View.GONE : View.VISIBLE}"
-            app:layout_constraintTop_toBottomOf="@id/progress_native_ad_container">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_section_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/progress_section_downloading"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="@dimen/text_large"
-                android:textStyle="bold" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_count"
-                style="@style/Widget.MaterialComponents.Chip.Action"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginStart="@dimen/padding_small"
-                android:clickable="false"
-                android:textSize="@dimen/text_small"
-                app:chipBackgroundColor="@color/color_gray_1"
-                app:chipMinTouchTargetSize="0dp"
-                app:chipStartPadding="10dp"
-                app:chipEndPadding="10dp"
-                tools:text="2" />
-
-            <!-- Small accent badge: live count of currently downloading items.
-                 Hidden when nothing is actively downloading. -->
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_active_count"
-                style="@style/Widget.MaterialComponents.Chip.Action"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_marginStart="6dp"
-                android:clickable="false"
-                android:textColor="@android:color/white"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                app:chipBackgroundColor="@color/brand_accent"
-                app:chipMinTouchTargetSize="0dp"
-                app:chipStartPadding="8dp"
-                app:chipEndPadding="8dp"
-                app:chipIcon="@drawable/ic_dot_active"
-                app:chipIconSize="8dp"
-                app:chipIconTint="@android:color/white"
-                app:iconStartPadding="0dp"
-                app:iconEndPadding="4dp"
-                tools:text="1"
-                tools:visibility="visible" />
-
-        </LinearLayout>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_progress"
             android:layout_width="match_parent"
@@ -116,7 +89,7 @@
             android:paddingBottom="@dimen/padding_normal"
             app:items="@{viewModel.progressInfos}"
             app:layout_constraintBottom_toTopOf="@id/storage_chip"
-            app:layout_constraintTop_toBottomOf="@id/section_header" />
+            app:layout_constraintTop_toBottomOf="@id/progress_native_ad_container" />
 
         <!-- ===================================================================
              Empty state — shown when there are no active downloads. The

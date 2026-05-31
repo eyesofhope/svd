@@ -52,13 +52,19 @@ class BrowserHomeViewModel @Inject constructor(
         }
         suggestionJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                withContext(this.coroutineContext) {
-                    val list = fetchSuggestions().blockingFirst()
-                    if (list.size > 50) {
-                        listSuggestions.set(list.subList(0, 50).toMutableList())
-                    } else {
-                        listSuggestions.set(list.toMutableList())
-                    }
+                val list = fetchSuggestions().blockingFirst()
+                val limited = if (list.size > 50) {
+                    list.subList(0, 50).toMutableList()
+                } else {
+                    list.toMutableList()
+                }
+                // ObservableField.set() synchronously notifies the databinding
+                // callbacks, which touch the View hierarchy (adapter + visibility +
+                // animations). That MUST happen on the main thread, otherwise it
+                // throws CalledFromWrongThreadException and corrupts the layout/focus
+                // state of the ViewRootImpl.
+                withContext(Dispatchers.Main) {
+                    listSuggestions.set(limited)
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()

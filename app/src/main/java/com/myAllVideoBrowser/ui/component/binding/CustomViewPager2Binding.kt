@@ -28,6 +28,25 @@ object CustomViewPager2Binding {
     @BindingAdapter("app:currentItem")
     @JvmStatic
     fun CustomViewPager2.setCurrentItem(currentItemPosition: Int) {
-        currentItem = currentItemPosition
+        // CRITICAL ORDERING FIX:
+        // `app:items` (adapter data) and `app:currentItem` are applied in the
+        // same DataBinding pass. If we set the position synchronously here, it
+        // can run BEFORE the adapter has grown for a newly-opened tab, so
+        // ViewPager2 clamps the index to the OLD item count and lands one tab
+        // behind — the "1-step delay" where opening a tab shows the previous
+        // one and the page/back-button target the wrong fragment.
+        //
+        // Posting the position change defers it until after the adapter's
+        // notifyDataSetChanged() has taken effect, and smoothScroll=false makes
+        // it jump straight to the target page instead of animating toward a
+        // page that may not be laid out yet.
+        if (currentItem == currentItemPosition) return
+        post {
+            val count = adapter?.itemCount ?: 0
+            val target = currentItemPosition.coerceIn(0, (count - 1).coerceAtLeast(0))
+            if (currentItem != target) {
+                setCurrentItem(target, false)
+            }
+        }
     }
 }

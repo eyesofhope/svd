@@ -29,6 +29,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:menu="@menu/menu_video_top"
             app:title="@string/title_video" />
 
         <!-- Hidden ad slot kept for compatibility with existing native-ad wiring -->

@@ -77,6 +77,27 @@ class VideoViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Batch delete: removes every video in [videos] from disk and updates the
+     * observable list in one pass. Used by the Finished page's multi-select.
+     */
+    fun deleteVideos(context: Context, videos: List<LocalVideo>) {
+        if (videos.isEmpty()) return
+
+        val targetPaths = videos.mapNotNull { it.uri.path }.toHashSet()
+        videos.forEach { video ->
+            try {
+                fileUtil.deleteMedia(context, video.uri)
+            } catch (e: Throwable) {
+                AppLogger.e("Batch delete failed for ${video.name}: ${e.message}")
+            }
+        }
+
+        val list = localVideos.get()?.toMutableList()
+        list?.removeAll { it.uri.path in targetPaths }
+        localVideos.set(list ?: mutableListOf())
+    }
+
     fun renameVideo(context: Context, uri: Uri, newName: String) {
         if (newName.isNotEmpty()) {
             val exists = fileUtil.isUriExists(context, uri)

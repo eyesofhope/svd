@@ -94,7 +94,7 @@
                 android:src="@drawable/ic_close_thin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/iv_thumbnail"
-                app:tint="@color/black_85" />
+                app:tint="?attr/colorOnSurfaceVariant" />
 
             <!-- Progress bar -->
             <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -107,7 +107,7 @@
                 app:layout_constraintEnd_toStartOf="@id/btn_play"
                 app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
                 app:layout_constraintTop_toBottomOf="@id/tv_title"
-                app:trackColor="@color/black_15"
+                app:trackColor="?attr/colorSurfaceVariant"
                 app:trackCornerRadius="3dp"
                 tools:progress="38" />
 

@@ -101,12 +101,26 @@ android {
     }
 
     // Signing Configurations
+    //
+    // The release keystore is provided at build time via environment variables
+    // (KEYSTORE_PATH / KEYSTORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD), e.g. on CI.
+    // We only create + wire the signing config when the keystore file actually
+    // exists. Otherwise `assembleRelease` would hard-fail at packaging because
+    // it points at a non-existent default `keystore.jks`. When no keystore is
+    // available the release variant is simply left unsigned (you can sign the
+    // produced APK afterwards with apksigner / jarsigner).
+    val releaseStoreFile = System.getenv("KEYSTORE_PATH")?.let { file(it) }
+        ?: file("keystore.jks")
+    val hasReleaseKeystore = releaseStoreFile.exists()
+
     signingConfigs {
-        create("release") {
-            storeFile = file(System.getenv("KEYSTORE_PATH") ?: "keystore.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
         }
     }
 
@@ -145,7 +159,12 @@ android {
         release {
             enableUnitTestCoverage = false
             enableAndroidTestCoverage = false
-            signingConfig = signingConfigs.getByName("release")
+            // Only sign when a release keystore was supplied (see signingConfigs
+            // above). Without it the variant stays unsigned so the build still
+            // succeeds instead of failing on a missing keystore.jks.
+            if (hasReleaseKeystore) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"

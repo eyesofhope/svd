@@ -1,6 +1,7 @@
 <resources>
     <string name="app_icon">app icon</string>
-    <string name="app_name">SuperX</string>
+    <string name="app_name">Flash</string>
+    <string name="app_name_full">Flash: All Video Downloader</string>
     <string name="browser_search_hint">Search or Type URL</string>
     <string name="search_or_type_url">Search or Type URL</string>
 
@@ -147,6 +148,18 @@
     <string name="video_rename_invalid">Invalid name. Please try again!</string>
     <string name="video_rename_exist">Video name already exists!</string>
     <string name="video_share_message">You don\'t have any video player app installed on your device</string>
+
+    <!-- Finished-page multi-select / batch delete -->
+    <string name="video_action_mode_title">%1$d selected</string>
+    <string name="video_top_select">Select</string>
+    <string name="video_top_select_all">Select all</string>
+    <string name="video_top_delete_selected">Delete</string>
+    <string name="video_delete_dialog_title">Delete video?</string>
+    <string name="video_delete_dialog_message">This video file will be permanently deleted from your device.</string>
+    <string name="video_delete_many_title">Delete %1$d videos?</string>
+    <string name="video_delete_many_message">The selected video files will be permanently deleted from your device.</string>
+    <string name="video_delete_confirm">Delete</string>
+    <string name="video_delete_cancel">Cancel</string>
 
 
     <string name="progress_empty_message">Your finished and in-progress videos will land here.</string>

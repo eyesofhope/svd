@@ -26,7 +26,6 @@
         android:layout_marginHorizontal="8dp"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> videoListener.onItemClicked(localVideo)}"
         app:strokeWidth="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,6 +42,19 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/customImageViewRounded" />
+
+            <!-- Multi-select check (hidden by default; toggled in selection mode) -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_check"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@drawable/ic_check_circle_filled"
+                android:contentDescription="@null"
+                android:elevation="2dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/iv_thumbnail"
+                app:layout_constraintTop_toTopOf="@id/iv_thumbnail"
+                tools:visibility="visible" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_name"

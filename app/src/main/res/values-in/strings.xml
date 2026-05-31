@@ -17,7 +17,8 @@
     <string name="check_every_request_on_video_m3u8">Periksa setiap permintaan pada video M3U8 atau MPD</string>
     <string name="app_icon">Ikon aplikasi</string>
     <string name="dialog_download_video">Unduh Video</string>
-    <string name="app_name">SuperX</string>
+    <string name="app_name">Flash</string>
+    <string name="app_name_full">Flash: All Video Downloader</string>
     <string name="desktop_mode_on">Mode Desktop Aktif</string>
     <string name="video_menu_rename">Ganti nama</string>
     <string name="video_menu_delete">Hapus</string>

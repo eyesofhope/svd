@@ -170,11 +170,27 @@ open class VideoDetectionTabViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The page poster (og:image / video[poster]) is captured in
+     * `onPageFinished`, but streaming media (HLS / MPD) is typically detected
+     * WHILE the page is still loading — i.e. before that callback fires. Those
+     * early cards therefore get pushed with a blank thumbnail and, without this
+     * observer, would stay blank forever. When the poster finally arrives we
+     * back-fill every already-detected card that still lacks one and re-emit
+     * the list so the popup refreshes.
+     */
+    private val pageThumbnailCallback = object : OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+            backfillThumbnails()
+        }
+    }
+
     override fun start() {
         AppLogger.d("START")
         regularLoadingList.addOnPropertyChangedCallback(regularLoadingListCallback)
         m3u8LoadingList.addOnPropertyChangedCallback(m3u8LoadingListCallback)
         downloadButtonState.addOnPropertyChangedCallback(downloadButtonStateCallback)
+        webTabModel?.pageThumbnailUrl?.addOnPropertyChangedCallback(pageThumbnailCallback)
 
         downloadButtonStateCallback.onPropertyChanged(null, 0)
     }
@@ -184,8 +200,32 @@ open class VideoDetectionTabViewModel @Inject constructor(
         regularLoadingList.removeOnPropertyChangedCallback(regularLoadingListCallback)
         m3u8LoadingList.removeOnPropertyChangedCallback(m3u8LoadingListCallback)
         downloadButtonState.removeOnPropertyChangedCallback(downloadButtonStateCallback)
+        webTabModel?.pageThumbnailUrl?.removeOnPropertyChangedCallback(pageThumbnailCallback)
         settleHandler.removeCallbacks(settleRunnable)
         cancelAllCheckJobs()
+    }
+
+    /**
+     * Apply the freshly-captured page poster to any detected video that still
+     * has no thumbnail. Runs on the main thread because it mutates the
+     * observable list the popup adapter is bound to.
+     */
+    @Synchronized
+    private fun backfillThumbnails() {
+        val thumb = webTabModel?.pageThumbnailUrl?.get().orEmpty()
+        if (!thumb.startsWith("http")) return
+
+        val current = detectedVideosList.get() ?: return
+        val blanks = current.filter { it.thumbnail.isBlank() }
+        if (blanks.isEmpty()) return
+
+        val updated = current.map { info ->
+            if (info.thumbnail.isBlank()) info.copy(thumbnail = thumb) else info
+        }.toSet()
+
+        Handler(Looper.getMainLooper()).post {
+            detectedVideosList.set(updated)
+        }
     }
 
     override fun onStartPage(url: String, userAgentString: String) {

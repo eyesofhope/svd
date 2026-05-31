@@ -566,22 +566,40 @@ class BrowserFragment : BaseFragment(), BrowserServicesProvider {
 
     private fun onBackPressed() {
         val rootPagerIndex = mainActivity.mainViewModel.currentItem.get() ?: 0
-        if (rootPagerIndex > 0) {
+
+        // 1. On a non-browser bottom-nav screen (Downloading / Video / Settings):
+        //    back returns to the Browser route instead of exiting.
+        if (rootPagerIndex != HOME_TAB_INDEX) {
             mainActivity.mainViewModel.currentItem.set(HOME_TAB_INDEX)
+            return
         }
-        if (rootPagerIndex == HOME_TAB_INDEX) {
-            if (backPressedOnce) {
-                requireActivity().finish()
-                return
-            }
 
-            backPressedOnce = true
-            Toast.makeText(requireContext(), "Press Back Again to exit", Toast.LENGTH_SHORT).show()
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                backPressedOnce = false
-            }, 2000)
+        // 2. On the Browser route but on a web tab (any tab other than the Home
+        //    tab): back should leave that tab and return to the Home tab. By the
+        //    time this callback runs, the active WebView's own page history has
+        //    already been consumed by WebTabFragment's back handler, so there is
+        //    nothing left to go back to inside the page — stepping up to the Home
+        //    tab is the standard "go one level up" behaviour every browser uses,
+        //    and crucially it does NOT exit the app here.
+        val browserTabIndex = browserViewModel.currentTab.get()
+        if (browserTabIndex != HOME_TAB_INDEX) {
+            browserViewModel.currentTab.set(HOME_TAB_INDEX)
+            return
         }
+
+        // 3. On the true home screen (Browser route + Home tab) only: this is the
+        //    app root, so use the double-tap-to-exit confirmation.
+        if (backPressedOnce) {
+            requireActivity().finish()
+            return
+        }
+
+        backPressedOnce = true
+        Toast.makeText(requireContext(), "Press Back Again to exit", Toast.LENGTH_SHORT).show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            backPressedOnce = false
+        }, 2000)
     }
 
     private fun showDrawerOverflowMenu(anchor: android.view.View) {

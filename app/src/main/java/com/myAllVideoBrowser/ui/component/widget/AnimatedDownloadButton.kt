@@ -30,8 +30,10 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
+import android.view.animation.OvershootInterpolator
 import androidx.core.animation.doOnEnd
 import com.google.android.material.color.MaterialColors
 import com.myAllVideoBrowser.R
@@ -207,6 +209,63 @@ class AnimatedDownloadButton @JvmOverloads constructor(
         minimumHeight = min
         isClickable = true
         isFocusable = true
+        // A circular ripple gives the canvas button the same tactile feedback
+        // the sibling play/close buttons get from selectableItemBackground.
+        setupRippleForeground()
+    }
+
+    /**
+     * Apply a borderless (circular) ripple as the view's foreground so a tap
+     * shows a Material ripple. We resolve `selectableItemBackgroundBorderless`
+     * from the theme to stay consistent with the play / close buttons in the
+     * same row.
+     */
+    private fun setupRippleForeground() {
+        try {
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(
+                android.R.attr.selectableItemBackgroundBorderless, outValue, true
+            )
+            if (outValue.resourceId != 0) {
+                foreground = androidx.core.content.ContextCompat.getDrawable(
+                    context, outValue.resourceId
+                )
+            }
+        } catch (_: Throwable) {
+            // Foreground ripple is a nicety — ignore if the theme can't supply it.
+        }
+    }
+
+    /**
+     * Quick press-in / release scale so a tap on the download button is
+     * unmistakably felt, even while the morphing animation is mid-flight.
+     * Driven directly off touch so it fires the instant the finger lands.
+     */
+    private var pressAnimator: ValueAnimator? = null
+
+    private fun animatePressScale(pressedDown: Boolean) {
+        pressAnimator?.cancel()
+        val target = if (pressedDown) 0.84f else 1f
+        pressAnimator = ValueAnimator.ofFloat(scaleX, target).apply {
+            duration = if (pressedDown) 90L else 160L
+            interpolator = if (pressedDown) LinearInterpolator() else OvershootInterpolator(2.2f)
+            addUpdateListener { v ->
+                val s = v.animatedValue as Float
+                scaleX = s
+                scaleY = s
+            }
+            start()
+        }
+    }
+
+    @Suppress("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> if (isEnabled) animatePressScale(true)
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_CANCEL -> animatePressScale(false)
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -533,6 +592,8 @@ class AnimatedDownloadButton @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         cancelAllAnimators()
+        pressAnimator?.cancel()
+        pressAnimator = null
         super.onDetachedFromWindow()
     }
 

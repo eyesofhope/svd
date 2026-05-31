@@ -59,6 +59,7 @@
                     android:layout_height="32dp"
                     android:layout_marginStart="@dimen/padding_small"
                     android:clickable="false"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/text_small"
                     android:visibility="@{viewModel.progressInfos.size() == 0 ? View.GONE : View.VISIBLE}"
                     app:chipBackgroundColor="@color/color_gray_1"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SuperX</string>
+    <string name="app_name">Flash</string>
+    <string name="app_name_full">Flash: All Video Downloader</string>
     <string name="browser_search_hint">Wyszukaj w DuckDuckGo lub wprowadź adres URL</string>
     <string name="title_video">Wideo</string>
     <string name="title_progress">Postęp</string>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Concept B">
+  <!-- CONCEPT B: "Play button forged from a bolt"
+       One idea: a media play-triangle whose leading edge is notched like a lightning strike.
+       Differentiates from the orange leaders by owning a deep teal->cyan, flat two-tone.
+       Reads instantly as 'video' (play) + 'flash' (the jagged cut). -->
+  <rect width="512" height="512" rx="114" fill="#06B6A9"/>
+  <!-- darker disc to seat the play mark, flat (no gloss) -->
+  <circle cx="256" cy="256" r="150" fill="#053B3A" opacity="0.18"/>
+  <!-- Play triangle with a lightning notch on its trailing edge -->
+  <path fill="#FFFFFF" d="
+    M196 150
+    L196 246
+    L150 246
+    L240 300
+    L196 300
+    L196 362
+    L350 256
+    Z"/>
+</svg>

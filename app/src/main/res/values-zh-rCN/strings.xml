@@ -94,7 +94,8 @@
     <string name="progress_menu_pause">暂停</string>
     <string name="instruction">Hi ;–) \n 要检测视频，请在浏览器中打开视频页面 → 点击播放视频 → 耐心等待系统检测（通常需要5-50秒） \n 1. 您可在\"设置\"中调整广告检测的阈值 \n 2. 部分网站如果无法检测到视频，可以尝试切换至桌面模式重试 \n 若仍无法检测到视频，请在视频页面点击“重新加载视频”或刷新页面后重试 \n 若仍未解决请通过邮件联系我。\n \n\n 视频下载步骤： \n \n 1. 点击下载按钮 → 在弹出界面选择分辨率（如有） \n \n 2. 点击“下载视频”按钮。 \n \n \n 下载完成后视频将在应用中显示 。 \n</string>
     <string name="paste">粘贴</string>
-    <string name="app_name">SuperX</string>
+    <string name="app_name">Flash</string>
+    <string name="app_name_full">Flash: All Video Downloader</string>
     <string name="title_media_link">通过URL下载</string>
     <string name="about_an_hour_ago">大约一小时前</string>
     <string name="ok">OK</string>

@@ -38,6 +38,9 @@ class DetectedVideosTabFragment : BottomSheetDialogFragment() {
 
     private lateinit var layoutMngr: WrapContentLinearLayoutManager
 
+    /** Behavior of the shown sheet — kept so we can animate it closed on download. */
+    private var sheetBehavior: BottomSheetBehavior<FrameLayout>? = null
+
     companion object {
         const val TAG = "DOWNLOADS_TAB"
         fun newInstance() = DetectedVideosTabFragment()
@@ -69,9 +72,37 @@ class DetectedVideosTabFragment : BottomSheetDialogFragment() {
                 isHideable = true
                 state = BottomSheetBehavior.STATE_EXPANDED
                 this.maxHeight = maxHeight
+                sheetBehavior = this
             }
         }
         return dialog
+    }
+
+    /**
+     * Slide the sheet down off-screen and then dismiss it. Used after the user
+     * taps "Download" so the popup confirms the action by animating away
+     * (instead of vanishing instantly). Falls back to a plain dismiss if the
+     * behavior isn't available yet.
+     */
+    fun animateCloseAndDismiss() {
+        val behavior = sheetBehavior
+        if (behavior == null || !isAdded) {
+            dismissAllowingStateLoss()
+            return
+        }
+        // Listen for the hidden state, then tear the dialog down.
+        behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    behavior.removeBottomSheetCallback(this)
+                    dismissAllowingStateLoss()
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
+        behavior.isHideable = true
+        behavior.state = BottomSheetBehavior.STATE_HIDDEN
     }
 
     override fun onCreateView(

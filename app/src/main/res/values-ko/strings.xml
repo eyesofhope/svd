@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_icon">앱 아이콘</string>
-    <string name="app_name">SuperX</string>
+    <string name="app_name">Flash</string>
+    <string name="app_name_full">Flash: All Video Downloader</string>
     <string name="browser_search_hint">DuckDuckGo 검색 또는 URL 입력</string>
     <string name="title_video">비디오</string>
     <string name="title_progress">진행 중</string>

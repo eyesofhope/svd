@@ -85,6 +85,15 @@ class ProgressFragment : BaseFragment() {
         handleDownloadVideoEvent()
     }
 
+    override fun onPause() {
+        // This fragment is hosted in a ViewPager2; switching tabs moves it from
+        // RESUMED to STARTED without destroying it. Finish the activity-level
+        // ActionMode here so the "N selected" banner and its action icons don't
+        // linger over the other tabs.
+        actionMode?.finish()
+        super.onPause()
+    }
+
     override fun onDestroyView() {
         progressViewModel.progressInfos.removeOnPropertyChangedCallback(progressInfosCallback)
         if (::dataBinding.isInitialized) {

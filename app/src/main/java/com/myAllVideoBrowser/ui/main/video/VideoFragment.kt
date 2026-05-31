@@ -4,11 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.OptIn
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
@@ -67,6 +72,8 @@ class VideoFragment : BaseFragment() {
 
     private lateinit var videoAdapter: VideoAdapter
 
+    private var actionMode: ActionMode? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -82,6 +89,8 @@ class VideoFragment : BaseFragment() {
             this.rvVideo.layoutManager = managerL
             this.rvVideo.adapter = videoAdapter
         }
+
+        setupToolbarMenu()
 
         videoViewModel.shareEvent.observe(viewLifecycleOwner) { uri ->
             intentUtil.shareVideo(requireContext(), uri)
@@ -100,6 +109,21 @@ class VideoFragment : BaseFragment() {
         dataBinding.btnBrowse.setOnClickListener {
             mainActivity.mainViewModel.currentItem.set(0)
         }
+    }
+
+    override fun onPause() {
+        // This fragment is hosted in a ViewPager2; switching tabs moves it from
+        // RESUMED to STARTED without destroying it. Finish the activity-level
+        // ActionMode here so the "N selected" banner and its action icons don't
+        // linger over the other tabs.
+        actionMode?.finish()
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+        actionMode?.finish()
+        actionMode = null
+        super.onDestroyView()
     }
 
     private fun handleUIEvents() {
@@ -135,7 +159,105 @@ class VideoFragment : BaseFragment() {
         override fun onMenuClicked(view: View, localVideo: LocalVideo) {
             showPopupMenu(view, localVideo)
         }
+
+        override fun onItemLongPressed(localVideo: LocalVideo) {
+            if (actionMode == null) {
+                videoAdapter.enterSelectionMode(localVideo)
+                startActionMode()
+            } else {
+                onItemTapped(localVideo)
+            }
+        }
+
+        override fun onItemTapped(localVideo: LocalVideo) {
+            val count = videoAdapter.toggleSelection(localVideo)
+            if (count == 0) {
+                actionMode?.finish()
+            } else {
+                actionMode?.title = getString(R.string.video_action_mode_title, count)
+                actionMode?.invalidate()
+            }
+        }
     }
+
+    // region multi-select / batch delete -----------------------------------------------
+
+    private fun setupToolbarMenu() {
+        dataBinding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_video_select -> {
+                    val first = videoViewModel.localVideos.get()?.firstOrNull()
+                    if (first != null && actionMode == null) {
+                        videoAdapter.enterSelectionMode(first)
+                        startActionMode()
+                    }
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun startActionMode() {
+        if (actionMode != null) return
+        val activity = requireActivity() as? AppCompatActivity ?: return
+        actionMode = activity.startSupportActionMode(actionModeCallback)
+        actionMode?.title = getString(
+            R.string.video_action_mode_title, videoAdapter.selectedCount
+        )
+    }
+
+    private val actionModeCallback = object : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            mode.menuInflater.inflate(R.menu.menu_video_action_mode, menu)
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return when (item.itemId) {
+                R.id.vam_select_all -> {
+                    videoAdapter.selectAll()
+                    mode.title = getString(
+                        R.string.video_action_mode_title, videoAdapter.selectedCount
+                    )
+                    true
+                }
+
+                R.id.vam_delete -> {
+                    confirmDeleteSelection(videoAdapter.selectedVideos())
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode) {
+            videoAdapter.exitSelectionMode()
+            actionMode = null
+        }
+    }
+
+    private fun confirmDeleteSelection(videos: List<LocalVideo>) {
+        if (videos.isEmpty()) {
+            actionMode?.finish()
+            return
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.video_delete_many_title, videos.size))
+            .setMessage(R.string.video_delete_many_message)
+            .setNegativeButton(R.string.video_delete_cancel, null)
+            .setPositiveButton(R.string.video_delete_confirm) { _, _ ->
+                context?.let { videoViewModel.deleteVideos(it, videos) }
+                actionMode?.finish()
+            }
+            .show()
+    }
+
+    // endregion ------------------------------------------------------------------------
 
     private fun showPopupMenu(view: View, video: LocalVideo) {
         val myView = fixPopup(dataBinding.anchor, view)

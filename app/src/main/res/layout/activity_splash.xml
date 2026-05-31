@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="@dimen/padding_normal"
-                android:text="@string/app_name"
+                android:text="@string/app_name_full"
                 android:textSize="@dimen/text_large"
                 app:layout_constraintTop_toBottomOf="@id/img_icon"
                 app:layout_constraintBottom_toTopOf="@id/progress_bar"

@@ -55,7 +55,7 @@
                         android:background="@color/color_gray_1"
                         android:contentDescription="@null"
                         android:scaleType="centerCrop"
-                        app:imageUrl="@{videoInfo.thumbnail}" />
+                        app:videoThumbnail="@{videoInfo}" />
 
                     <ImageView
                         android:id="@+id/iv_thumbnail_placeholder"
@@ -64,7 +64,7 @@
                         android:layout_gravity="center"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_video_24dp"
-                        android:visibility="@{videoInfo.thumbnail.isEmpty() ? View.VISIBLE : View.GONE}" />
+                        android:visibility="@{videoInfo.thumbnail == null || videoInfo.thumbnail.isEmpty() ? View.VISIBLE : View.GONE}" />
                 </FrameLayout>
 
                 <com.google.android.material.textview.MaterialTextView

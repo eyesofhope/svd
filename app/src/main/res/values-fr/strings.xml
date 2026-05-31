@@ -124,7 +124,8 @@
     <string name="drm_permission_message">Ce site souhaite lire des contenus protégés par DRM (comme des films ou de la musique). L\'autorisation est nécessaire pour la lecture. Voulez-vous activer cette fonctionnalité ?</string>
     <string name="allow">Autoriser</string>
     <string name="block">Bloquer</string>
-    <string name="app_name">SuperX</string>
+    <string name="app_name">Flash</string>
+    <string name="app_name_full">Flash: All Video Downloader</string>
     <string name="doh_quad9">Quad9 DoH</string>
     <string name="doh_ad_guard">Adguard DoH</string>
 </resources>

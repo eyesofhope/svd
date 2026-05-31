@@ -58,7 +58,6 @@ import com.myAllVideoBrowser.util.FileNameCleaner
 import com.myAllVideoBrowser.util.proxy_utils.CustomProxyController
 import com.myAllVideoBrowser.util.proxy_utils.OkHttpProxyClient
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.UUID
@@ -159,12 +158,15 @@ class WebTabFragment : BaseWebTabFragment() {
             this.etSearch.imeOptions = EditorInfo.IME_ACTION_DONE
             this.etSearch.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    val input = (this@apply.etSearch as EditText).text.toString()
                     this.etSearch.clearFocus()
-                    viewModel?.viewModelScope?.launch {
-                        delay(400)
-                        tabViewModel.loadPage((this@apply.etSearch as EditText).text.toString())
-                    }
-                    false
+                    appUtil.hideSoftKeyboard(this@apply.etSearch)
+                    // Navigate immediately. The previous version deferred this by
+                    // 400ms inside a coroutine, which raced with clearFocus()/tab
+                    // swaps and frequently loaded the wrong (or no) page, forcing
+                    // the user to submit several times.
+                    tabViewModel.loadPage(input)
+                    true
                 } else false
             }
 
@@ -209,11 +211,11 @@ class WebTabFragment : BaseWebTabFragment() {
             configureWebView(this)
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner, backPressedCallback
-        )
-
+        // Register the back callback through the same route-aware path used on
+        // resume / route change, so there's exactly one registration whose
+        // enabled state matches whether this tab is the active one.
         addChangeRouteCallBack()
+        syncBackCallbackForCurrentRoute()
 
         tabViewModel.userAgent.set(
             webTab.getWebView()?.settings?.userAgentString
@@ -225,7 +227,18 @@ class WebTabFragment : BaseWebTabFragment() {
             message.sendToTarget()
             webTab.flushMessage()
         } else {
-            tabViewModel.loadPage(webTab.getUrl())
+            // Load the tab's initial URL directly into this WebView. We must NOT
+            // route this through tabViewModel.loadPage() here: loadPage() emits the
+            // loadPageEvent SingleLiveEvent, but its observer (handleLoadPageEvent)
+            // isn't registered until onViewCreated(), so the very first emit would
+            // be dropped — leaving a freshly-opened tab that never navigates until
+            // the user submits again. Loading straight into the WebView avoids that
+            // race entirely.
+            val initialUrl = webTab.getUrl()
+            if (initialUrl.startsWith("http")) {
+                tabViewModel.setTabTextInput(initialUrl, isForce = true)
+                webTab.getWebView()?.loadUrl(initialUrl)
+            }
         }
 
         return dataBinding.root
@@ -307,17 +320,19 @@ class WebTabFragment : BaseWebTabFragment() {
         AppLogger.d("onPause Webview::::::::: ${webTab.getUrl()}")
         super.onPause()
         onWebViewPause()
-        backPressedCallback.remove()
     }
 
     override fun onResume() {
         AppLogger.d("onResume Webview::::::::: ${webTab.getUrl()}")
         super.onResume()
         onWebViewResume()
-
-        activity?.onBackPressedDispatcher?.addCallback(
-            viewLifecycleOwner, backPressedCallback
-        )
+        // Re-evaluate whether this tab should own the back press. We do NOT
+        // blindly addCallback() here every resume: that stacked another
+        // registration on top of BrowserFragment's callback each time, which
+        // made back handling order (and thus behaviour) unpredictable. The
+        // single source of truth is changeRouteCallBack, which adds/removes the
+        // callback based on whether this tab is the active, visible one.
+        syncBackCallbackForCurrentRoute()
     }
 
     override fun onDestroy() {
@@ -664,6 +679,22 @@ class WebTabFragment : BaseWebTabFragment() {
                 if (webTab.isIncognito) hideIncognitoOverlay()
             }
         }
+
+        // Safety net for incognito tabs: hide the focus-stealing home overlay as
+        // soon as the URL bar reflects a real navigation, regardless of which
+        // code path triggered the load. The overlay is clickable+focusable and
+        // sits over the WebView, so if it's ever left visible after navigation
+        // the whole tab appears frozen.
+        if (webTab.isIncognito) {
+            tabViewModel.getTabTextInput()
+                .addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                    override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                        if (tabViewModel.getTabTextInput().get()?.startsWith("http") == true) {
+                            hideIncognitoOverlay()
+                        }
+                    }
+                })
+        }
     }
 
     private fun handleWorkerEvent() {
@@ -793,7 +824,9 @@ class WebTabFragment : BaseWebTabFragment() {
             val webView = webTab.getWebView()
             val canGoBack = webView?.canGoBack()
             if (canGoBack == true) {
-                webView.goBack()
+                // onGoBack() already performs webView.goBack() (plus focus/progress
+                // reset). Calling goBack() here too would skip two history entries
+                // per tap, so delegate solely to the view-model.
                 tabViewModel.onGoBack(webView)
                 videoDetectionTabViewModel.cancelAllCheckJobs()
             }
@@ -837,9 +870,27 @@ class WebTabFragment : BaseWebTabFragment() {
                 TAB_INDEX_KEY
             )
         val isStateResumed = viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
+        val isActiveTab = isStateResumed && isBrowserRoute && isCurrentTabSelected && isVisible
 
-        if (isStateResumed && isBrowserRoute && isCurrentTabSelected && isVisible) {
-            webTab.getWebView()?.goBack()
+        val webView = webTab.getWebView()
+        if (isActiveTab && webView?.canGoBack() == true) {
+            // This tab is the visible one and still has web history — consume the
+            // press and walk the WebView back.
+            tabViewModel.onGoBack(webView)
+            videoDetectionTabViewModel.cancelAllCheckJobs()
+            return
+        }
+
+        // Either this isn't the active tab, or the WebView has no page to go back
+        // to. Previously the always-enabled callback simply did nothing here and
+        // SWALLOWED the press (the cause of the intermittent dead back button).
+        // Instead, temporarily disable ourselves and re-dispatch so the next
+        // registered handler (BrowserFragment: drawer / tab switch / exit) runs.
+        backPressedCallback.isEnabled = false
+        try {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        } finally {
+            backPressedCallback.isEnabled = true
         }
     }
 
@@ -859,20 +910,32 @@ class WebTabFragment : BaseWebTabFragment() {
 
     private val changeRouteCallBack = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-            val indexRoute = mainActivity.mainViewModel.currentItem.get()
-            val currentTabIndexSelected = currentTabIndexProvider.getCurrentTabIndex().get()
-            val isCurrentTabSelected =
-                currentTabIndexSelected == requireArguments().getInt(TAB_INDEX_KEY)
-            val isBrowserRoute = indexRoute == 0
-            val isNotHomeTabSelected = currentTabIndexSelected != HOME_TAB_INDEX
-            val isVisible = this@WebTabFragment.isVisible
-            if (isBrowserRoute && isNotHomeTabSelected && isCurrentTabSelected && isVisible) {
-                activity?.onBackPressedDispatcher?.addCallback(
-                    viewLifecycleOwner, backPressedCallback
-                )
-            } else {
-                backPressedCallback.remove()
-            }
+            syncBackCallbackForCurrentRoute()
+        }
+    }
+
+    /**
+     * Register our back callback only while this tab is the active, visible web
+     * tab on the browser route; otherwise remove it. Centralising the rule here
+     * (called from onCreateView, onResume and the route-change observer) keeps a
+     * single registration instead of the previous three overlapping ones, so the
+     * back press is routed deterministically.
+     */
+    private fun syncBackCallbackForCurrentRoute() {
+        val indexRoute = mainActivity.mainViewModel.currentItem.get()
+        val currentTabIndexSelected = currentTabIndexProvider.getCurrentTabIndex().get()
+        val isCurrentTabSelected =
+            currentTabIndexSelected == requireArguments().getInt(TAB_INDEX_KEY)
+        val isBrowserRoute = indexRoute == 0
+        val isNotHomeTabSelected = currentTabIndexSelected != HOME_TAB_INDEX
+        if (isBrowserRoute && isNotHomeTabSelected && isCurrentTabSelected && this@WebTabFragment.isVisible) {
+            // remove() first guarantees we never end up registered twice.
+            backPressedCallback.remove()
+            activity?.onBackPressedDispatcher?.addCallback(
+                viewLifecycleOwner, backPressedCallback
+            )
+        } else {
+            backPressedCallback.remove()
         }
     }
 
@@ -1010,6 +1073,14 @@ class WebTabFragment : BaseWebTabFragment() {
             videoInfo: VideoInfo, format: String, videoTitle: String
         ) {
             onVideoDownloadPropagate(videoInfo, videoTitle, format)
+
+            // Confirm the action by sliding the popup down and away instead of
+            // leaving it open after the download has been queued.
+            val fragmentManager = mainActivity.supportFragmentManager
+            val fragment =
+                fragmentManager.findFragmentByTag(DetectedVideosTabFragment.TAG)
+                        as? DetectedVideosTabFragment
+            fragment?.animateCloseAndDismiss()
         }
 
         override fun onSelectFormat(videoInfo: VideoInfo, format: String) {

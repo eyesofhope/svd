@@ -2,7 +2,7 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/black_85</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="windowSplashScreenAnimationDuration">200</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
@@ -11,8 +11,14 @@
     <style name="Base.AppTheme" parent="Theme.Material3.DayNight">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="colorPrimary">@color/brand_accent</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/brand_accent</item>
         <item name="colorAccent">@color/brand_accent</item>
+        <!-- Blend the system bars with the app background instead of falling
+             back to colorPrimaryDark (which produced a stray brown status bar
+             on some OEM skins). colorBackground adapts for light/dark via the
+             DayNight parent, so the bar always matches the screen behind it. -->
+        <item name="android:statusBarColor">?android:attr/colorBackground</item>
+        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme">

@@ -107,13 +107,17 @@ class WebTabViewModel @Inject constructor(
         }
         tabSuggestionJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                withContext(this.coroutineContext) {
-                    val list = fetchTabSuggestions().blockingFirst().reversed()
-                    if (list.size > 50) {
-                        listTabSuggestions.set(list.subList(0, 50).toMutableList())
-                    } else {
-                        listTabSuggestions.set(list.toMutableList())
-                    }
+                val list = fetchTabSuggestions().blockingFirst().reversed()
+                val limited = if (list.size > 50) {
+                    list.subList(0, 50).toMutableList()
+                } else {
+                    list.toMutableList()
+                }
+                // Marshal back to the main thread before mutating the
+                // ObservableField: its databinding callbacks touch the View
+                // hierarchy (adapter/visibility) and must run on the UI thread.
+                withContext(Dispatchers.Main) {
+                    listTabSuggestions.set(limited)
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()

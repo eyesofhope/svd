@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flash: All Video Downloader — Final Icon</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --muted:#9aa1ac; --text:#e9edf3; --line:#262a33; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',Roboto,system-ui,sans-serif; background:var(--bg); color:var(--text); padding:40px; }
+  h1 { font-weight:600; margin-bottom:4px; }
+  p.sub { color:var(--muted); margin-top:0; max-width:760px; line-height:1.5; }
+  .badge { display:inline-block; background:#06B6A9; color:#04302e; font-weight:700; font-size:12px; padding:4px 10px; border-radius:20px; margin-left:8px; vertical-align:middle; }
+  .grid { display:flex; flex-wrap:wrap; gap:28px; margin-top:28px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; text-align:center; }
+  .card h3 { margin:0 0 14px; font-size:13px; color:var(--muted); font-weight:500; }
+  .round { border-radius:50%; overflow:hidden; }
+  .squircle { border-radius:23%; overflow:hidden; }
+  img { display:block; }
+  .home { margin-top:40px; padding:24px; background:linear-gradient(160deg,#1d2433,#11151d); border-radius:16px; border:1px solid var(--line); }
+  .approw { display:flex; gap:36px; margin-top:14px; }
+  .app { text-align:center; }
+  .app .squircle { width:72px; height:72px; }
+  .app div.l { font-size:12px; margin-top:8px; color:#dfe5ee; }
+  footer { margin-top:36px; color:var(--muted); font-size:13px; line-height:1.6; }
+</style>
+</head>
+<body>
+  <h1>Flash: All Video Downloader — Final Icon <span class="badge">Concept B · shipped</span></h1>
+  <p class="sub">A media play-triangle with a lightning notch struck through it. Flat teal (#06B6A9) to separate from the orange category leaders and the sea of blue clones. These previews use the actual generated PNGs now wired into the app.</p>
+
+  <div class="grid">
+    <div class="card"><h3>Play Store master (512)</h3><img class="squircle" width="180" height="180" src="flash_icon_master_512.png"></div>
+    <div class="card"><h3>Launcher · squircle</h3><img class="squircle" width="180" height="180" src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"></div>
+    <div class="card"><h3>Launcher · round</h3><img class="round" width="180" height="180" src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png"></div>
+    <div class="card"><h3>Adaptive foreground</h3><img width="180" height="180" src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" style="background:#06B6A9;border-radius:6px;"></div>
+  </div>
+
+  <div class="home">
+    <strong>Home-screen test &amp; small sizes</strong>
+    <div class="approw">
+      <div class="app"><div class="squircle"><img width="72" height="72" src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"></div><div class="l">Flash</div></div>
+      <div class="app"><div class="squircle"><img width="48" height="48" src="../app/src/main/res/mipmap-xxhdpi/ic_launcher.png"></div><div class="l">48px</div></div>
+      <div class="app"><div class="squircle"><img width="36" height="36" src="../app/src/main/res/mipmap-xhdpi/ic_launcher.png"></div><div class="l">36px</div></div>
+      <div class="app"><div class="round"><img width="72" height="72" src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png"></div><div class="l">round</div></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated at every density (mdpi→xxxhdpi): legacy <code>ic_launcher</code> + <code>ic_launcher_round</code> (for API 24–25), adaptive <code>ic_launcher_foreground</code> + <code>ic_launcher_monochrome</code> (themed icons, API 26+), and the adaptive background color set to teal. App name set to "Flash" with full title "Flash: All Video Downloader".
+  </footer>
+</body>
+</html>

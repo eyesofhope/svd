@@ -377,7 +377,7 @@ class SettingsFragment : BaseFragment() {
     private fun sendFeedback() {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} feedback")
+            putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name_full)} feedback")
         }
         try {
             startActivity(intent)

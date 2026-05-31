@@ -37,6 +37,16 @@ class CustomViewPager2(context: Context, attrs: AttributeSet?) : ViewGroup(conte
             viewPager2.currentItem = value
         }
 
+    /**
+     * Jump to [item] with explicit control over animation. Programmatic tab
+     * switches (especially right after the adapter's data changed) must use
+     * smoothScroll=false so ViewPager2 lands on the target immediately instead
+     * of trying to animate to a page that may not be laid out yet.
+     */
+    fun setCurrentItem(item: Int, smoothScroll: Boolean) {
+        viewPager2.setCurrentItem(item, smoothScroll)
+    }
+
     var offscreenPageLimit: Int
         get() = viewPager2.offscreenPageLimit
         set(value) {

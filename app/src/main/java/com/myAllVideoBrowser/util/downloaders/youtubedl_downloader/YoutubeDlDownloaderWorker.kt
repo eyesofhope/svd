@@ -362,10 +362,14 @@ class YoutubeDlDownloaderWorker(appContext: Context, workerParams: WorkerParamet
             request.addOption("--audio-format", "mp3")
         } else {
             val videoOnly = vFormat.vcodec != "none" && vFormat.acodec == "none"
+            // Append a "/best" fallback so yt-dlp doesn't hard-fail with
+            // "Requested format is not available" when the saved formatId
+            // (e.g. "hls-1499" from a master manifest) doesn't exist for the
+            // resolved download URL (e.g. a single-variant media .m3u8).
             if (videoOnly) {
-                request.addOption("-f", "${vFormat.formatId}+bestaudio")
+                request.addOption("-f", "${vFormat.formatId}+bestaudio/${vFormat.formatId}/best")
             } else {
-                request.addOption("-f", "${vFormat.formatId}")
+                request.addOption("-f", "${vFormat.formatId}/best")
             }
 
             request.addOption("--recode-video", "mp4")

@@ -159,6 +159,13 @@ android {
         release {
             enableUnitTestCoverage = false
             enableAndroidTestCoverage = false
+            // Shrink + obfuscate unused code (R8) and strip unused resources.
+            // This removes dead code/resources pulled in by the large media and
+            // networking libraries without changing runtime behaviour. The keep
+            // rules in proguard-rules.pro protect reflection / JNI entry points
+            // (yt-dlp, native libs, WorkManager workers, data-binding, models).
+            isMinifyEnabled = true
+            isShrinkResources = true
             // Only sign when a release keystore was supplied (see signingConfigs
             // above). Without it the variant stays unsigned so the build still
             // succeeds instead of failing on a missing keystore.jks.
@@ -166,7 +173,7 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
             proguardFiles(
-                getDefaultProguardFile("proguard-android.txt"),
+                getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
